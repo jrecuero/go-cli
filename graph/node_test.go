@@ -1,0 +1,403 @@
+package graph_test
+
+import (
+	"reflect"
+	"testing"
+
+	"github.com/jrecuero/go-cli/graph"
+)
+
+// TestGraph_Node ensures the node structure works properly
+func TestGraph_Node(t *testing.T) {
+	var tests = []struct {
+		n   *graph.Node
+		exp *graph.Node
+	}{
+		{
+			n: graph.NewNode("test", "test"),
+			exp: &graph.Node{
+				ID:       1,
+				Name:     "test",
+				Label:    "test",
+				Children: nil,
+				IsRoot:   false,
+				IsSink:   false,
+				IsStart:  false,
+				IsEnd:    false,
+				IsLoop:   false,
+				IsJoint:  false,
+			},
+		},
+		{
+			n: graph.NewJoint("joint", "joint"),
+			exp: &graph.Node{
+				ID:       2,
+				Name:     "joint",
+				Label:    "joint",
+				Children: nil,
+				IsRoot:   false,
+				IsSink:   false,
+				IsStart:  false,
+				IsEnd:    false,
+				IsLoop:   false,
+				IsJoint:  true,
+			},
+		},
+		{
+			n: graph.NewRoot(),
+			exp: &graph.Node{
+				ID:       3,
+				Name:     "ROOT",
+				Label:    "ROOT",
+				Children: nil,
+				IsRoot:   true,
+				IsSink:   false,
+				IsStart:  false,
+				IsEnd:    false,
+				IsLoop:   false,
+				IsJoint:  true,
+			},
+		},
+		{
+			n: graph.NewStart(),
+			exp: &graph.Node{
+				ID:       4,
+				Name:     "START",
+				Label:    "START",
+				Children: nil,
+				IsRoot:   false,
+				IsSink:   false,
+				IsStart:  true,
+				IsEnd:    false,
+				IsLoop:   false,
+				IsJoint:  true,
+			},
+		},
+		{
+			n: graph.NewEnd(),
+			exp: &graph.Node{
+				ID:       5,
+				Name:     "END",
+				Label:    "END",
+				Children: nil,
+				IsRoot:   false,
+				IsSink:   false,
+				IsStart:  false,
+				IsEnd:    true,
+				IsLoop:   false,
+				IsJoint:  true,
+			},
+		},
+		{
+			n: graph.NewLoop(),
+			exp: &graph.Node{
+				ID:       6,
+				Name:     "LOOP",
+				Label:    "LOOP",
+				Children: nil,
+				IsRoot:   false,
+				IsSink:   false,
+				IsStart:  false,
+				IsEnd:    false,
+				IsLoop:   true,
+				IsJoint:  true,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		if !reflect.DeepEqual(tt.n, tt.exp) {
+			t.Errorf("%d. node mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.exp, tt.n)
+		}
+	}
+
+	n := graph.NewNode("main", "main")
+	c1 := graph.NewNode("child-1", "child-1")
+	if n.AddChild(c1) == false {
+		t.Errorf("add child operation failed")
+	}
+	if len(n.Children) != 1 {
+		t.Errorf("length mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", 1, len(n.Children))
+
+	} else if !reflect.DeepEqual(n.Children[0], c1) {
+		t.Errorf("node mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", n.Children[0], c1)
+	}
+
+	c2 := graph.NewNode("child-2", "child-2")
+	if n.AddChild(c2) == false {
+		t.Errorf("add child operation failed")
+	}
+	if len(n.Children) != 2 {
+		t.Errorf("length mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", 2, len(n.Children))
+
+	} else if !reflect.DeepEqual(n.Children[1], c2) {
+		t.Errorf("node mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", n.Children[1], c2)
+	}
+}
+
+// TestGraph_Graph ensures the graph structure works properly
+func TestGraph_Graph(t *testing.T) {
+	var tests = []struct {
+		g   *graph.Graph
+		exp *graph.Graph
+	}{
+		{
+			g: graph.NewGraph(),
+			exp: &graph.Graph{
+				Root: &graph.Node{
+					ID:       10,
+					Name:     "ROOT",
+					Label:    "ROOT",
+					Children: nil,
+					IsRoot:   true,
+					IsSink:   false,
+					IsStart:  false,
+					IsEnd:    false,
+					IsLoop:   false,
+					IsJoint:  true,
+				},
+				Sink: &graph.Node{
+					ID:       11,
+					Name:     "SINK",
+					Label:    "SINK",
+					Children: nil,
+					IsRoot:   false,
+					IsSink:   true,
+					IsStart:  false,
+					IsEnd:    false,
+					IsLoop:   false,
+					IsJoint:  true,
+				},
+				Hook: &graph.Node{
+					ID:       10,
+					Name:     "ROOT",
+					Label:    "ROOT",
+					Children: nil,
+					IsRoot:   true,
+					IsSink:   false,
+					IsStart:  false,
+					IsEnd:    false,
+					IsLoop:   false,
+					IsJoint:  true,
+				},
+				Start: nil,
+				End:   nil,
+				Loop:  nil,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		if !reflect.DeepEqual(tt.g, tt.exp) {
+			t.Errorf("%d. graph mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.exp, tt.g)
+		}
+	}
+}
+
+// TestGraph_AddNode ensures node is added properly to the graph
+func TestGraph_AddNode(t *testing.T) {
+	g := graph.NewGraph()
+	c1 := graph.NewNode("child-1", "child-1")
+	if g.AddNode(c1) == false {
+		t.Errorf("add node operation failed")
+	}
+	if len(g.Root.Children) != 1 {
+		t.Errorf("length mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", 1, len(g.Root.Children))
+	}
+	if !reflect.DeepEqual(g.Root.Children[0], c1) {
+		t.Errorf("node mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", g.Root.Children[0], c1)
+	}
+	if !reflect.DeepEqual(g.Hook, c1) {
+		t.Errorf("node mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", g.Hook, c1)
+	}
+}
+
+// TestGraph_BlockNoLoopAndSkip ensures the graph structure works properly
+func TestGraph_BlockNoLoopAndSkip(t *testing.T) {
+	g := graph.NewGraph()
+	g.StartBlockNoLoopAndSkip()
+	if g.Start == nil || g.End == nil || g.Loop == nil {
+		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	}
+	if g.Hook != g.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	}
+	if len(g.Start.Children) != 1 {
+		t.Errorf("Block was not created properly Start.Children.Len=%d is not 1", len(g.Start.Children))
+	}
+	if g.Start.Children[0] != g.End {
+		t.Errorf("Block was not created properly Start.Children=%p not equal to End=%p\n\n", g.Start.Children[0], g.End)
+	}
+	if len(g.Root.Children) != 1 {
+		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
+	}
+	if g.Root.Children[0] != g.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	}
+	if len(g.Loop.Children) != 1 {
+		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 1", len(g.Loop.Children))
+	}
+	if g.Loop.Children[0] != g.End {
+		t.Errorf("Block was not created properly Loop.Children=%p not equal to End=%p\n\n", g.Loop.Children[0], g.End)
+	}
+}
+
+// TestGraph_BlockNoLoopAndNoSkip ensures the graph structure works properly
+func TestGraph_BlockNoLoopAndNoSkip(t *testing.T) {
+	g := graph.NewGraph()
+	g.StartBlockNoLoopAndNoSkip()
+	if g.Start == nil || g.End == nil || g.Loop == nil {
+		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	}
+	if g.Hook != g.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	}
+	if len(g.Root.Children) != 1 {
+		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
+	}
+	if g.Root.Children[0] != g.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	}
+	if len(g.Loop.Children) != 1 {
+		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 1", len(g.Loop.Children))
+	}
+	if g.Loop.Children[0] != g.End {
+		t.Errorf("Block was not created properly Loop.Children=%p not equal to End=%p\n\n", g.Loop.Children[0], g.End)
+	}
+}
+
+// TestGraph_BlockLoopAndSkip ensures the graph structure works properly
+func TestGraph_BlockLoopAndSkip(t *testing.T) {
+	g := graph.NewGraph()
+	g.StartBlockLoopAndSkip()
+	if g.Start == nil || g.End == nil || g.Loop == nil {
+		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	}
+	if g.Hook != g.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	}
+	if len(g.Start.Children) != 1 {
+		t.Errorf("Block was not created properly Start.Children.Len=%d is not 1", len(g.Start.Children))
+	}
+	if g.Start.Children[0] != g.End {
+		t.Errorf("Block was not created properly Start.Children=%p not equal to End=%p\n\n", g.Start.Children[0], g.End)
+	}
+	if len(g.Root.Children) != 1 {
+		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
+	}
+	if g.Root.Children[0] != g.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	}
+	if len(g.Loop.Children) != 2 {
+		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 2", len(g.Loop.Children))
+	}
+	if g.Loop.Children[0] != g.Start {
+		t.Errorf("Block was not created properly Loop.Children[0]=%p not equal to Start=%p\n\n", g.Loop.Children[0], g.Start)
+	}
+	if g.Loop.Children[1] != g.End {
+		t.Errorf("Block was not created properly Loop.Children[1]=%p not equal to End=%p\n\n", g.Loop.Children[1], g.End)
+	}
+}
+
+// TestGraph_BlockLoopAndSkip ensures the graph structure works properly
+func TestGraph_BlockLoopAndNoSkip(t *testing.T) {
+	g := graph.NewGraph()
+	g.StartBlockLoopAndNoSkip()
+	if g.Start == nil || g.End == nil || g.Loop == nil {
+		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	}
+	if g.Hook != g.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	}
+	if len(g.Root.Children) != 1 {
+		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
+	}
+	if g.Root.Children[0] != g.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	}
+	if len(g.Loop.Children) != 2 {
+		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 2", len(g.Loop.Children))
+	}
+	if g.Loop.Children[0] != g.Start {
+		t.Errorf("Block was not created properly Loop.Children[0]=%p not equal to Start=%p\n\n", g.Loop.Children[0], g.Start)
+	}
+	if g.Loop.Children[1] != g.End {
+		t.Errorf("Block was not created properly Loop.Children[1]=%p not equal to End=%p\n\n", g.Loop.Children[1], g.End)
+	}
+}
+
+// TestGraph_EndLoop ensures the graph structure works properly
+func TestGraph_EndLoop(t *testing.T) {
+	g := graph.NewGraph()
+	g.StartBlockNoLoopAndSkip()
+	if g.EndLoop() == false {
+		t.Errorf("end loop operation failed")
+	}
+	if g.Start != nil || g.End != nil || g.Loop != nil || g.Hook == nil {
+		t.Errorf("Block was not ended properly Start=%p End=%p Loop=%p Hook=%p\n\n", g.Start, g.End, g.Loop, g.Hook)
+	}
+}
+
+// TestGraph_AddNodeToLoop ensures the graph structure works properly
+func TestGraph_AddNodeToLoop(t *testing.T) {
+	g := graph.NewGraph()
+	g.StartBlockNoLoopAndSkip()
+	c1 := graph.NewNode("child-1", "child-1")
+	if g.AddNodeToLoop(c1) == false {
+		t.Errorf("add node to loop operation failed")
+	}
+	if g.Hook != g.Start {
+		t.Errorf("Node was not added to loop properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	}
+	if len(g.Hook.Children) != 2 {
+		t.Errorf("Node was not added to loop properly Start.Children.Len=%d is not 2", len(g.Hook.Children))
+	}
+	if g.Hook.Children[0] != g.End {
+		t.Errorf("Node was not added to loop properly Hook.Children[0]=%p not equal to End=%p\n\n", g.Hook.Children[0], g.End)
+	}
+	if g.Hook.Children[1] != c1 {
+		t.Errorf("Node was not added to  properly Hook.Children[1]=%p not equal to new-node=%p\n\n", g.Hook.Children[1], c1)
+	}
+	if len(c1.Children) != 1 {
+		t.Errorf("Node was not added  properly new-node.Len=%d is not 2", len(c1.Children))
+	}
+	if c1.Children[0] != g.Loop {
+		t.Errorf("Block was not created properly new-node.Children=%p not equal to Loop=%p\n\n", c1.Children[0], g.Loop)
+	}
+}
+
+// TestGraph_Terminate ensures the graph structure works properly
+func TestGraph_Terminate(t *testing.T) {
+	g := graph.NewGraph()
+	g.Terminate()
+	if g.Hook != nil {
+		t.Errorf("graph was not terminated properly Hook=%p", g.Hook)
+	}
+	if len(g.Root.Children) != 1 {
+		t.Errorf("graph was not terminated properly len(g.Root.Children)=%p is not 1", len(g.Root.Children))
+	}
+	if g.Root.Children[0] != g.Sink {
+		t.Errorf("graph was not terminated properly Root.Children=%p not equal to Sink=%p\n\n", g.Root.Children[0], g.Sink)
+	}
+
+}
+
+// TestGraph_ToString ensures the graph is serialize properly
+func TestGraph_ToString(t *testing.T) {
+	g := graph.NewGraph()
+	g.Terminate()
+	var tests = []struct {
+		got string
+		exp string
+	}{
+		{
+			got: g.ToString(),
+			exp: "48 ROOT ROOT 1\n49 SINK SINK 0\n",
+		},
+	}
+	for i, tt := range tests {
+		if !reflect.DeepEqual(tt.got, tt.exp) {
+			t.Errorf("%d. node mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.exp, tt.got)
+		}
+	}
+}

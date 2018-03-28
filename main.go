@@ -7,6 +7,7 @@ import (
 
 	"github.com/c-bata/go-prompt"
 	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/syntax"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
 
@@ -98,15 +99,53 @@ func runGraph() {
 	c2 := graph.NewNode("Marcela Veronica", "MV")
 	g.AddNode(c2)
 	g.Terminate()
-	//for traverse := g.Root; traverse != nil; {
-	//    fmt.Println(traverse.ID, traverse.Name, traverse.Label, traverse.Children)
-	//    if len(traverse.Children) > 0 {
-	//        traverse = traverse.Children[0].(*graph.Node)
-	//    } else {
-	//        traverse = nil
-	//    }
-	//}
-	g.Print()
+	fmt.Println(g.ToString())
+}
+
+func runSyntax() {
+	cs := syntax.NewCommandSyntax("SELECT name [age]? [id]+")
+	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Graph)
+	cs.CreateGraph()
+	fmt.Printf("%s", cs.Graph.ToString())
+}
+
+// Dummy structure
+type Dummy struct {
+	name string
+}
+
+// SetName sets name
+func (d *Dummy) SetName(n string) string {
+	d.name = n
+	return d.name
+}
+
+// SetNoName sets name
+func (d *Dummy) SetNoName(n string) string {
+	d.name = "no" + n
+	return d.name
+}
+
+// SetName sets name
+func SetName(n string) {
+}
+
+// SetNoName sets name
+func SetNoName(n string) {
+}
+
+var mappy = map[string]func(d *Dummy, n string) string{
+	"name": func(d *Dummy, n string) string {
+		return d.SetName(n)
+	},
+	"noname": func(d *Dummy, n string) string {
+		return d.SetNoName(n)
+	},
+}
+
+var mappo = map[string]func(n string){
+	"name":   SetName,
+	"noname": SetNoName,
 }
 
 func main() {
@@ -114,5 +153,9 @@ func main() {
 	//runInputSurvey()
 	//runMultiSelectSurvey()
 	//runNode()
-	runGraph()
+	//runGraph()
+	runSyntax()
+	d := &Dummy{name: "me"}
+	fmt.Println(mappy["noname"](d, "Home"))
+	fmt.Printf("name is %s", d.name)
 }

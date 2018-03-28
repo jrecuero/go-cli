@@ -1,7 +1,27 @@
 package graph
 
 import (
+	"bytes"
 	"fmt"
+)
+
+// Block represents block type can be present in a graph.
+type Block int
+
+const (
+	// ILLEGAL block.
+	ILLEGAL Block = iota
+
+	// NOBLOCK block
+	NOBLOCK
+	// LOOPandSKIP block.
+	LOOPandSKIP
+	// LOOPandNOSKIP block.
+	LOOPandNOSKIP
+	// NOLOOPandSKIP block.
+	NOLOOPandSKIP
+	// NOLOOPandNOSKIP block
+	NOLOOPandNOSKIP
 )
 
 var nodeID int
@@ -126,7 +146,7 @@ func (g *Graph) StartBlockNoLoopAndSkip() bool {
 	g.Loop = NewLoop()
 
 	// This is required for loops that can be skipped.
-	g.Hook.AddChild(g.End)
+	g.Start.AddChild(g.End)
 
 	g.Hook.AddChild(g.Start)
 	g.Loop.AddChild(g.End)
@@ -158,7 +178,7 @@ func (g *Graph) StartBlockLoopAndSkip() bool {
 	g.Loop.AddChild(g.Start)
 
 	// This is required for loops that can be skipped.
-	g.Hook.AddChild(g.End)
+	g.Start.AddChild(g.End)
 
 	g.Hook.AddChild(g.Start)
 	g.Loop.AddChild(g.End)
@@ -206,14 +226,17 @@ func (g *Graph) Terminate() {
 	g.Hook = nil
 }
 
-// Print prints the graph.
-func (g *Graph) Print() {
+// ToString returns the graph in a string format.
+func (g *Graph) ToString() string {
+	var buffer bytes.Buffer
 	traverse := g.Root
-	fmt.Println(traverse.ID, traverse.Name, traverse.Label, traverse.Children)
+	buffer.WriteString(fmt.Sprintf("%d %s %s %d\n",
+		traverse.ID, traverse.Name, traverse.Label, len(traverse.Children)))
 	for traverse != nil {
 		for _, c := range traverse.Children {
 			child := c.(*Node)
-			fmt.Println(child.ID, child.Name, child.Label, child.Children)
+			buffer.WriteString(fmt.Sprintf("%d %s %s %d\n",
+				child.ID, child.Name, child.Label, len(child.Children)))
 		}
 		if len(traverse.Children) > 0 {
 			traverse = traverse.Children[0].(*Node)
@@ -221,4 +244,21 @@ func (g *Graph) Print() {
 			traverse = nil
 		}
 	}
+	return buffer.String()
+}
+
+// MapBlockToGraphFunc maps block type with method to be used.
+var MapBlockToGraphFunc = map[Block]func(g *Graph) bool{
+	NOLOOPandSKIP: func(g *Graph) bool {
+		return g.StartBlockNoLoopAndSkip()
+	},
+	LOOPandSKIP: func(g *Graph) bool {
+		return g.StartBlockLoopAndSkip()
+	},
+	LOOPandNOSKIP: func(g *Graph) bool {
+		return g.StartBlockLoopAndNoSkip()
+	},
+	NOLOOPandNOSKIP: func(g *Graph) bool {
+		return g.StartBlockNoLoopAndNoSkip()
+	},
 }

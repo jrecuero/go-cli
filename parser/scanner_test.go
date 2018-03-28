@@ -24,6 +24,14 @@ func TestScanner_Scan(t *testing.T) {
 		// Misc characters
 		{s: "[", tok: parser.OPENBRACKET, lit: "["},
 		{s: "]", tok: parser.CLOSEBRACKET, lit: "]"},
+		{s: "|", tok: parser.PIPE, lit: "|"},
+		{s: "*", tok: parser.ASTERISK, lit: "*"},
+		{s: "+", tok: parser.PLUS, lit: "+"},
+		{s: "?", tok: parser.QUESTION, lit: "?"},
+		{s: "!", tok: parser.ADMIRATION, lit: "!"},
+		{s: "@", tok: parser.AT, lit: "@"},
+		{s: "<", tok: parser.OPENMARK, lit: "<"},
+		{s: ">", tok: parser.CLOSEMARK, lit: ">"},
 
 		// Identifiers
 		{s: "foo", tok: parser.IDENT, lit: "foo"},

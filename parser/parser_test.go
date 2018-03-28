@@ -60,6 +60,18 @@ func TestParser_ParseSyntax(t *testing.T) {
 					parser.CLOSEBRACKET, parser.QUESTION},
 			},
 		},
+		{
+			s: "SELECT <name>",
+			syntax: &parser.Syntax{
+				Command:   "SELECT",
+				Arguments: []string{"<", "name", ">"},
+				Tokens:    []parser.Token{parser.OPENMARK, parser.IDENT, parser.CLOSEMARK},
+			},
+		},
+
+		// Errors
+		{s: "1one", err: `found "1", expected command`, syntax: nil},
+		{s: "SELECT 2", err: `found "2", expected argument`, syntax: nil},
 	}
 
 	for i, tt := range tests {
@@ -67,10 +79,13 @@ func TestParser_ParseSyntax(t *testing.T) {
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q error mismatch:\n exp=%s\n got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.syntax, syntax) {
-			t.Errorf("%d. %q\n\nsyntax mismatch:\n\nexp%#v\n\ngot=%#v\n\n", i, tt.s, tt.syntax, syntax)
+			t.Errorf("%d. %q\n\nsyntax mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.syntax, syntax)
+		} else {
+			if syntax != nil {
+				fmt.Printf("command: %s arguments: %s tokens: %d\n",
+					tt.syntax.Command, tt.syntax.Arguments, tt.syntax.Tokens)
+			}
 		}
-		fmt.Printf("command: %s arguments: %s tokens: %d\n",
-			tt.syntax.Command, tt.syntax.Arguments, tt.syntax.Tokens)
 	}
 }
 

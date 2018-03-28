@@ -4,34 +4,34 @@ package parser
 type Token int
 
 const (
-	// ILLEGAL token
+	// ILLEGAL token.
 	ILLEGAL Token = iota
-	// EOF token
+	// EOF token.
 	EOF
-	// WS token
+	// WS token.
 	WS
 
 	// IDENT represents command and argument tokens.
 	IDENT
 
-	// OPENBRACKET token [
+	// OPENBRACKET token [.
 	OPENBRACKET
-	// CLOSEBRACKET token ]
+	// CLOSEBRACKET token ].
 	CLOSEBRACKET
-	// PIPE token |
+	// PIPE token |.
 	PIPE
-	// ASTERISK token *
+	// ASTERISK token *.
 	ASTERISK
-	// PLUS token +
+	// PLUS token +.
 	PLUS
-	// QUESTION mark token ?
+	// QUESTION mark token ?.
 	QUESTION
-	// ADMIRATION mark token !
+	// ADMIRATION mark token !.
 	ADMIRATION
-	// AT token @
+	// AT token @.
 	AT
-	// OPENMARK token <
+	// OPENMARK token <.
 	OPENMARK
-	// CLOSEMARK token >
+	// CLOSEMARK token >.
 	CLOSEMARK
 )

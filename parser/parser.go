@@ -47,7 +47,9 @@ func (p *Parser) Parse() (*Syntax, error) {
 		// Read a field
 		tok, lit = p.scanIgnoreWhitespace()
 		//fmt.Printf("2. tok:%d, lit: '%s'\n", tok, lit)
-		if tok == EOF {
+		if tok == ILLEGAL {
+			return nil, fmt.Errorf("found %q, expected argument", lit)
+		} else if tok == EOF {
 			break
 		}
 		syntax.Arguments = append(syntax.Arguments, lit)
