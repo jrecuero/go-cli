@@ -57,7 +57,12 @@ func (cs *CommandSyntax) CreateGraph() bool {
 		case parser.IDENT:
 			argo := cs.Parsed.Arguments[i]
 			// Check if we are in a block, and use AddNodeToLoop in that case.
-			cs.Graph.AddNode(graph.NewNode(argo, argo))
+			newNode := graph.NewNode(argo, argo)
+			if insideBlock == true {
+				cs.Graph.AddNodeToLoop(newNode)
+			} else {
+				cs.Graph.AddNode(newNode)
+			}
 			break
 		case parser.OPENBRACKET:
 			if insideBlock == true {
@@ -72,13 +77,14 @@ func (cs *CommandSyntax) CreateGraph() bool {
 			fmt.Printf("index=%d token=%d block=%d\n", index, endTok, block)
 			// Create the graph block, any node while in the block should be
 			// added to this block.
+			graph.MapBlockToGraphFunc[block](cs.Graph)
 			break
 		case parser.CLOSEBRACKET:
 			if insideBlock == false {
 				return false
 			}
 			insideBlock = false
-			//cs.Graph.EndLoop()
+			cs.Graph.EndLoop()
 			break
 		case parser.PIPE:
 			if insideBlock == false {

@@ -103,7 +103,7 @@ func runGraph() {
 }
 
 func runSyntax() {
-	cs := syntax.NewCommandSyntax("SELECT name [age]? [id]+")
+	cs := syntax.NewCommandSyntax("SELECT name [age]?")
 	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Graph)
 	cs.CreateGraph()
 	fmt.Printf("%s", cs.Graph.ToString())
