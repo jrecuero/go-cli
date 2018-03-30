@@ -1,8 +1,12 @@
 package graph
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
 // Block represents block type can be present in a graph.
@@ -31,7 +35,7 @@ type Node struct {
 	ID       int
 	Name     string
 	Label    string
-	Children []interface{}
+	Children []*Node
 	IsRoot   bool
 	IsSink   bool
 	IsStart  bool
@@ -111,14 +115,32 @@ func (n *Node) AddChild(child *Node) bool {
 	return true
 }
 
+// PrependChild adds a new child node first in the array.
+func (n *Node) PrependChild(child *Node) bool {
+	n.Children = append([]*Node{child}, n.Children...)
+	return true
+}
+
+// IsIn checks if the node is in the given array.
+func (n *Node) IsIn(array []*Node) bool {
+	for _, node := range array {
+		if node == n {
+			return true
+		}
+	}
+	return false
+}
+
 // Graph represents a full graph.
 type Graph struct {
-	Root  *Node
-	Sink  *Node
-	Hook  *Node
-	Start *Node
-	End   *Node
-	Loop  *Node
+	Root   *Node
+	Sink   *Node
+	Hook   *Node
+	Start  *Node
+	End    *Node
+	Loop   *Node
+	IsSkip bool
+	IsLoop bool
 }
 
 // NewGraph creates a new graph.
@@ -144,6 +166,8 @@ func (g *Graph) StartBlockNoLoopAndSkip() bool {
 	g.Start = NewStart()
 	g.End = NewEnd()
 	g.Loop = NewLoop()
+	g.IsLoop = false
+	g.IsSkip = true
 
 	// This is required for loops that can be skipped.
 	g.Start.AddChild(g.End)
@@ -160,6 +184,8 @@ func (g *Graph) StartBlockNoLoopAndNoSkip() bool {
 	g.Start = NewStart()
 	g.End = NewEnd()
 	g.Loop = NewLoop()
+	g.IsLoop = false
+	g.IsSkip = false
 
 	g.Hook.AddChild(g.Start)
 	g.Loop.AddChild(g.End)
@@ -173,12 +199,14 @@ func (g *Graph) StartBlockLoopAndSkip() bool {
 	g.Start = NewStart()
 	g.End = NewEnd()
 	g.Loop = NewLoop()
-
-	// This is required for repeated loops.
-	g.Loop.AddChild(g.Start)
+	g.IsLoop = true
+	g.IsSkip = true
 
 	// This is required for loops that can be skipped.
 	g.Start.AddChild(g.End)
+
+	// This is required for repeated loops.
+	g.Loop.AddChild(g.Start)
 
 	g.Hook.AddChild(g.Start)
 	g.Loop.AddChild(g.End)
@@ -192,6 +220,8 @@ func (g *Graph) StartBlockLoopAndNoSkip() bool {
 	g.Start = NewStart()
 	g.End = NewEnd()
 	g.Loop = NewLoop()
+	g.IsLoop = true
+	g.IsSkip = false
 
 	// This is required for repeated loops.
 	g.Loop.AddChild(g.Start)
@@ -204,10 +234,18 @@ func (g *Graph) StartBlockLoopAndNoSkip() bool {
 
 // EndLoop ends a graph loop.
 func (g *Graph) EndLoop() bool {
+	// Blocks with skip option are adding a child to END first, but it is
+	// better to place that child at the end of the array.
+	if g.IsSkip == true {
+		childrenLen := len(g.Start.Children)
+		g.Start.Children = append(g.Start.Children[1:childrenLen], g.Start.Children[0])
+	}
 	g.Hook = g.End
 	g.Start = nil
 	g.End = nil
 	g.Loop = nil
+	g.IsLoop = false
+	g.IsSkip = false
 	return true
 }
 
@@ -226,24 +264,64 @@ func (g *Graph) Terminate() {
 	g.Hook = nil
 }
 
+// Explore implements a mechanism to interactibily explore the graph.
+func (g *Graph) Explore() {
+	reader := bufio.NewReader(os.Stdin)
+	traverse := g.Root
+	parents := []*Node{}
+	var index int
+	for {
+		fmt.Printf(fmt.Sprintf("\n\nID: %d Name: %s Label: %s\n", traverse.ID, traverse.Name, traverse.Label))
+		fmt.Printf(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
+		if len(traverse.Children) > 0 {
+			for i, child := range traverse.Children {
+				fmt.Printf("\t> %d %s\n", i, child.Name)
+			}
+			fmt.Printf("\n[0-%d] Select children", len(traverse.Children)-1)
+		}
+		fmt.Printf("\n[-] Select Parent\n[x] Exit\nSelect: ")
+		text, _ := reader.ReadString('\n')
+		text = strings.TrimSpace(text)
+		if text == "x" {
+			break
+		} else if text == "-" {
+			traverse = parents[len(parents)-1]
+			parents = parents[:len(parents)-1]
+			fmt.Printf("Parent selected %s\n", traverse.Name)
+		} else {
+			index, _ = strconv.Atoi(text)
+			parents = append(parents, traverse)
+			traverse = traverse.Children[index]
+			fmt.Printf("Children selected %d - %s\n", index, traverse.Name)
+		}
+	}
+}
+
+// childrenToString returns all children information for a given node.
+// It traverse all children in a recursive way.
+func (g *Graph) childrenToString(root *Node, visited []*Node) string {
+	var buffer bytes.Buffer
+	for _, child := range root.Children {
+		if child.IsIn(visited) == true {
+			continue
+		}
+		//fmt.Printf("visiting node %s %+v\n", child.Name, visited)
+		visited = append(visited, child)
+		buffer.WriteString(fmt.Sprintf("%d %s %s %d\n", child.ID, child.Name, child.Label, len(child.Children)))
+		//fmt.Printf("visited %+v\n", visited)
+		buffer.WriteString(g.childrenToString(child, visited))
+	}
+	return buffer.String()
+}
+
 // ToString returns the graph in a string format.
 func (g *Graph) ToString() string {
 	var buffer bytes.Buffer
+	visited := []*Node{}
 	traverse := g.Root
-	buffer.WriteString(fmt.Sprintf("%d %s %s %d\n",
-		traverse.ID, traverse.Name, traverse.Label, len(traverse.Children)))
-	for traverse != nil {
-		for _, c := range traverse.Children {
-			child := c.(*Node)
-			buffer.WriteString(fmt.Sprintf("%d %s %s %d\n",
-				child.ID, child.Name, child.Label, len(child.Children)))
-		}
-		if len(traverse.Children) > 0 {
-			traverse = traverse.Children[0].(*Node)
-		} else {
-			traverse = nil
-		}
-	}
+	buffer.WriteString(fmt.Sprintf("%d %s %s %d\n", traverse.ID, traverse.Name, traverse.Label, len(traverse.Children)))
+	visited = append(visited, traverse)
+	buffer.WriteString(g.childrenToString(traverse, visited))
 	return buffer.String()
 }
 

@@ -86,8 +86,7 @@ func runNode() {
 	g.Root.AddChild(c1)
 	g.Root.AddChild(c2)
 	fmt.Println(g.Root.ID, g.Root.Name, g.Root.Label, g.Root.Children)
-	for _, c := range g.Root.Children {
-		child := c.(*graph.Node)
+	for _, child := range g.Root.Children {
 		fmt.Println(child.ID, child.Name, child.Label, child.Children)
 	}
 }
@@ -103,49 +102,11 @@ func runGraph() {
 }
 
 func runSyntax() {
-	cs := syntax.NewCommandSyntax("SELECT name [age]?")
+	cs := syntax.NewCommandSyntax("SELECT name [age]? [id]+")
 	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Graph)
 	cs.CreateGraph()
+	//cs.Graph.Explore()
 	fmt.Printf("%s", cs.Graph.ToString())
-}
-
-// Dummy structure
-type Dummy struct {
-	name string
-}
-
-// SetName sets name
-func (d *Dummy) SetName(n string) string {
-	d.name = n
-	return d.name
-}
-
-// SetNoName sets name
-func (d *Dummy) SetNoName(n string) string {
-	d.name = "no" + n
-	return d.name
-}
-
-// SetName sets name
-func SetName(n string) {
-}
-
-// SetNoName sets name
-func SetNoName(n string) {
-}
-
-var mappy = map[string]func(d *Dummy, n string) string{
-	"name": func(d *Dummy, n string) string {
-		return d.SetName(n)
-	},
-	"noname": func(d *Dummy, n string) string {
-		return d.SetNoName(n)
-	},
-}
-
-var mappo = map[string]func(n string){
-	"name":   SetName,
-	"noname": SetNoName,
 }
 
 func main() {
@@ -155,7 +116,4 @@ func main() {
 	//runNode()
 	//runGraph()
 	runSyntax()
-	d := &Dummy{name: "me"}
-	fmt.Println(mappy["noname"](d, "Home"))
-	fmt.Printf("name is %s", d.name)
 }
