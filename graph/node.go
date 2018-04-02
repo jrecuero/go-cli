@@ -21,6 +21,7 @@ type Node struct {
 	IsJoint  bool
 	InPath   bool
 	BlockID  int
+	Content  interface{}
 }
 
 // NewNode creates a new graph node.
@@ -82,7 +83,7 @@ func NewEnd(id int) *Node {
 	return node
 }
 
-// NewLoop creast a new graph loop node.
+// NewLoop creates a new graph loop node.
 // Loop node is used for building loop graphs, and it identfies the
 // loop part which will point to the start of the loop.
 func NewLoop(id int) *Node {
