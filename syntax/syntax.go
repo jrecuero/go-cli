@@ -16,7 +16,7 @@ type CommandSyntax struct {
 }
 
 // mapTokenToBlock maps the parser token with required graph block to be created.
-var mapTokenToBlock = map[parser.Token]graph.Block{
+var mapTokenToBlock = map[parser.Token]graph.BlockType{
 	parser.QUESTION:   graph.NOLOOPandSKIP,
 	parser.ASTERISK:   graph.LOOPandSKIP,
 	parser.PLUS:       graph.LOOPandNOSKIP,
@@ -51,15 +51,15 @@ func (cs *CommandSyntax) CreateGraph() bool {
 	command := cs.Parsed.Command
 	cs.Graph.AddNode(graph.NewNode(command, command))
 	var insideBlock bool
-	var block graph.Block
+	var block graph.BlockType
 	for i, tok := range cs.Parsed.Tokens {
 		switch tok {
 		case parser.IDENT:
 			argo := cs.Parsed.Arguments[i]
-			// Check if we are in a block, and use AddNodeToLoop in that case.
+			// Check if we are in a block, and use AddNodeToBlock in that case.
 			newNode := graph.NewNode(argo, argo)
 			if insideBlock == true {
-				cs.Graph.AddNodeToLoop(newNode)
+				cs.Graph.AddNodeToBlock(newNode)
 			} else {
 				cs.Graph.AddNode(newNode)
 			}

@@ -102,11 +102,18 @@ func runGraph() {
 }
 
 func runSyntax() {
-	cs := syntax.NewCommandSyntax("SELECT name [age]? [id]+")
+	cs := syntax.NewCommandSyntax("SELECT name [age]? [id | passport]+")
 	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Graph)
 	cs.CreateGraph()
 	//cs.Graph.Explore()
 	fmt.Printf("%s", cs.Graph.ToString())
+}
+
+func runMermaid() {
+	cs := syntax.NewCommandSyntax("SELECT name [age]? [id | passport]+ [phone]* [male | female | other]!")
+	fmt.Printf("Syntax: %s\nParsed: %#v\nGraph: %p\n", cs.Syntax, cs.Parsed, cs.Graph)
+	cs.CreateGraph()
+	fmt.Printf("%s", cs.Graph.ToMermaid())
 }
 
 func main() {
@@ -115,5 +122,6 @@ func main() {
 	//runMultiSelectSurvey()
 	//runNode()
 	//runGraph()
-	runSyntax()
+	//runSyntax()
+	runMermaid()
 }

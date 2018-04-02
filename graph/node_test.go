@@ -26,6 +26,7 @@ func TestGraph_Node(t *testing.T) {
 				IsEnd:    false,
 				IsLoop:   false,
 				IsJoint:  false,
+				InPath:   false,
 			},
 		},
 		{
@@ -41,6 +42,7 @@ func TestGraph_Node(t *testing.T) {
 				IsEnd:    false,
 				IsLoop:   false,
 				IsJoint:  true,
+				InPath:   false,
 			},
 		},
 		{
@@ -56,6 +58,7 @@ func TestGraph_Node(t *testing.T) {
 				IsEnd:    false,
 				IsLoop:   false,
 				IsJoint:  true,
+				InPath:   false,
 			},
 		},
 		{
@@ -71,6 +74,7 @@ func TestGraph_Node(t *testing.T) {
 				IsEnd:    false,
 				IsLoop:   false,
 				IsJoint:  true,
+				InPath:   false,
 			},
 		},
 		{
@@ -86,6 +90,7 @@ func TestGraph_Node(t *testing.T) {
 				IsEnd:    true,
 				IsLoop:   false,
 				IsJoint:  true,
+				InPath:   false,
 			},
 		},
 		{
@@ -101,6 +106,7 @@ func TestGraph_Node(t *testing.T) {
 				IsEnd:    false,
 				IsLoop:   true,
 				IsJoint:  true,
+				InPath:   false,
 			},
 		},
 	}
@@ -155,6 +161,7 @@ func TestGraph_Graph(t *testing.T) {
 					IsEnd:    false,
 					IsLoop:   false,
 					IsJoint:  true,
+					InPath:   false,
 				},
 				Sink: &graph.Node{
 					ID:       11,
@@ -167,6 +174,7 @@ func TestGraph_Graph(t *testing.T) {
 					IsEnd:    false,
 					IsLoop:   false,
 					IsJoint:  true,
+					InPath:   false,
 				},
 				Hook: &graph.Node{
 					ID:       10,
@@ -179,10 +187,11 @@ func TestGraph_Graph(t *testing.T) {
 					IsEnd:    false,
 					IsLoop:   false,
 					IsJoint:  true,
+					InPath:   false,
 				},
-				Start: nil,
-				End:   nil,
-				Loop:  nil,
+				Blocks:      nil,
+				ActiveBlock: nil,
+				Terminated:  false,
 			},
 		},
 	}
@@ -215,145 +224,145 @@ func TestGraph_AddNode(t *testing.T) {
 // TestGraph_BlockNoLoopAndSkip ensures the graph structure works properly
 func TestGraph_BlockNoLoopAndSkip(t *testing.T) {
 	g := graph.NewGraph()
-	g.StartBlockNoLoopAndSkip()
-	if g.Start == nil || g.End == nil || g.Loop == nil {
-		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	g.NewBlockNoLoopAndSkip()
+	//if g.Start == nil || g.End == nil || g.Loop == nil {
+	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	//}
+	if g.Hook != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.ActiveBlock.Start, g.Hook)
 	}
-	if g.Hook != g.Start {
-		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
-	}
-	if len(g.Start.Children) != 1 {
-		t.Errorf("Block was not created properly Start.Children.Len=%d is not 1", len(g.Start.Children))
-	}
-	if g.Start.Children[0] != g.End {
-		t.Errorf("Block was not created properly Start.Children=%p not equal to End=%p\n\n", g.Start.Children[0], g.End)
-	}
+	//if len(g.Start.Children) != 1 {
+	//    t.Errorf("Block was not created properly Start.Children.Len=%d is not 1", len(g.Start.Children))
+	//}
+	//if g.Start.Children[0] != g.End {
+	//    t.Errorf("Block was not created properly Start.Children=%p not equal to End=%p\n\n", g.Start.Children[0], g.End)
+	//}
 	if len(g.Root.Children) != 1 {
 		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
 	}
-	if g.Root.Children[0] != g.Start {
-		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	if g.Root.Children[0] != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.ActiveBlock.Start)
 	}
-	if len(g.Loop.Children) != 1 {
-		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 1", len(g.Loop.Children))
-	}
-	if g.Loop.Children[0] != g.End {
-		t.Errorf("Block was not created properly Loop.Children=%p not equal to End=%p\n\n", g.Loop.Children[0], g.End)
-	}
+	//if len(g.Loop.Children) != 1 {
+	//    t.Errorf("Block was not created properly Loop.Children.Len=%d is not 1", len(g.Loop.Children))
+	//}
+	//if g.Loop.Children[0] != g.End {
+	//    t.Errorf("Block was not created properly Loop.Children=%p not equal to End=%p\n\n", g.Loop.Children[0], g.End)
+	//}
 }
 
 // TestGraph_BlockNoLoopAndNoSkip ensures the graph structure works properly
 func TestGraph_BlockNoLoopAndNoSkip(t *testing.T) {
 	g := graph.NewGraph()
-	g.StartBlockNoLoopAndNoSkip()
-	if g.Start == nil || g.End == nil || g.Loop == nil {
-		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
-	}
-	if g.Hook != g.Start {
-		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	g.NewBlockNoLoopAndNoSkip()
+	//if g.Start == nil || g.End == nil || g.Loop == nil {
+	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	//}
+	if g.Hook != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.ActiveBlock.Start, g.Hook)
 	}
 	if len(g.Root.Children) != 1 {
 		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
 	}
-	if g.Root.Children[0] != g.Start {
-		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	if g.Root.Children[0] != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.ActiveBlock.Start)
 	}
-	if len(g.Loop.Children) != 1 {
-		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 1", len(g.Loop.Children))
-	}
-	if g.Loop.Children[0] != g.End {
-		t.Errorf("Block was not created properly Loop.Children=%p not equal to End=%p\n\n", g.Loop.Children[0], g.End)
-	}
+	//if len(g.Loop.Children) != 1 {
+	//    t.Errorf("Block was not created properly Loop.Children.Len=%d is not 1", len(g.Loop.Children))
+	//}
+	//if g.Loop.Children[0] != g.End {
+	//    t.Errorf("Block was not created properly Loop.Children=%p not equal to End=%p\n\n", g.Loop.Children[0], g.End)
+	//}
 }
 
 // TestGraph_BlockLoopAndSkip ensures the graph structure works properly
 func TestGraph_BlockLoopAndSkip(t *testing.T) {
 	g := graph.NewGraph()
-	g.StartBlockLoopAndSkip()
-	if g.Start == nil || g.End == nil || g.Loop == nil {
-		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	g.NewBlockLoopAndSkip()
+	//if g.Start == nil || g.End == nil || g.Loop == nil {
+	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	//}
+	if g.Hook != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.ActiveBlock.Start, g.Hook)
 	}
-	if g.Hook != g.Start {
-		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
-	}
-	if len(g.Start.Children) != 1 {
-		t.Errorf("Block was not created properly Start.Children.Len=%d is not 1", len(g.Start.Children))
-	}
-	if g.Start.Children[0] != g.End {
-		t.Errorf("Block was not created properly Start.Children=%p not equal to End=%p\n\n", g.Start.Children[0], g.End)
-	}
+	//if len(g.Start.Children) != 1 {
+	//    t.Errorf("Block was not created properly Start.Children.Len=%d is not 1", len(g.Start.Children))
+	//}
+	//if g.Start.Children[0] != g.End {
+	//    t.Errorf("Block was not created properly Start.Children=%p not equal to End=%p\n\n", g.Start.Children[0], g.End)
+	//}
 	if len(g.Root.Children) != 1 {
 		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
 	}
-	if g.Root.Children[0] != g.Start {
-		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	if g.Root.Children[0] != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.ActiveBlock.Start)
 	}
-	if len(g.Loop.Children) != 2 {
-		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 2", len(g.Loop.Children))
-	}
-	if g.Loop.Children[0] != g.Start {
-		t.Errorf("Block was not created properly Loop.Children[0]=%p not equal to Start=%p\n\n", g.Loop.Children[0], g.Start)
-	}
-	if g.Loop.Children[1] != g.End {
-		t.Errorf("Block was not created properly Loop.Children[1]=%p not equal to End=%p\n\n", g.Loop.Children[1], g.End)
-	}
+	//if len(g.Loop.Children) != 2 {
+	//    t.Errorf("Block was not created properly Loop.Children.Len=%d is not 2", len(g.Loop.Children))
+	//}
+	//if g.Loop.Children[0] != g.Start {
+	//    t.Errorf("Block was not created properly Loop.Children[0]=%p not equal to Start=%p\n\n", g.Loop.Children[0], g.Start)
+	//}
+	//if g.Loop.Children[1] != g.End {
+	//    t.Errorf("Block was not created properly Loop.Children[1]=%p not equal to End=%p\n\n", g.Loop.Children[1], g.End)
+	//}
 }
 
 // TestGraph_BlockLoopAndSkip ensures the graph structure works properly
 func TestGraph_BlockLoopAndNoSkip(t *testing.T) {
 	g := graph.NewGraph()
-	g.StartBlockLoopAndNoSkip()
-	if g.Start == nil || g.End == nil || g.Loop == nil {
-		t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
-	}
-	if g.Hook != g.Start {
-		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	g.NewBlockLoopAndNoSkip()
+	//if g.Start == nil || g.End == nil || g.Loop == nil {
+	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
+	//}
+	if g.Hook != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Start=%p not equal to Hook=%p\n\n", g.ActiveBlock.Start, g.Hook)
 	}
 	if len(g.Root.Children) != 1 {
 		t.Errorf("Block was not created properly Root.Children.Len=%d is not 1", len(g.Root.Children))
 	}
-	if g.Root.Children[0] != g.Start {
-		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.Start)
+	if g.Root.Children[0] != g.ActiveBlock.Start {
+		t.Errorf("Block was not created properly Root.Children=%p not equal to Start=%p\n\n", g.Root.Children[0], g.ActiveBlock.Start)
 	}
-	if len(g.Loop.Children) != 2 {
-		t.Errorf("Block was not created properly Loop.Children.Len=%d is not 2", len(g.Loop.Children))
-	}
-	if g.Loop.Children[0] != g.Start {
-		t.Errorf("Block was not created properly Loop.Children[0]=%p not equal to Start=%p\n\n", g.Loop.Children[0], g.Start)
-	}
-	if g.Loop.Children[1] != g.End {
-		t.Errorf("Block was not created properly Loop.Children[1]=%p not equal to End=%p\n\n", g.Loop.Children[1], g.End)
-	}
+	//if len(g.Loop.Children) != 2 {
+	//    t.Errorf("Block was not created properly Loop.Children.Len=%d is not 2", len(g.Loop.Children))
+	//}
+	//if g.Loop.Children[0] != g.Start {
+	//    t.Errorf("Block was not created properly Loop.Children[0]=%p not equal to Start=%p\n\n", g.Loop.Children[0], g.Start)
+	//}
+	//if g.Loop.Children[1] != g.End {
+	//    t.Errorf("Block was not created properly Loop.Children[1]=%p not equal to End=%p\n\n", g.Loop.Children[1], g.End)
+	//}
 }
 
 // TestGraph_EndLoop ensures the graph structure works properly
 func TestGraph_EndLoop(t *testing.T) {
 	g := graph.NewGraph()
-	g.StartBlockNoLoopAndSkip()
+	g.NewBlockNoLoopAndSkip()
 	if g.EndLoop() == false {
 		t.Errorf("end loop operation failed")
 	}
-	if g.Start != nil || g.End != nil || g.Loop != nil || g.Hook == nil {
-		t.Errorf("Block was not ended properly Start=%p End=%p Loop=%p Hook=%p\n\n", g.Start, g.End, g.Loop, g.Hook)
-	}
+	//if g.Start != nil || g.End != nil || g.Loop != nil || g.Hook == nil {
+	//    t.Errorf("Block was not ended properly Start=%p End=%p Loop=%p Hook=%p\n\n", g.Start, g.End, g.Loop, g.Hook)
+	//}
 }
 
 // TestGraph_AddNodeToLoop ensures the graph structure works properly
 func TestGraph_AddNodeToLoop(t *testing.T) {
 	g := graph.NewGraph()
-	g.StartBlockNoLoopAndSkip()
+	g.NewBlockNoLoopAndSkip()
 	c1 := graph.NewNode("child-1", "child-1")
-	if g.AddNodeToLoop(c1) == false {
+	if g.AddNodeToBlock(c1) == false {
 		t.Errorf("add node to loop operation failed")
 	}
-	if g.Hook != g.Start {
-		t.Errorf("Node was not added to loop properly Start=%p not equal to Hook=%p\n\n", g.Start, g.Hook)
+	if g.Hook != g.ActiveBlock.Start {
+		t.Errorf("Node was not added to loop properly Start=%p not equal to Hook=%p\n\n", g.ActiveBlock.Start, g.Hook)
 	}
 	if len(g.Hook.Children) != 2 {
 		t.Errorf("Node was not added to loop properly Start.Children.Len=%d is not 2", len(g.Hook.Children))
 	}
-	if g.Hook.Children[0] != g.End {
-		t.Errorf("Node was not added to loop properly Hook.Children[0]=%p not equal to End=%p\n\n", g.Hook.Children[0], g.End)
+	if g.Hook.Children[0] != g.ActiveBlock.End {
+		t.Errorf("Node was not added to loop properly Hook.Children[0]=%p not equal to End=%p\n\n", g.Hook.Children[0], g.ActiveBlock.End)
 	}
 	if g.Hook.Children[1] != c1 {
 		t.Errorf("Node was not added to  properly Hook.Children[1]=%p not equal to new-node=%p\n\n", g.Hook.Children[1], c1)
@@ -361,8 +370,8 @@ func TestGraph_AddNodeToLoop(t *testing.T) {
 	if len(c1.Children) != 1 {
 		t.Errorf("Node was not added  properly new-node.Len=%d is not 2", len(c1.Children))
 	}
-	if c1.Children[0] != g.Loop {
-		t.Errorf("Block was not created properly new-node.Children=%p not equal to Loop=%p\n\n", c1.Children[0], g.Loop)
+	if c1.Children[0] != g.ActiveBlock.Loop {
+		t.Errorf("Block was not created properly new-node.Children=%p not equal to Loop=%p\n\n", c1.Children[0], g.ActiveBlock.Loop)
 	}
 }
 

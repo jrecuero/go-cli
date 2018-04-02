@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-// Block represents block type can be present in a graph.
-type Block int
+// BlockType represents block type can be present in a graph.
+type BlockType int
 
 const (
 	// ILLEGAL block.
-	ILLEGAL Block = iota
+	ILLEGAL BlockType = iota
 
 	// NOBLOCK block
 	NOBLOCK
@@ -42,15 +42,18 @@ type Node struct {
 	IsEnd    bool
 	IsLoop   bool
 	IsJoint  bool
+	InPath   bool
+	BlockID  int
 }
 
 // NewNode creates a new graph node.
 func NewNode(name string, label string) *Node {
 	nodeID++
 	node := &Node{
-		ID:    nodeID,
-		Name:  name,
-		Label: label,
+		ID:      nodeID,
+		Name:    name,
+		Label:   label,
+		BlockID: -1,
 	}
 	return node
 }
@@ -85,27 +88,30 @@ func NewSink() *Node {
 // NewStart creates a new graph start node.
 // Start node is used for building loop graphs, and it identifies the
 // start point of the loop.
-func NewStart() *Node {
+func NewStart(id int) *Node {
 	node := NewJoint("START", "START")
 	node.IsStart = true
+	node.BlockID = id
 	return node
 }
 
 // NewEnd creates a new graph end node.
 // End node is used for building loop graphs, and it identifies the
 // end point or exit of the loop.
-func NewEnd() *Node {
+func NewEnd(id int) *Node {
 	node := NewJoint("END", "END")
 	node.IsEnd = true
+	node.BlockID = id
 	return node
 }
 
 // NewLoop creast a new graph loop node.
 // Loop node is used for building loop graphs, and it identfies the
 // loop part which will point to the start of the loop.
-func NewLoop() *Node {
+func NewLoop(id int) *Node {
 	node := NewJoint("LOOP", "LOOP")
 	node.IsLoop = true
+	node.BlockID = id
 	return node
 }
 
@@ -131,16 +137,120 @@ func (n *Node) IsIn(array []*Node) bool {
 	return false
 }
 
+func (n *Node) mermaidLabel() string {
+	var buffer bytes.Buffer
+	if n.BlockID == -1 {
+		if n.IsJoint == true {
+			buffer.WriteString(fmt.Sprintf("%s((%s))", n.Label, n.Label))
+		} else {
+			buffer.WriteString(n.Label)
+		}
+	} else {
+		buffer.WriteString(fmt.Sprintf("%s-%d((%s))", n.Label, n.BlockID, n.Label))
+	}
+	return buffer.String()
+}
+
+// ToMermaid returns the node in Mermaid graph format.
+func (n *Node) ToMermaid() string {
+	var buffer bytes.Buffer
+	for _, child := range n.Children {
+		//fmt.Printf("mermaid %s to %s\n", n.Label, child.Label)
+		buffer.WriteString(fmt.Sprintf("%s --> %s\n", n.mermaidLabel(), child.mermaidLabel()))
+	}
+	return buffer.String()
+}
+
+// Block represents a graph block.
+type Block struct {
+	ID         int
+	Start      *Node
+	End        *Node
+	Loop       *Node
+	IsSkip     bool
+	IsLoop     bool
+	Terminated bool
+}
+
+// NewBlock creates a new graph block.
+func NewBlock(id int) *Block {
+	b := &Block{
+		ID:         id,
+		Start:      NewStart(id),
+		End:        NewEnd(id),
+		Loop:       NewLoop(id),
+		IsLoop:     false,
+		IsSkip:     false,
+		Terminated: false,
+	}
+	return b
+}
+
+// CreateBlockNoLoopAndSkip creates a graph block without a loop
+// but it can be skipped.
+func (b *Block) CreateBlockNoLoopAndSkip() bool {
+	b.IsLoop = false
+	b.IsSkip = true
+	// Next statement is required for loops that can be skipped.
+	b.Start.AddChild(b.End)
+	b.Loop.AddChild(b.End)
+	return true
+}
+
+// CreateBlockNoLoopAndNoSkip creates a graph block without a loop
+// and it can not be skipped.
+func (b *Block) CreateBlockNoLoopAndNoSkip() bool {
+	b.IsLoop = false
+	b.IsSkip = false
+	b.Loop.AddChild(b.End)
+	return true
+}
+
+// CreateBlockLoopAndSkip creates a graph block with a loop
+// and it can be skipped.
+func (b *Block) CreateBlockLoopAndSkip() bool {
+	b.IsLoop = true
+	b.IsSkip = true
+	// Next statement required for loops that can be skipped.
+	b.Start.AddChild(b.End)
+	// Next statement required for repeated loops.
+	b.Loop.AddChild(b.Start)
+	b.Loop.AddChild(b.End)
+	return true
+}
+
+// CreateBlockLoopAndNoSkip creates a graph block with a loop
+// and it can not be skipped.
+func (b *Block) CreateBlockLoopAndNoSkip() bool {
+	b.IsLoop = true
+	b.IsSkip = false
+	// Next statement required for repeated loops.
+	b.Loop.AddChild(b.Start)
+	b.Loop.AddChild(b.End)
+	return true
+}
+
+// Terminate ends a graph loop.
+func (b *Block) Terminate() bool {
+	// Blocks with skip option are adding a child to END first, but it is
+	// better to place that child at the end of the array.
+	if b.IsSkip == true {
+		childrenLen := len(b.Start.Children)
+		b.Start.Children = append(b.Start.Children[1:childrenLen], b.Start.Children[0])
+	}
+	b.Terminated = true
+	return true
+}
+
 // Graph represents a full graph.
 type Graph struct {
-	Root   *Node
-	Sink   *Node
-	Hook   *Node
-	Start  *Node
-	End    *Node
-	Loop   *Node
-	IsSkip bool
-	IsLoop bool
+	Root        *Node
+	Sink        *Node
+	Hook        *Node
+	Blocks      []*Block
+	ActiveBlock *Block
+	Terminated  bool
+	visited     []*Node
 }
 
 // NewGraph creates a new graph.
@@ -160,99 +270,81 @@ func (g *Graph) AddNode(n *Node) bool {
 	return true
 }
 
-// StartBlockNoLoopAndSkip creates a graph block without a loop
+// newBlock creates a new generic block in the graph.
+func (g *Graph) newBlock() {
+	index := len(g.Blocks)
+	g.ActiveBlock = NewBlock(index)
+	g.Blocks = append(g.Blocks, g.ActiveBlock)
+}
+
+// setupBlock setups the Hook node to the new graph block.
+func (g *Graph) setupBlock() {
+	g.Hook.AddChild(g.ActiveBlock.Start)
+	g.Hook = g.ActiveBlock.Start
+}
+
+// NewBlockNoLoopAndSkip creates a graph block without a loop
 // but it can be skipped.
-func (g *Graph) StartBlockNoLoopAndSkip() bool {
-	g.Start = NewStart()
-	g.End = NewEnd()
-	g.Loop = NewLoop()
-	g.IsLoop = false
-	g.IsSkip = true
-
-	// This is required for loops that can be skipped.
-	g.Start.AddChild(g.End)
-
-	g.Hook.AddChild(g.Start)
-	g.Loop.AddChild(g.End)
-	g.Hook = g.Start
+func (g *Graph) NewBlockNoLoopAndSkip() bool {
+	g.newBlock()
+	g.ActiveBlock.CreateBlockNoLoopAndSkip()
+	g.setupBlock()
 	return true
 }
 
-// StartBlockNoLoopAndNoSkip creates a graph block without a loop
+// NewBlockNoLoopAndNoSkip creates a graph block without a loop
 // and it can not be skipped.
-func (g *Graph) StartBlockNoLoopAndNoSkip() bool {
-	g.Start = NewStart()
-	g.End = NewEnd()
-	g.Loop = NewLoop()
-	g.IsLoop = false
-	g.IsSkip = false
-
-	g.Hook.AddChild(g.Start)
-	g.Loop.AddChild(g.End)
-	g.Hook = g.Start
+func (g *Graph) NewBlockNoLoopAndNoSkip() bool {
+	g.newBlock()
+	g.ActiveBlock.CreateBlockNoLoopAndNoSkip()
+	g.setupBlock()
 	return true
 }
 
-// StartBlockLoopAndSkip creates a graph block with a loop
+// NewBlockLoopAndSkip creates a graph block with a loop
 // and it can be skipped.
-func (g *Graph) StartBlockLoopAndSkip() bool {
-	g.Start = NewStart()
-	g.End = NewEnd()
-	g.Loop = NewLoop()
-	g.IsLoop = true
-	g.IsSkip = true
-
-	// This is required for loops that can be skipped.
-	g.Start.AddChild(g.End)
-
-	// This is required for repeated loops.
-	g.Loop.AddChild(g.Start)
-
-	g.Hook.AddChild(g.Start)
-	g.Loop.AddChild(g.End)
-	g.Hook = g.Start
+func (g *Graph) NewBlockLoopAndSkip() bool {
+	g.newBlock()
+	g.ActiveBlock.CreateBlockLoopAndSkip()
+	g.setupBlock()
 	return true
 }
 
-// StartBlockLoopAndNoSkip creates a graph block with a loop
+// NewBlockLoopAndNoSkip creates a graph block with a loop
 // and it can not be skipped.
-func (g *Graph) StartBlockLoopAndNoSkip() bool {
-	g.Start = NewStart()
-	g.End = NewEnd()
-	g.Loop = NewLoop()
-	g.IsLoop = true
-	g.IsSkip = false
-
-	// This is required for repeated loops.
-	g.Loop.AddChild(g.Start)
-
-	g.Hook.AddChild(g.Start)
-	g.Loop.AddChild(g.End)
-	g.Hook = g.Start
+func (g *Graph) NewBlockLoopAndNoSkip() bool {
+	g.newBlock()
+	g.ActiveBlock.CreateBlockLoopAndNoSkip()
+	g.setupBlock()
 	return true
 }
 
 // EndLoop ends a graph loop.
 func (g *Graph) EndLoop() bool {
-	// Blocks with skip option are adding a child to END first, but it is
-	// better to place that child at the end of the array.
-	if g.IsSkip == true {
-		childrenLen := len(g.Start.Children)
-		g.Start.Children = append(g.Start.Children[1:childrenLen], g.Start.Children[0])
-	}
-	g.Hook = g.End
-	g.Start = nil
-	g.End = nil
-	g.Loop = nil
-	g.IsLoop = false
-	g.IsSkip = false
+	g.Hook = g.ActiveBlock.End
+	g.ActiveBlock.Terminate()
+	g.ActiveBlock = nil
 	return true
 }
 
-// AddNodeToLoop adds a node to a graph loop.
-func (g *Graph) AddNodeToLoop(n *Node) bool {
+// AddNodeToBlock adds a node to a graph loop.
+func (g *Graph) AddNodeToBlock(n *Node) bool {
 	g.Hook.AddChild(n)
-	n.AddChild(g.Loop)
+	n.AddChild(g.ActiveBlock.Loop)
+	return true
+}
+
+// AddPathToBlock adds a node to a node path in a graph block.
+func (g *Graph) AddPathToBlock(n *Node) bool {
+	n.InPath = true
+	g.Hook.AddChild(n)
+	g.Hook = n
+	return true
+}
+
+// TerminatePathToBlock terminated a node path in a graph block.
+func (g *Graph) TerminatePathToBlock() bool {
+	g.Hook.AddChild(g.ActiveBlock.Loop)
 	return true
 }
 
@@ -262,6 +354,7 @@ func (g *Graph) AddNodeToLoop(n *Node) bool {
 func (g *Graph) Terminate() {
 	g.Hook.AddChild(g.Sink)
 	g.Hook = nil
+	g.Terminated = true
 }
 
 // Explore implements a mechanism to interactibily explore the graph.
@@ -299,9 +392,9 @@ func (g *Graph) Explore() {
 
 // childrenToString returns all children information for a given node.
 // It traverse all children in a recursive way.
-func (g *Graph) childrenToString(root *Node, visited []*Node) string {
+func (g *Graph) childrenToString(node *Node, visited []*Node) string {
 	var buffer bytes.Buffer
-	for _, child := range root.Children {
+	for _, child := range node.Children {
 		if child.IsIn(visited) == true {
 			continue
 		}
@@ -325,18 +418,57 @@ func (g *Graph) ToString() string {
 	return buffer.String()
 }
 
+func (g *Graph) childrenToMermaid(node *Node) string {
+	var buffer bytes.Buffer
+	for _, child := range node.Children {
+		if child.IsIn(g.visited) == true {
+			continue
+		}
+		//fmt.Printf("graph for %s\n", child.Label)
+		buffer.WriteString(child.ToMermaid())
+		g.visited = append(g.visited, child)
+		//fmt.Printf("add %s to g.visited\n", child.Label)
+	}
+	var children []*Node
+	if node.IsLoop == false || len(node.Children) == 0 {
+		children = node.Children
+	} else {
+		children = node.Children[len(node.Children)-1:]
+	}
+	for _, child := range children {
+		//fmt.Printf("children to process %s\n", child.Label)
+		//if child.IsIn(g.visited) == true {
+		//    continue
+		//}
+		//g.visited = append(g.visited, child)
+		buffer.WriteString(g.childrenToMermaid(child))
+	}
+	return buffer.String()
+}
+
+// ToMermaid returns the graph in Mermaid graph format.
+func (g *Graph) ToMermaid() string {
+	var buffer bytes.Buffer
+	g.visited = []*Node{}
+	buffer.WriteString("graph TD\n")
+	buffer.WriteString(g.Root.ToMermaid())
+	g.visited = append(g.visited, g.Root)
+	buffer.WriteString(g.childrenToMermaid(g.Root))
+	return buffer.String()
+}
+
 // MapBlockToGraphFunc maps block type with method to be used.
-var MapBlockToGraphFunc = map[Block]func(g *Graph) bool{
+var MapBlockToGraphFunc = map[BlockType]func(g *Graph) bool{
 	NOLOOPandSKIP: func(g *Graph) bool {
-		return g.StartBlockNoLoopAndSkip()
+		return g.NewBlockNoLoopAndSkip()
 	},
 	LOOPandSKIP: func(g *Graph) bool {
-		return g.StartBlockLoopAndSkip()
+		return g.NewBlockLoopAndSkip()
 	},
 	LOOPandNOSKIP: func(g *Graph) bool {
-		return g.StartBlockLoopAndNoSkip()
+		return g.NewBlockLoopAndNoSkip()
 	},
 	NOLOOPandNOSKIP: func(g *Graph) bool {
-		return g.StartBlockNoLoopAndNoSkip()
+		return g.NewBlockNoLoopAndNoSkip()
 	},
 }
