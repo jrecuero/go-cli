@@ -16,16 +16,17 @@ func NewPerson(name string, age int) *Person {
 
 // PersonLayout returns the layout for Person.
 func PersonLayout() []Layout {
-	return []Layout{
-		{
-			ColName: "name",
-			ColType: "string",
-		},
-		{
-			ColName: "age",
-			ColType: "int",
-		},
-	}
+	//return []Layout{
+	//    {
+	//        ColName: "name",
+	//        ColType: "string",
+	//    },
+	//    {
+	//        ColName: "age",
+	//        ColType: "int",
+	//    },
+	//}
+	return GetLayout(&Person{})
 }
 
 // Get return Person data.

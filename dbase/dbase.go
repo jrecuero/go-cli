@@ -1,5 +1,9 @@
 package dbase
 
+import (
+	"reflect"
+)
+
 // DbData represents the interface for any data in the database.
 type DbData interface {
 	Get() interface{}
@@ -11,9 +15,23 @@ type Layout struct {
 	ColType string
 }
 
+// GetLayout returns the layout for any struct
+func GetLayout(data interface{}) []Layout {
+	s := reflect.ValueOf(data).Elem()
+	typeOfP := s.Type()
+	var result []Layout
+	for i := 0; i < s.NumField(); i++ {
+		result = append(result, Layout{
+			ColName: typeOfP.Field(i).Name,
+			ColType: s.Field(i).Type().String(),
+		})
+	}
+	return result
+}
+
 // Dbase represents the interface for database operations.
 type Dbase interface {
-	CreateTable(tbname string) bool
+	CreateTable(tbname string, layout []Layout) bool
 	AddRow(tbname string, entry DbData) (int, bool)
 	GetRow(tbname string, key int) (DbData, bool)
 }
@@ -58,18 +76,18 @@ func (db *DB) FindTable(tbname string) (*Table, bool) {
 }
 
 // CreateTable creates a new table.
-func (db *DB) CreateTable(tbname string) bool {
-	if _, result := db.FindTable(tbname); result {
+func (db *DB) CreateTable(tbname string, layout []Layout) bool {
+	if _, ok := db.FindTable(tbname); ok {
 		return false
 	}
-	tb := NewTable(tbname, PersonLayout())
+	tb := NewTable(tbname, layout)
 	db.Tables[tbname] = tb
 	return true
 }
 
 // AddRow adds a new row to the table.
 func (db *DB) AddRow(tbname string, entry DbData) (int, bool) {
-	if tb, result := db.FindTable(tbname); result {
+	if tb, ok := db.FindTable(tbname); ok {
 		index := len(tb.Data)
 		tb.Data = append(tb.Data, entry)
 		return index, true
@@ -79,7 +97,7 @@ func (db *DB) AddRow(tbname string, entry DbData) (int, bool) {
 
 // GetRow gets a row from the table.
 func (db *DB) GetRow(tbname string, key int) (DbData, bool) {
-	if tb, result := db.FindTable(tbname); result {
+	if tb, ok := db.FindTable(tbname); ok {
 		if key < len(tb.Data) {
 			return tb.Data[key], true
 		}
