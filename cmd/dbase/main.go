@@ -21,7 +21,7 @@ func main() {
 	if !ok {
 		fmt.Printf("GetRow error for table %s key %v\n", tbname, key)
 	}
-	fmt.Printf("Table: %s, Row nbr %d is %v\n", tbname, key, data)
+	fmt.Printf("Table: %s, Row nbr %d is %v %v %s\n", tbname, key, data, data.Get(), data.ToString())
 	tb, _ := db.FindTable(tbname)
 	fmt.Printf("Table: %s has this layout: %v\n", tb.Name, tb.Layout)
 }

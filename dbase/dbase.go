@@ -7,6 +7,7 @@ import (
 // DbData represents the interface for any data in the database.
 type DbData interface {
 	Get() interface{}
+	ToString() string
 }
 
 // Layout represents the layout for a database table.
