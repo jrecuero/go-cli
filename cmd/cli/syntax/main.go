@@ -44,9 +44,27 @@ func runMermaid() {
 	fmt.Printf("%s", cs.Graph.ToMermaid())
 }
 
+func cmdHello(context interface{}, arguments []interface{}) bool {
+	fmt.Printf("Context: %v, Arguments: %v\n", context, arguments)
+	return true
+}
+
+func runExecute() {
+	cmd := &syntax.Command{
+		Cb:        cmdHello,
+		Syntax:    nil,
+		Label:     "hello",
+		Name:      "hello",
+		Help:      "Hello command.",
+		Arguments: nil,
+	}
+	syntax.Execute(cmd, nil, nil)
+}
+
 func main() {
 	//runNode()
 	//runGraph()
 	//runSyntax()
-	runMermaid()
+	//runMermaid()
+	runExecute()
 }
