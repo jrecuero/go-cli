@@ -9,19 +9,19 @@ var nodeID int
 
 // Node represents a node in the graph.
 type Node struct {
-	ID       int
-	Name     string
-	Label    string
-	Children []*Node
-	IsRoot   bool
-	IsSink   bool
-	IsStart  bool
-	IsEnd    bool
-	IsLoop   bool
-	IsJoint  bool
-	InPath   bool
-	BlockID  int
-	Content  interface{}
+	ID        int
+	Name      string
+	Label     string
+	Children  []*Node
+	IsRoot    bool
+	IsSink    bool
+	IsStart   bool
+	IsEnd     bool
+	IsLoop    bool
+	IsJoint   bool
+	InPath    bool
+	BlockID   int
+	Completer ICompleter
 }
 
 // NewNode creates a new graph node.

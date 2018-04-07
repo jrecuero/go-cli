@@ -1,7 +1,7 @@
 package syntax
 
 // Callback represents the type for any command callback.
-type Callback func(context interface{}, arguments []interface{}) bool
+type Callback func(context interface{}, arguments interface{}) bool
 
 // Command represents any CLI command in the system.
 type Command struct {

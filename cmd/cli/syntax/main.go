@@ -44,8 +44,11 @@ func runMermaid() {
 	fmt.Printf("%s", cs.Graph.ToMermaid())
 }
 
-func cmdHello(context interface{}, arguments []interface{}) bool {
-	fmt.Printf("Context: %v, Arguments: %v\n", context, arguments)
+func cmdHello(context interface{}, arguments interface{}) bool {
+	//name := arguments[0].(string)
+	data := arguments.(map[string]string)
+	name := data["name"]
+	fmt.Printf("Context: %v, Arguments: %v, Name: %s\n", context, arguments, name)
 	return true
 }
 
@@ -58,7 +61,16 @@ func runExecute() {
 		Help:      "Hello command.",
 		Arguments: nil,
 	}
-	syntax.Execute(cmd, nil, nil)
+	//arguments := []interface{}{"Jose Carlos", "Recuero Arias"}
+	arguments := map[string]string{"name": "Jose Carlos"}
+	syntax.Execute(cmd, arguments, nil)
+}
+
+func testa(data interface{}) {
+	fmt.Println(data)
+	mapa := data.(map[string]string)
+	fmt.Println(mapa["name"])
+	fmt.Println(mapa["last name"])
 }
 
 func main() {
@@ -67,4 +79,5 @@ func main() {
 	//runSyntax()
 	//runMermaid()
 	runExecute()
+	testa(map[string]string{"name": "Jose Carlos", "last name": "Recuero Arias"})
 }
