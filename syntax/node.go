@@ -3,6 +3,8 @@ package graph
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/jrecuero/go-cli/api"
 )
 
 var nodeID int
@@ -21,7 +23,7 @@ type Node struct {
 	IsJoint   bool
 	InPath    bool
 	BlockID   int
-	Completer ICompleter
+	Completer api.ICompleter
 }
 
 // NewNode creates a new graph node.

@@ -1,13 +1,24 @@
 package syntax
 
 import (
+	"fmt"
+
 	"github.com/jrecuero/go-cli/graph"
 )
 
 // Matcher represents the matcher for a given graph.
 type Matcher struct {
-	Ctx Context
+	Ctx *Context
 	G   *graph.Graph
+}
+
+// NewMatcher creates a new Matcher instance.
+func NewMatcher(ctx *Context, g *graph.Graph) *Matcher {
+	m := &Matcher{
+		Ctx: ctx,
+		G:   g,
+	}
+	return m
 }
 
 // Match matches if a node is matched for a token.
@@ -27,9 +38,11 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 
 // MatchWithGraph matches the given line with the graph.
 func (m *Matcher) MatchWithGraph(line interface{}) bool {
-	tokens := line.([]string)
+	fmt.Printf("MatchWithGraph, line: %v\n", line)
+	//tokens := line.([]string)
 	traverse := m.G.Root
 	for traverse != nil {
+		fmt.Printf("traverse: %v\n", traverse)
 		for _, n := range traverse.Children {
 			if n.Completer.Match(m.Ctx, line) {
 				traverse = n

@@ -44,6 +44,13 @@ func runMermaid() {
 	fmt.Printf("%s", cs.Graph.ToMermaid())
 }
 
+func runMatcher() {
+	cs := syntax.NewCommandSyntax("SELECT name age")
+	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	line := []string{"SELECT", "name", "age"}
+	m.MatchWithGraph(line)
+}
+
 func cmdHello(context interface{}, arguments interface{}) bool {
 	//name := arguments[0].(string)
 	data := arguments.(map[string]string)
@@ -78,6 +85,7 @@ func main() {
 	//runGraph()
 	//runSyntax()
 	//runMermaid()
-	runExecute()
-	testa(map[string]string{"name": "Jose Carlos", "last name": "Recuero Arias"})
+	//runExecute()
+	//testa(map[string]string{"name": "Jose Carlos", "last name": "Recuero Arias"})
+	runMatcher()
 }
