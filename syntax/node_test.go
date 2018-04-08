@@ -1,4 +1,4 @@
-package graph_test
+package syntax_test
 
 import (
 	"reflect"

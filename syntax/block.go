@@ -1,4 +1,4 @@
-package graph
+package syntax
 
 // BlockType represents block type can be present in a graph.
 type BlockType int

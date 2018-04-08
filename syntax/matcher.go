@@ -2,18 +2,16 @@ package syntax
 
 import (
 	"fmt"
-
-	"github.com/jrecuero/go-cli/graph"
 )
 
 // Matcher represents the matcher for a given graph.
 type Matcher struct {
 	Ctx *Context
-	G   *graph.Graph
+	G   *Graph
 }
 
 // NewMatcher creates a new Matcher instance.
-func NewMatcher(ctx *Context, g *graph.Graph) *Matcher {
+func NewMatcher(ctx *Context, g *Graph) *Matcher {
 	m := &Matcher{
 		Ctx: ctx,
 		G:   g,

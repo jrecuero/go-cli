@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/syntax"
 )
 
 func runNode() {
-	g := graph.NewGraph()
-	var c1 = graph.NewNode("Jose Carlos", "JC")
-	var c2 = graph.NewNode("Marcela Veronica", "MV")
+	g := syntax.NewGraph()
+	var c1 = syntax.NewNode("Jose Carlos", "JC")
+	var c2 = syntax.NewNode("Marcela Veronica", "MV")
 	g.Root.AddChild(c1)
 	g.Root.AddChild(c2)
 	fmt.Println(g.Root.ID, g.Root.Name, g.Root.Label, g.Root.Children)
@@ -20,10 +19,10 @@ func runNode() {
 }
 
 func runGraph() {
-	g := graph.NewGraph()
-	c1 := graph.NewNode("Jose Carlos", "JC")
+	g := syntax.NewGraph()
+	c1 := syntax.NewNode("Jose Carlos", "JC")
 	g.AddNode(c1)
-	c2 := graph.NewNode("Marcela Veronica", "MV")
+	c2 := syntax.NewNode("Marcela Veronica", "MV")
 	g.AddNode(c2)
 	g.Terminate()
 	fmt.Println(g.ToString())
@@ -31,9 +30,9 @@ func runGraph() {
 
 func runSyntax() {
 	cs := syntax.NewCommandSyntax("SELECT name [age]? [id | passport]+")
-	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Graph)
+	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Syntax)
 	cs.CreateGraph()
-	//cs.Graph.Explore()
+	//cs.syntax.Explore()
 	fmt.Printf("%s", cs.Graph.ToString())
 }
 
