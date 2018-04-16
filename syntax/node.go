@@ -3,8 +3,6 @@ package syntax
 import (
 	"bytes"
 	"fmt"
-
-	"github.com/jrecuero/go-cli/api"
 )
 
 var nodeID int
@@ -23,7 +21,7 @@ type Node struct {
 	IsJoint   bool
 	InPath    bool
 	BlockID   int
-	Completer api.ICompleter
+	Completer ICompleter
 }
 
 // NewNode creates a new graph node.
