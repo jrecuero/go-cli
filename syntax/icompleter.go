@@ -6,4 +6,5 @@ type ICompleter interface {
 	Help(ctx *Context, line interface{}) (interface{}, bool)
 	Complete(ctx *Context, line interface{}) (interface{}, bool)
 	GetContent() interface{}
+	GetLabel() string
 }

@@ -79,6 +79,20 @@ func testa(data interface{}) {
 	fmt.Println(mapa["last name"])
 }
 
+func printCompleterInfo(ic syntax.ICompleter) {
+	fmt.Printf("new completer is: %#v\n", ic)
+	fmt.Printf("completer label is: %s\n", ic.GetLabel())
+	fmt.Printf("completer content is: %#v\n", ic.GetContent())
+}
+
+func runCompleter() {
+	printCompleterInfo(*syntax.NewIdentCompleter("me", "Jose Carlos"))
+	printCompleterInfo(*syntax.NewJointCompleter(""))
+	printCompleterInfo(*syntax.NewStartCompleter())
+	printCompleterInfo(*syntax.NewEndCompleter())
+	printCompleterInfo(*syntax.NewLoopCompleter())
+}
+
 func main() {
 	//runNode()
 	//runGraph()
@@ -86,5 +100,6 @@ func main() {
 	//runMermaid()
 	//runExecute()
 	//testa(map[string]string{"name": "Jose Carlos", "last name": "Recuero Arias"})
-	runMatcher()
+	//runMatcher()
+	runCompleter()
 }

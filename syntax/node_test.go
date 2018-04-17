@@ -4,18 +4,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/syntax"
 )
 
 // TestGraph_Node ensures the node structure works properly
 func TestGraph_Node(t *testing.T) {
 	var tests = []struct {
-		n   *graph.Node
-		exp *graph.Node
+		n   *syntax.Node
+		exp *syntax.Node
 	}{
 		{
-			n: graph.NewNode("test", "test"),
-			exp: &graph.Node{
+			n: syntax.NewNode("test", "test"),
+			exp: &syntax.Node{
 				ID:       1,
 				Name:     "test",
 				Label:    "test",
@@ -31,8 +31,8 @@ func TestGraph_Node(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewJoint("joint", "joint"),
-			exp: &graph.Node{
+			n: syntax.NewJoint("joint", "joint"),
+			exp: &syntax.Node{
 				ID:       2,
 				Name:     "joint",
 				Label:    "joint",
@@ -48,8 +48,8 @@ func TestGraph_Node(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewRoot(),
-			exp: &graph.Node{
+			n: syntax.NewRoot(),
+			exp: &syntax.Node{
 				ID:       3,
 				Name:     "ROOT",
 				Label:    "ROOT",
@@ -65,8 +65,8 @@ func TestGraph_Node(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewStart(4),
-			exp: &graph.Node{
+			n: syntax.NewStart(4),
+			exp: &syntax.Node{
 				ID:       4,
 				Name:     "START",
 				Label:    "START",
@@ -82,8 +82,8 @@ func TestGraph_Node(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewEnd(5),
-			exp: &graph.Node{
+			n: syntax.NewEnd(5),
+			exp: &syntax.Node{
 				ID:       5,
 				Name:     "END",
 				Label:    "END",
@@ -99,8 +99,8 @@ func TestGraph_Node(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewLoop(6),
-			exp: &graph.Node{
+			n: syntax.NewLoop(6),
+			exp: &syntax.Node{
 				ID:       6,
 				Name:     "LOOP",
 				Label:    "LOOP",
@@ -123,8 +123,8 @@ func TestGraph_Node(t *testing.T) {
 		}
 	}
 
-	n := graph.NewNode("main", "main")
-	c1 := graph.NewNode("child-1", "child-1")
+	n := syntax.NewNode("main", "main")
+	c1 := syntax.NewNode("child-1", "child-1")
 	if n.AddChild(c1) == false {
 		t.Errorf("add child operation failed")
 	}
@@ -135,7 +135,7 @@ func TestGraph_Node(t *testing.T) {
 		t.Errorf("node mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", n.Children[0], c1)
 	}
 
-	c2 := graph.NewNode("child-2", "child-2")
+	c2 := syntax.NewNode("child-2", "child-2")
 	if n.AddChild(c2) == false {
 		t.Errorf("add child operation failed")
 	}

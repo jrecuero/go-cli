@@ -4,19 +4,19 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/syntax"
 )
 
 // TestGraph_Graph ensures the graph structure works properly
 func TestGraph_Graph(t *testing.T) {
 	var tests = []struct {
-		g   *graph.Graph
-		exp *graph.Graph
+		g   *syntax.Graph
+		exp *syntax.Graph
 	}{
 		{
-			g: graph.NewGraph(),
-			exp: &graph.Graph{
-				Root: &graph.Node{
+			g: syntax.NewGraph(),
+			exp: &syntax.Graph{
+				Root: &syntax.Node{
 					ID:       1,
 					Name:     "ROOT",
 					Label:    "ROOT",
@@ -30,7 +30,7 @@ func TestGraph_Graph(t *testing.T) {
 					InPath:   false,
 					BlockID:  -1,
 				},
-				Sink: &graph.Node{
+				Sink: &syntax.Node{
 					ID:       2,
 					Name:     "SINK",
 					Label:    "SINK",
@@ -44,7 +44,7 @@ func TestGraph_Graph(t *testing.T) {
 					InPath:   false,
 					BlockID:  -1,
 				},
-				Hook: &graph.Node{
+				Hook: &syntax.Node{
 					ID:       1,
 					Name:     "ROOT",
 					Label:    "ROOT",
@@ -74,8 +74,8 @@ func TestGraph_Graph(t *testing.T) {
 
 // TestGraph_AddNode ensures node is added properly to the graph
 func TestGraph_AddNode(t *testing.T) {
-	g := graph.NewGraph()
-	c1 := graph.NewNode("child-1", "child-1")
+	g := syntax.NewGraph()
+	c1 := syntax.NewNode("child-1", "child-1")
 	if g.AddNode(c1) == false {
 		t.Errorf("add node operation failed")
 	}
@@ -92,7 +92,7 @@ func TestGraph_AddNode(t *testing.T) {
 
 // TestGraph_BlockNoLoopAndSkip ensures the graph structure works properly
 func TestGraph_BlockNoLoopAndSkip(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.NewBlockNoLoopAndSkip()
 	//if g.Start == nil || g.End == nil || g.Loop == nil {
 	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
@@ -122,7 +122,7 @@ func TestGraph_BlockNoLoopAndSkip(t *testing.T) {
 
 // TestGraph_BlockNoLoopAndNoSkip ensures the graph structure works properly
 func TestGraph_BlockNoLoopAndNoSkip(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.NewBlockNoLoopAndNoSkip()
 	//if g.Start == nil || g.End == nil || g.Loop == nil {
 	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
@@ -146,7 +146,7 @@ func TestGraph_BlockNoLoopAndNoSkip(t *testing.T) {
 
 // TestGraph_BlockLoopAndSkip ensures the graph structure works properly
 func TestGraph_BlockLoopAndSkip(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.NewBlockLoopAndSkip()
 	//if g.Start == nil || g.End == nil || g.Loop == nil {
 	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
@@ -179,7 +179,7 @@ func TestGraph_BlockLoopAndSkip(t *testing.T) {
 
 // TestGraph_BlockLoopAndSkip ensures the graph structure works properly
 func TestGraph_BlockLoopAndNoSkip(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.NewBlockLoopAndNoSkip()
 	//if g.Start == nil || g.End == nil || g.Loop == nil {
 	//    t.Errorf("Block was not created properly Start=%p End=%p Loop=%p\n\n", g.Start, g.End, g.Loop)
@@ -206,7 +206,7 @@ func TestGraph_BlockLoopAndNoSkip(t *testing.T) {
 
 // TestGraph_EndLoop ensures the graph structure works properly
 func TestGraph_EndLoop(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.NewBlockNoLoopAndSkip()
 	if g.EndLoop() == false {
 		t.Errorf("end loop operation failed")
@@ -218,9 +218,9 @@ func TestGraph_EndLoop(t *testing.T) {
 
 // TestGraph_AddNodeToLoop ensures the graph structure works properly
 func TestGraph_AddNodeToLoop(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.NewBlockNoLoopAndSkip()
-	c1 := graph.NewNode("child-1", "child-1")
+	c1 := syntax.NewNode("child-1", "child-1")
 	if g.AddNodeToBlock(c1) == false {
 		t.Errorf("add node to loop operation failed")
 	}
@@ -246,13 +246,13 @@ func TestGraph_AddNodeToLoop(t *testing.T) {
 
 // TestGraph_Terminate ensures the graph structure works properly
 func TestGraph_Terminate(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.Terminate()
 	if g.Hook != nil {
 		t.Errorf("graph was not terminated properly Hook=%p", g.Hook)
 	}
 	if len(g.Root.Children) != 1 {
-		t.Errorf("graph was not terminated properly len(g.Root.Children)=%p is not 1", len(g.Root.Children))
+		t.Errorf("graph was not terminated properly len(g.Root.Children)=%d is not 1", len(g.Root.Children))
 	}
 	if g.Root.Children[0] != g.Sink {
 		t.Errorf("graph was not terminated properly Root.Children=%p not equal to Sink=%p\n\n", g.Root.Children[0], g.Sink)
@@ -262,7 +262,7 @@ func TestGraph_Terminate(t *testing.T) {
 
 // TestGraph_ToString ensures the graph is serialize properly
 func TestGraph_ToString(t *testing.T) {
-	g := graph.NewGraph()
+	g := syntax.NewGraph()
 	g.Terminate()
 	var tests = []struct {
 		got string
