@@ -28,10 +28,11 @@ type Node struct {
 func NewNode(name string, label string) *Node {
 	nodeID++
 	node := &Node{
-		ID:      nodeID,
-		Name:    name,
-		Label:   label,
-		BlockID: -1,
+		ID:        nodeID,
+		Name:      name,
+		Label:     label,
+		BlockID:   -1,
+		Completer: NewIdentCompleter(label, label),
 	}
 	return node
 }
@@ -42,6 +43,7 @@ func NewNode(name string, label string) *Node {
 func NewJoint(name string, label string) *Node {
 	node := NewNode(name, label)
 	node.IsJoint = true
+	node.Completer = NewJointCompleter(_joint)
 	return node
 }
 
@@ -51,6 +53,7 @@ func NewJoint(name string, label string) *Node {
 func NewRoot() *Node {
 	node := NewJoint("ROOT", "ROOT")
 	node.IsRoot = true
+	node.Completer = NewJointCompleter(_rooty)
 	return node
 }
 
@@ -60,6 +63,7 @@ func NewRoot() *Node {
 func NewSink() *Node {
 	node := NewJoint("SINK", "SINK")
 	node.IsSink = true
+	node.Completer = NewSinkCompleter()
 	return node
 }
 
@@ -70,6 +74,7 @@ func NewStart(id int) *Node {
 	node := NewJoint("START", "START")
 	node.IsStart = true
 	node.BlockID = id
+	node.Completer = NewStartCompleter()
 	return node
 }
 
@@ -80,6 +85,7 @@ func NewEnd(id int) *Node {
 	node := NewJoint("END", "END")
 	node.IsEnd = true
 	node.BlockID = id
+	node.Completer = NewEndCompleter()
 	return node
 }
 
@@ -90,6 +96,7 @@ func NewLoop(id int) *Node {
 	node := NewJoint("LOOP", "LOOP")
 	node.IsLoop = true
 	node.BlockID = id
+	node.Completer = NewLoopCompleter()
 	return node
 }
 

@@ -4,6 +4,9 @@ import (
 	"fmt"
 )
 
+// CR represents the carrier return token
+const CR = "<<<_CR_>>>"
+
 // Matcher represents the matcher for a given graph.
 type Matcher struct {
 	Ctx *Context
@@ -36,13 +39,20 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 
 // MatchWithGraph matches the given line with the graph.
 func (m *Matcher) MatchWithGraph(line interface{}) bool {
+	var index int
+	var ok bool
 	fmt.Printf("MatchWithGraph, line: %v\n", line)
-	//tokens := line.([]string)
+	tokens := line.([]string)
+	tokens = append(tokens, CR)
 	traverse := m.G.Root
 	for traverse != nil {
 		fmt.Printf("traverse: %v\n", traverse)
+		if len(traverse.Children) == 0 {
+			break
+		}
 		for _, n := range traverse.Children {
-			if n.Completer.Match(m.Ctx, line) {
+			index, ok = n.Completer.Match(m.Ctx, tokens[index:], index)
+			if ok {
 				traverse = n
 				m.Ctx.AddToken(n)
 				break

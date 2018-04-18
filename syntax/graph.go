@@ -167,7 +167,7 @@ func (g *Graph) childrenToString(node *Node, visited []*Node) string {
 		}
 		//fmt.Printf("visiting node %s %+v\n", child.Name, visited)
 		visited = append(visited, child)
-		buffer.WriteString(fmt.Sprintf("%d %s %s %d\n", child.ID, child.Name, child.Label, len(child.Children)))
+		buffer.WriteString(fmt.Sprintf("%d %s %s %d %#v\n", child.ID, child.Name, child.Label, len(child.Children), child.Completer))
 		//fmt.Printf("visited %+v\n", visited)
 		buffer.WriteString(g.childrenToString(child, visited))
 	}
@@ -179,7 +179,7 @@ func (g *Graph) ToString() string {
 	var buffer bytes.Buffer
 	visited := []*Node{}
 	traverse := g.Root
-	buffer.WriteString(fmt.Sprintf("%d %s %s %d\n", traverse.ID, traverse.Name, traverse.Label, len(traverse.Children)))
+	buffer.WriteString(fmt.Sprintf("%d %s %s %d %#v\n", traverse.ID, traverse.Name, traverse.Label, len(traverse.Children), traverse.Completer))
 	visited = append(visited, traverse)
 	buffer.WriteString(g.childrenToString(traverse, visited))
 	return buffer.String()

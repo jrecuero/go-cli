@@ -2,9 +2,19 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/jrecuero/go-cli/parser"
 	"github.com/jrecuero/go-cli/syntax"
 )
+
+func runParser() {
+	s := "SELECT name [ age ]?"
+	syntax, err := parser.NewParser(strings.NewReader(s)).Parse()
+	fmt.Println("command: ", syntax.Command)
+	fmt.Println("arguments: ", syntax.Arguments)
+	fmt.Println(err)
+}
 
 func runNode() {
 	g := syntax.NewGraph()
@@ -29,7 +39,8 @@ func runGraph() {
 }
 
 func runSyntax() {
-	cs := syntax.NewCommandSyntax("SELECT name [age]? [id | passport]+")
+	//cs := syntax.NewCommandSyntax("SELECT name [age]? [id | passport]+")
+	cs := syntax.NewCommandSyntax("SELECT name [age]?")
 	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Syntax)
 	cs.CreateGraph()
 	//cs.syntax.Explore()
@@ -43,10 +54,23 @@ func runMermaid() {
 	fmt.Printf("%s", cs.Graph.ToMermaid())
 }
 
-func runMatcher() {
+func runSimpleMatcher() {
 	cs := syntax.NewCommandSyntax("SELECT name age")
+	cs.CreateGraph()
+	fmt.Printf("%s", cs.Graph.ToString())
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	line := []string{"SELECT", "name", "age"}
+	m.MatchWithGraph(line)
+}
+
+func runComplexMatcher() {
+	cs := syntax.NewCommandSyntax("SELECT name [ age  | id ]?")
+	cs.CreateGraph()
+	fmt.Printf("%s", cs.Graph.ToString())
+	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	//line := []string{"SELECT", "name", "age"}
+	//line := []string{"SELECT", "name", "id"}
+	line := []string{"SELECT", "name"}
 	m.MatchWithGraph(line)
 }
 
@@ -86,20 +110,22 @@ func printCompleterInfo(ic syntax.ICompleter) {
 }
 
 func runCompleter() {
-	printCompleterInfo(*syntax.NewIdentCompleter("me", "Jose Carlos"))
-	printCompleterInfo(*syntax.NewJointCompleter(""))
-	printCompleterInfo(*syntax.NewStartCompleter())
-	printCompleterInfo(*syntax.NewEndCompleter())
-	printCompleterInfo(*syntax.NewLoopCompleter())
+	printCompleterInfo(syntax.NewIdentCompleter("me", "Jose Carlos"))
+	printCompleterInfo(syntax.NewJointCompleter(""))
+	printCompleterInfo(syntax.NewStartCompleter())
+	printCompleterInfo(syntax.NewEndCompleter())
+	printCompleterInfo(syntax.NewLoopCompleter())
 }
 
 func main() {
+	//runParser()
 	//runNode()
 	//runGraph()
 	//runSyntax()
 	//runMermaid()
 	//runExecute()
 	//testa(map[string]string{"name": "Jose Carlos", "last name": "Recuero Arias"})
-	//runMatcher()
-	runCompleter()
+	//runSimpleMatcher()
+	runComplexMatcher()
+	//runCompleter()
 }

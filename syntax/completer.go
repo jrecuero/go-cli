@@ -1,5 +1,12 @@
 package syntax
 
+const _joint = ""
+const _rooty = "ROOT"
+const _sink = "SINK"
+const _start = "START"
+const _end = "END"
+const _loop = "LOOP"
+
 // Completer represent any generic completer.
 type Completer struct {
 	Label   string
@@ -16,12 +23,12 @@ func NewCompleter(label string, content interface{}) *Completer {
 }
 
 // GetContent returns the content for any completer.
-func (c Completer) GetContent() interface{} {
+func (c *Completer) GetContent() interface{} {
 	return c.Content
 }
 
 // GetLabel returns the label for any completer.
-func (c Completer) GetLabel() string {
+func (c *Completer) GetLabel() string {
 	return c.Label
 }
 
@@ -42,21 +49,21 @@ func NewIdentCompleter(label string, content interface{}) *Ident {
 }
 
 // Match returns the match for any ident node completer.
-func (i Ident) Match(ctx *Context, line interface{}) bool {
+func (i *Ident) Match(ctx *Context, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == i.Label {
-		return true
+	if tokens[0] == i.GetLabel() {
+		return index + 1, true
 	}
-	return false
+	return index, false
 }
 
 // Help returns the help for any ident node completer.
-func (i Ident) Help(ctx *Context, line interface{}) (interface{}, bool) {
+func (i *Ident) Help(ctx *Context, line interface{}) (interface{}, bool) {
 	return nil, false
 }
 
 // Complete returns the complete match for any ident node completer.
-func (i Ident) Complete(ctx *Context, line interface{}) (interface{}, bool) {
+func (i *Ident) Complete(ctx *Context, line interface{}) (interface{}, bool) {
 	return nil, false
 }
 
@@ -78,37 +85,50 @@ func NewJointCompleter(label string) *Joint {
 	return j
 }
 
-// GetContent returns the content for any joint node completer.
-func (j Joint) GetContent() interface{} {
-	return nil
-}
-
 // Match returns the match for any joint node completer.
-func (j Joint) Match(ctx *Context, line interface{}) bool {
-	return false
+func (j *Joint) Match(ctx *Context, line interface{}, index int) (int, bool) {
+	if j.GetContent() == nil {
+		return index, true
+	}
+	tokens := line.([]string)
+	if tokens[0] == j.GetContent() {
+		return index + 1, true
+	}
+	return index, false
 }
 
 // Help returns the help for any joint node completer.
-func (j Joint) Help(ctx *Context, line interface{}) (interface{}, bool) {
+func (j *Joint) Help(ctx *Context, line interface{}) (interface{}, bool) {
 	return nil, false
 }
 
 // Complete returns the complete match for any joint node completer.
-func (j Joint) Complete(ctx *Context, line interface{}) (interface{}, bool) {
+func (j *Joint) Complete(ctx *Context, line interface{}) (interface{}, bool) {
 	return nil, false
 }
 
 // NewStartCompleter returns a new Start instance.
 func NewStartCompleter() *Joint {
-	return NewJointCompleter("START")
+	return NewJointCompleter(_start)
 }
 
 // NewEndCompleter returns a new End instance.
 func NewEndCompleter() *Joint {
-	return NewJointCompleter("END")
+	return NewJointCompleter(_end)
 }
 
 // NewLoopCompleter returns a new Loop instance.
 func NewLoopCompleter() *Joint {
-	return NewJointCompleter("LOOP")
+	return NewJointCompleter(_loop)
+}
+
+// NewSinkCompleter returns a new sinkn completer instance.
+func NewSinkCompleter() *Joint {
+	j := &Joint{
+		Completer{
+			Label:   _sink,
+			Content: CR,
+		},
+	}
+	return j
 }
