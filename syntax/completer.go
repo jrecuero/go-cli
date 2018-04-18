@@ -7,7 +7,7 @@ const _start = "START"
 const _end = "END"
 const _loop = "LOOP"
 
-// Completer represent any generic completer.
+// Completer represents any generic completer.
 type Completer struct {
 	Label   string
 	Content interface{}
@@ -32,7 +32,12 @@ func (c *Completer) GetLabel() string {
 	return c.Label
 }
 
-// Ident represent the completer for any Ident node.
+// Validate checks if the content is value for the given line.
+func (c *Completer) Validate(ctx *Context, line interface{}) bool {
+	return true
+}
+
+// Ident represents the completer for any Ident node.
 type Ident struct {
 	Completer
 }
@@ -64,6 +69,76 @@ func (i *Ident) Help(ctx *Context, line interface{}) (interface{}, bool) {
 
 // Complete returns the complete match for any ident node completer.
 func (i *Ident) Complete(ctx *Context, line interface{}) (interface{}, bool) {
+	return nil, false
+}
+
+// Any represents the completer for any character sequence node.
+type Any struct {
+	Completer
+}
+
+// NewAnyCompleter returns a new Any instance.
+func NewAnyCompleter(label string, content interface{}) *Any {
+	a := &Any{
+		Completer{
+			Label:   label,
+			Content: content,
+		},
+	}
+	return a
+}
+
+// Match returns the match for any node completer.
+func (a *Any) Match(ctx *Context, line interface{}, index int) (int, bool) {
+	tokens := line.([]string)
+	if tokens[0] == CR {
+		return index, false
+	}
+	return index + 1, true
+}
+
+// Help returns the help for any node completer.
+func (a *Any) Help(ctx *Context, line interface{}) (interface{}, bool) {
+	return nil, false
+}
+
+// Complete returns the complete match for any node completer.
+func (a *Any) Complete(ctx *Context, line interface{}) (interface{}, bool) {
+	return nil, false
+}
+
+// Custom represents the completer for Custom node.
+type Custom struct {
+	Completer
+}
+
+// NewCustomCompleter returns a new Custom instance.
+func NewCustomCompleter(label string, content interface{}) *Custom {
+	c := &Custom{
+		Completer{
+			Label:   label,
+			Content: content,
+		},
+	}
+	return c
+}
+
+// Match returns the match for Custom node completer.
+func (c *Custom) Match(ctx *Context, line interface{}, index int) (int, bool) {
+	tokens := line.([]string)
+	if tokens[0] == c.GetContent() {
+		return index + 1, true
+	}
+	return index, false
+}
+
+// Help returns the help for Custom node completer.
+func (c *Custom) Help(ctx *Context, line interface{}) (interface{}, bool) {
+	return nil, false
+}
+
+// Complete returns the complete match for Custom node completer.
+func (c *Custom) Complete(ctx *Context, line interface{}) (interface{}, bool) {
 	return nil, false
 }
 
