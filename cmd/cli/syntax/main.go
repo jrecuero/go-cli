@@ -60,7 +60,7 @@ func runSimpleMatcher() {
 	fmt.Printf("%s", cs.Graph.ToString())
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	line := []string{"SELECT", "name", "age"}
-	m.MatchWithGraph(line)
+	m.MatchCommandLine(line)
 }
 
 func runComplexMatcher() {
@@ -70,8 +70,9 @@ func runComplexMatcher() {
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	//line := []string{"SELECT", "name", "age"}
 	//line := []string{"SELECT", "name", "id"}
-	line := []string{"SELECT", "name"}
-	m.MatchWithGraph(line)
+	//line := []string{"SELECT", "name"}
+	line := []string{"SELECT", "name", "caca"}
+	fmt.Println(m.MatchCommandLine(line))
 }
 
 func cmdHello(context interface{}, arguments interface{}) bool {

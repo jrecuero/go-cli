@@ -37,27 +37,39 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 	return nil, true
 }
 
-// MatchWithGraph matches the given line with the graph.
-func (m *Matcher) MatchWithGraph(line interface{}) bool {
-	var index int
-	var ok bool
-	fmt.Printf("MatchWithGraph, line: %v\n", line)
+// MatchCommandLine matches the given command line with the graph.
+func (m *Matcher) MatchCommandLine(line interface{}) bool {
+	fmt.Printf("MatchCommandLine, line: %v\n", line)
 	tokens := line.([]string)
 	tokens = append(tokens, CR)
+	index, result := m.MatchWithGraph(tokens)
+	if index != len(tokens) {
+		fmt.Printf("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
+		return false
+	}
+	return result
+}
+
+// MatchWithGraph matches the given token sequence with the graph.
+func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
+	var index int
+	var ok bool
+	fmt.Printf("MatchWithGraph, tokens: %v\n", tokens)
 	traverse := m.G.Root
-	for traverse != nil {
-		fmt.Printf("traverse: %v\n", traverse)
-		if len(traverse.Children) == 0 {
-			break
-		}
+	for traverse != nil && len(traverse.Children) != 0 {
+		var found bool
 		for _, n := range traverse.Children {
-			index, ok = n.Completer.Match(m.Ctx, tokens[index:], index)
-			if ok {
+			if index, ok = n.Completer.Match(m.Ctx, tokens[index:], index); ok {
 				traverse = n
+				fmt.Printf("traverse matched: %v\n", traverse)
 				m.Ctx.AddToken(n)
+				found = true
 				break
 			}
 		}
+		if !found {
+			return index, false
+		}
 	}
-	return true
+	return index, true
 }
