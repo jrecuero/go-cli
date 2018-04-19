@@ -4,9 +4,6 @@ import (
 	"fmt"
 )
 
-// CR represents the carrier return token
-const CR = "<<<_CR_>>>"
-
 // Matcher represents the matcher for a given graph.
 type Matcher struct {
 	Ctx *Context
@@ -41,7 +38,7 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 func (m *Matcher) MatchCommandLine(line interface{}) bool {
 	fmt.Printf("MatchCommandLine, line: %v\n", line)
 	tokens := line.([]string)
-	tokens = append(tokens, CR)
+	tokens = append(tokens, CR.GetLabel())
 	index, result := m.MatchWithGraph(tokens)
 	if index != len(tokens) {
 		fmt.Printf("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])

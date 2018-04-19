@@ -112,7 +112,7 @@ func printCompleterInfo(ic syntax.ICompleter) {
 }
 
 func runCompleter() {
-	printCompleterInfo(syntax.NewIdentCompleter("me", "Jose Carlos"))
+	printCompleterInfo(syntax.NewIdentCompleter("me", nil))
 	printCompleterInfo(syntax.NewJointCompleter(""))
 	printCompleterInfo(syntax.NewStartCompleter())
 	printCompleterInfo(syntax.NewEndCompleter())

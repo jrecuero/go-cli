@@ -15,10 +15,10 @@ func userCb(context interface{}, arguments interface{}) bool {
 }
 
 // User command
-var User = syntax.Ucommand{
+var User = syntax.UCommand{
 	Syntax: "user name age",
 	Cb:     userCb,
-	Arguments: []syntax.Uargument{
+	Arguments: []syntax.UArgument{
 		{
 			Name:    "name",
 			Label:   "name",
@@ -43,10 +43,10 @@ func groupCb(context interface{}, arguments interface{}) bool {
 }
 
 // Group command
-var Group = syntax.Ucommand{
+var Group = syntax.UCommand{
 	Syntax: "group name",
 	Cb:     groupCb,
-	Arguments: []syntax.Uargument{
+	Arguments: []syntax.UArgument{
 		{
 			Name:    "name",
 			Label:   "name",

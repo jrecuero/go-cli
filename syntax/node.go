@@ -25,7 +25,7 @@ type Node struct {
 }
 
 // NewNode creates a new graph node.
-func NewNode(name string, label string, content interface{}) *Node {
+func NewNode(name string, label string, content IContent) *Node {
 	nodeID++
 	node := &Node{
 		ID:        nodeID,
