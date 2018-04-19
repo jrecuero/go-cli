@@ -91,21 +91,6 @@ func (i *CIdent) Match(ctx *Context, line interface{}, index int) (int, bool) {
 	return index, false
 }
 
-//// Help returns the help for any ident node completer.
-//func (i *CIdent) Help(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Query returns the query for any ident node completer.
-//func (i *CIdent) Query(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Complete returns the complete match for any ident node completer.
-//func (i *CIdent) Complete(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
 // CAny represents the completer for CAny character sequence node.
 type CAny struct {
 	*Completer
@@ -131,21 +116,6 @@ func (a *CAny) Match(ctx *Context, line interface{}, index int) (int, bool) {
 	return index + 1, true
 }
 
-//// Query returns the query for CAny node completer.
-//func (a *CAny) Query(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Help returns the help for CAny node completer.
-//func (a *CAny) Help(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Complete returns the complete match for CAny node completer.
-//func (a *CAny) Complete(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
 // CCustom represents the completer for CCustom node.
 type CCustom struct {
 	*Completer
@@ -170,21 +140,6 @@ func (c *CCustom) Match(ctx *Context, line interface{}, index int) (int, bool) {
 	}
 	return index, false
 }
-
-//// Query returns the query for CCustom node completer.
-//func (c *CCustom) Query(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Help returns the help for CCustom node completer.
-//func (c *CCustom) Help(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Complete returns the complete match for CCustom node completer.
-//func (c *CCustom) Complete(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
 
 // CJoint represents the completer for any joint node.
 type CJoint struct {
@@ -215,21 +170,6 @@ func (j *CJoint) Match(ctx *Context, line interface{}, index int) (int, bool) {
 	}
 	return index, false
 }
-
-//// Query returns the query for any joint node completer.
-//func (j *CJoint) Query(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Help returns the help for any joint node completer.
-//func (j *CJoint) Help(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
-
-//// Complete returns the complete match for any joint node completer.
-//func (j *CJoint) Complete(ctx *Context, line interface{}) (interface{}, bool) {
-//    return nil, false
-//}
 
 // NewCStart returns a new Start instance.
 func NewCStart() *CJoint {
