@@ -34,3 +34,8 @@ func (ua *UArgument) GetDefault() interface{} {
 func (ua *UArgument) GetHelp() string {
 	return ua.Help
 }
+
+// GetCompleter returns user command completer.
+func (ua *UArgument) GetCompleter() ICompleter {
+	return ua.Completer
+}

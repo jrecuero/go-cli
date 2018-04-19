@@ -7,4 +7,5 @@ type IContent interface {
 	GetType() string
 	GetDefault() interface{}
 	GetHelp() string
+	GetCompleter() ICompleter
 }

@@ -39,6 +39,11 @@ func (uc *UCommand) GetHelp() string {
 	return uc.Help
 }
 
+// GetCompleter returns user command completer.
+func (uc *UCommand) GetCompleter() ICompleter {
+	return uc.Completer
+}
+
 // NewUcommand returns a new Command instance.
 func NewUcommand(name string, syntax string, cb Callback) *UCommand {
 	return &UCommand{

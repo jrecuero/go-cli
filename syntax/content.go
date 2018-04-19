@@ -2,28 +2,68 @@ package syntax
 
 const _cr = "<<<_CR_>>>"
 
-// cr represents the carrier return content.
-type cr struct{}
-
-func (c *cr) GetLabel() string {
-	return _cr
+// AJoint represents any joint content.
+type AJoint struct {
+	label     string
+	help      string
+	completer ICompleter
 }
 
-func (c *cr) GetName() string {
+// GetLabel returns joint content label.
+func (j *AJoint) GetLabel() string {
+	return j.label
+}
+
+// GetName returns joint content name.
+func (j *AJoint) GetName() string {
 	return ""
 }
 
-func (c *cr) GetType() string {
+// GetType returns joint content type.
+func (j *AJoint) GetType() string {
 	return "string"
 }
 
-func (c *cr) GetDefault() interface{} {
-	return _cr
+// GetDefault returns joint content default value.
+func (j *AJoint) GetDefault() interface{} {
+	return j.label
 }
 
-func (c *cr) GetHelp() string {
-	return "Carrier return"
+// GetHelp return joint content help.
+func (j *AJoint) GetHelp() string {
+	return j.help
+}
+
+// GetCompleter returns user command completer.
+func (j *AJoint) GetCompleter() ICompleter {
+	return j.completer
+}
+
+// NewAJoint returns a new AJoint instance.
+func NewAJoint(label string, completer ICompleter) *AJoint {
+	return &AJoint{
+		label:     label,
+		help:      "Joint content",
+		completer: completer,
+	}
 }
 
 // CR represents the carrier return content.
-var CR = &cr{}
+var CR *AJoint
+
+// GetCR returns CR variable.
+func GetCR() *AJoint {
+	if CR == nil {
+		CR = &AJoint{
+			label: _cr,
+			help:  "Carrier return",
+		}
+		CR.completer = &CJoint{
+			&Completer{
+				label:   _sink,
+				Content: CR,
+			},
+		}
+	}
+	return CR
+}

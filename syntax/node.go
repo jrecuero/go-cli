@@ -32,7 +32,7 @@ func NewNode(name string, label string, content IContent) *Node {
 		Name:      name,
 		Label:     label,
 		BlockID:   -1,
-		Completer: NewIdentCompleter(label, content),
+		Completer: NewIdentCompleter(content),
 	}
 	return node
 }
