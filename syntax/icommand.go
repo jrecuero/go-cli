@@ -1,17 +1,29 @@
 package syntax
 
-// ICommand represents any CLI command definition.
-type ICommand struct {
+// Callback represents the type for any command callback.
+type Callback func(context interface{}, arguments interface{}) bool
+
+// Uargument represents any CLI argument information.
+type Uargument struct {
+	Name    string
+	Label   string
+	Type    string
+	Default interface{}
+	Help    string
+}
+
+// Ucommand represents any CLI command defined by the user..
+type Ucommand struct {
 	Syntax    string
-	Cb        interface{}
-	Arguments []interface{}
+	Cb        Callback
+	Arguments []Uargument
 	Name      string
 	Help      string
 }
 
-// NewICommand returns a new Command instance.
-func NewICommand(name string, syntax string, cb interface{}) *ICommand {
-	return &ICommand{
+// NewUcommand returns a new Command instance.
+func NewUcommand(name string, syntax string, cb Callback) *Ucommand {
+	return &Ucommand{
 		Syntax: syntax,
 		Cb:     cb,
 		Name:   name,

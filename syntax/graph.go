@@ -47,6 +47,11 @@ func (g *Graph) newBlock() {
 // setupBlock setups the Hook node to the new graph block.
 func (g *Graph) setupBlock() {
 	g.Hook.AddChild(g.ActiveBlock.Start)
+	g.setupHookToBlockStart()
+}
+
+// setupHookToBlockStart setups the graph block to point to the block start.
+func (g *Graph) setupHookToBlockStart() {
 	g.Hook = g.ActiveBlock.Start
 }
 
@@ -109,9 +114,23 @@ func (g *Graph) AddPathToBlock(n *Node) bool {
 	return true
 }
 
+// CreatePathToBlock creates a path in a block with the list of given nodes.
+func (g *Graph) CreatePathToBlock(ln []*Node) bool {
+	for _, n := range ln {
+		g.AddPathToBlock(n)
+	}
+	return g.TerminatePathToBlock()
+}
+
+// AddIdentAndAnyToBlock adds an indent and an any node to the graph block.
+func (g *Graph) AddIdentAndAnyToBlock(ident *Node, any *Node) bool {
+	return g.CreatePathToBlock([]*Node{ident, any})
+}
+
 // TerminatePathToBlock terminated a node path in a graph block.
 func (g *Graph) TerminatePathToBlock() bool {
 	g.Hook.AddChild(g.ActiveBlock.Loop)
+	g.setupHookToBlockStart()
 	return true
 }
 

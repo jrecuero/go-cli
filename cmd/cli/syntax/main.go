@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/jrecuero/go-cli/cmd/cli/syntax/commands"
 	"github.com/jrecuero/go-cli/parser"
 	"github.com/jrecuero/go-cli/syntax"
 )
@@ -18,8 +19,8 @@ func runParser() {
 
 func runNode() {
 	g := syntax.NewGraph()
-	var c1 = syntax.NewNode("Jose Carlos", "JC")
-	var c2 = syntax.NewNode("Marcela Veronica", "MV")
+	var c1 = syntax.NewNode("Jose Carlos", "JC", nil)
+	var c2 = syntax.NewNode("Marcela Veronica", "MV", nil)
 	g.Root.AddChild(c1)
 	g.Root.AddChild(c2)
 	fmt.Println(g.Root.ID, g.Root.Name, g.Root.Label, g.Root.Children)
@@ -30,9 +31,9 @@ func runNode() {
 
 func runGraph() {
 	g := syntax.NewGraph()
-	c1 := syntax.NewNode("Jose Carlos", "JC")
+	c1 := syntax.NewNode("Jose Carlos", "JC", nil)
 	g.AddNode(c1)
-	c2 := syntax.NewNode("Marcela Veronica", "MV")
+	c2 := syntax.NewNode("Marcela Veronica", "MV", nil)
 	g.AddNode(c2)
 	g.Terminate()
 	fmt.Println(g.ToString())
@@ -129,4 +130,7 @@ func main() {
 	//runSimpleMatcher()
 	runComplexMatcher()
 	//runCompleter()
+	fmt.Println(commands.User)
+	fmt.Println(commands.Group)
+	commands.User.Cb(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
 }

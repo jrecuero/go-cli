@@ -25,14 +25,14 @@ type Node struct {
 }
 
 // NewNode creates a new graph node.
-func NewNode(name string, label string) *Node {
+func NewNode(name string, label string, content interface{}) *Node {
 	nodeID++
 	node := &Node{
 		ID:        nodeID,
 		Name:      name,
 		Label:     label,
 		BlockID:   -1,
-		Completer: NewIdentCompleter(label, label),
+		Completer: NewIdentCompleter(label, content),
 	}
 	return node
 }
@@ -41,7 +41,7 @@ func NewNode(name string, label string) *Node {
 // Joint node is any node that does not contain information but is used
 // to build the graph.
 func NewJoint(name string, label string) *Node {
-	node := NewNode(name, label)
+	node := NewNode(name, label, nil)
 	node.IsJoint = true
 	node.Completer = NewJointCompleter(_joint)
 	return node
