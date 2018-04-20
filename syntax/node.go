@@ -10,7 +10,6 @@ var nodeID int
 // Node represents a node in the graph.
 type Node struct {
 	ID        int
-	Name      string
 	Label     string
 	Children  []*Node
 	IsRoot    bool
@@ -25,14 +24,13 @@ type Node struct {
 }
 
 // NewNode creates a new graph node.
-func NewNode(name string, label string, content IContent) *Node {
+func NewNode(label string, content IContent) *Node {
 	nodeID++
 	node := &Node{
 		ID:        nodeID,
-		Name:      name,
 		Label:     label,
 		BlockID:   -1,
-		Completer: NewIdentCompleter(content),
+		Completer: NewCIdent(content),
 	}
 	return node
 }
@@ -40,10 +38,10 @@ func NewNode(name string, label string, content IContent) *Node {
 // NewJoint create a new graph joint node.
 // Joint node is any node that does not contain information but is used
 // to build the graph.
-func NewJoint(name string, label string) *Node {
-	node := NewNode(name, label, nil)
+func NewJoint(label string) *Node {
+	node := NewNode(label, nil)
 	node.IsJoint = true
-	node.Completer = NewJointCompleter(_joint)
+	node.Completer = NewCJoint(_joint)
 	return node
 }
 
@@ -51,9 +49,9 @@ func NewJoint(name string, label string) *Node {
 // Root node is at the top of the graph, it starts the graph and only
 // can be one Root node in the graph.
 func NewRoot() *Node {
-	node := NewJoint("ROOT", "ROOT")
+	node := NewJoint("ROOT")
 	node.IsRoot = true
-	node.Completer = NewJointCompleter(_rooty)
+	node.Completer = NewCJoint(_rooty)
 	return node
 }
 
@@ -61,9 +59,9 @@ func NewRoot() *Node {
 // Sink node is at the bottom of the graph, it terminates the graph only
 // can be one sink node.
 func NewSink() *Node {
-	node := NewJoint("SINK", "SINK")
+	node := NewJoint("SINK")
 	node.IsSink = true
-	node.Completer = NewSinkCompleter()
+	node.Completer = NewCSink()
 	return node
 }
 
@@ -71,10 +69,10 @@ func NewSink() *Node {
 // Start node is used for building loop graphs, and it identifies the
 // start point of the loop.
 func NewStart(id int) *Node {
-	node := NewJoint("START", "START")
+	node := NewJoint("START")
 	node.IsStart = true
 	node.BlockID = id
-	node.Completer = NewStartCompleter()
+	node.Completer = NewCStart()
 	return node
 }
 
@@ -82,10 +80,10 @@ func NewStart(id int) *Node {
 // End node is used for building loop graphs, and it identifies the
 // end point or exit of the loop.
 func NewEnd(id int) *Node {
-	node := NewJoint("END", "END")
+	node := NewJoint("END")
 	node.IsEnd = true
 	node.BlockID = id
-	node.Completer = NewEndCompleter()
+	node.Completer = NewCEnd()
 	return node
 }
 
@@ -93,10 +91,10 @@ func NewEnd(id int) *Node {
 // Loop node is used for building loop graphs, and it identfies the
 // loop part which will point to the start of the loop.
 func NewLoop(id int) *Node {
-	node := NewJoint("LOOP", "LOOP")
+	node := NewJoint("LOOP")
 	node.IsLoop = true
 	node.BlockID = id
-	node.Completer = NewLoopCompleter()
+	node.Completer = NewCLoop()
 	return node
 }
 

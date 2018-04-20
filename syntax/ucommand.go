@@ -9,7 +9,6 @@ type UCommand struct {
 	Cb        Callback
 	Arguments []UArgument
 	Label     string
-	Name      string
 	Help      string
 	Completer ICompleter
 }
@@ -17,11 +16,6 @@ type UCommand struct {
 // GetLabel returns user command label.
 func (uc *UCommand) GetLabel() string {
 	return uc.Label
-}
-
-// GetName returns user command name.
-func (uc *UCommand) GetName() string {
-	return uc.Name
 }
 
 // GetType returns user command type.
@@ -45,10 +39,10 @@ func (uc *UCommand) GetCompleter() ICompleter {
 }
 
 // NewUcommand returns a new Command instance.
-func NewUcommand(name string, syntax string, cb Callback) *UCommand {
+func NewUcommand(label string, syntax string, cb Callback) *UCommand {
 	return &UCommand{
 		Syntax: syntax,
 		Cb:     cb,
-		Name:   name,
+		Label:  label,
 	}
 }

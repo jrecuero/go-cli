@@ -2,7 +2,8 @@ package syntax
 
 // Context represents the structure that stores information about any match.
 type Context struct {
-	Matched []*Node
+	Matched   []*Node
+	Arguments []interface{}
 }
 
 // NewContext creates a new Context instance.
@@ -15,4 +16,11 @@ func NewContext() *Context {
 func (c *Context) AddToken(n *Node) bool {
 	c.Matched = append(c.Matched, n)
 	return true
+}
+
+// GetValueForArgument returns the value for the given field in arguments
+// passed to.
+func (c *Context) GetValueForArgument(field string) interface{} {
+	argos := c.Arguments.(map[string]interface{})
+	return argos[field]
 }

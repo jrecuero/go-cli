@@ -2,21 +2,30 @@ package syntax
 
 const _cr = "<<<_CR_>>>"
 
-// AJoint represents any joint content.
-type AJoint struct {
+// AContent represents any  content.
+type AContent struct {
 	label     string
 	help      string
 	completer ICompleter
 }
 
+// NewAContent returns a new AContent instance.
+func NewAContent(label string, completer ICompleter) IContent {
+	return &AContent{
+		label:     label,
+		help:      "Joint content",
+		completer: completer,
+	}
+}
+
+// AJoint represents any joint content.
+type AJoint struct {
+	*AContent
+}
+
 // GetLabel returns joint content label.
 func (j *AJoint) GetLabel() string {
 	return j.label
-}
-
-// GetName returns joint content name.
-func (j *AJoint) GetName() string {
-	return ""
 }
 
 // GetType returns joint content type.
@@ -42,9 +51,11 @@ func (j *AJoint) GetCompleter() ICompleter {
 // NewAJoint returns a new AJoint instance.
 func NewAJoint(label string, completer ICompleter) *AJoint {
 	return &AJoint{
-		label:     label,
-		help:      "Joint content",
-		completer: completer,
+		&AContent{
+			label:     label,
+			help:      "Joint content",
+			completer: completer,
+		},
 	}
 }
 
@@ -55,8 +66,10 @@ var CR *AJoint
 func GetCR() *AJoint {
 	if CR == nil {
 		CR = &AJoint{
-			label: _cr,
-			help:  "Carrier return",
+			&AContent{
+				label: _cr,
+				help:  "Carrier return",
+			},
 		}
 		CR.completer = &CJoint{
 			&Completer{

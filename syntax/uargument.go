@@ -2,7 +2,6 @@ package syntax
 
 // UArgument represents any CLI argument information.
 type UArgument struct {
-	Name      string
 	Label     string
 	Type      string
 	Default   interface{}
@@ -13,11 +12,6 @@ type UArgument struct {
 // GetLabel returns user argument label.
 func (ua *UArgument) GetLabel() string {
 	return ua.Label
-}
-
-// GetName returns user argument name.
-func (ua *UArgument) GetName() string {
-	return ua.Name
 }
 
 // GetType returns user argument type.

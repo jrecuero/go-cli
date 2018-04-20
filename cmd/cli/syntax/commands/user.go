@@ -7,9 +7,11 @@ import (
 )
 
 func userCb(context interface{}, arguments interface{}) bool {
-	argos := arguments.(map[string]interface{})
-	name := argos["name"].(string)
-	age := argos["age"].(int)
+	//argos := arguments.(map[string]interface{})
+	//name := argos["name"].(string)
+	//age := argos["age"].(int)
+	name := syntax.GetValueFromArguments("name", arguments).(string)
+	age := syntax.GetValueFromArguments("age", arguments).(int)
 	fmt.Printf("name: %s age: %d", name, age)
 	return true
 }
@@ -20,22 +22,20 @@ var User = syntax.UCommand{
 	Cb:     userCb,
 	Arguments: []syntax.UArgument{
 		{
-			Name:    "name",
 			Label:   "name",
 			Type:    "string",
 			Default: "",
 			Help:    "Name information",
 		},
 		{
-			Name:    "age",
 			Label:   "age",
 			Type:    "int",
 			Default: 0,
 			Help:    "Age information",
 		},
 	},
-	Name: "user",
-	Help: "User command",
+	Label: "user",
+	Help:  "User command",
 }
 
 func groupCb(context interface{}, arguments interface{}) bool {
@@ -48,13 +48,12 @@ var Group = syntax.UCommand{
 	Cb:     groupCb,
 	Arguments: []syntax.UArgument{
 		{
-			Name:    "name",
 			Label:   "name",
 			Type:    "string",
 			Default: "",
 			Help:    "Name information",
 		},
 	},
-	Name: "group",
-	Help: "Group information",
+	Label: "group",
+	Help:  "Group information",
 }
