@@ -2,13 +2,15 @@ package syntax
 
 // Command represents any CLI command internally in the system.
 type Command struct {
-	Cb        Callback
-	Syntax    string
-	CmdSyntax *CommandSyntax
-	Label     string
-	Help      string
-	Arguments []Argument
-	Completer ICompleter
+	Cb          Callback
+	Syntax      string
+	CmdSyntax   *CommandSyntax
+	Label       string
+	Help        string
+	Arguments   []Argument
+	Completer   ICompleter
+	Namespace   string
+	ToNamespace string
 }
 
 // GetLabel returns user command label.
@@ -42,4 +44,9 @@ func NewCommand(label string, cb Callback) *Command {
 		Cb:    cb,
 		Label: label,
 	}
+}
+
+// Setup initializes all command fields.
+func (c *Command) Setup() bool {
+	return true
 }
