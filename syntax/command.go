@@ -2,7 +2,7 @@ package syntax
 
 // Command represents any CLI command internally in the system.
 type Command struct {
-	Cb          Callback
+	Callback
 	Syntax      string
 	CmdSyntax   *CommandSyntax
 	Label       string
