@@ -33,3 +33,5 @@ func (c *Callback) Exit(ctx *Context) bool {
 func (c *Callback) PostExit(ctx *Context) bool {
 	return true
 }
+
+var _ ICallback = (*Callback)(nil)
