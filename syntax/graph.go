@@ -150,11 +150,11 @@ func (g *Graph) Explore() {
 	parents := []*Node{}
 	var index int
 	for {
-		fmt.Printf(fmt.Sprintf("\n\nID: %d Name: %s Label: %s\n", traverse.ID, traverse.Name, traverse.Label))
+		fmt.Printf(fmt.Sprintf("\n\nID: %d Label: %s\n", traverse.ID, traverse.Label))
 		fmt.Printf(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
 		if len(traverse.Children) > 0 {
 			for i, child := range traverse.Children {
-				fmt.Printf("\t> %d %s\n", i, child.Name)
+				fmt.Printf("\t> %d %s\n", i, child.Label)
 			}
 			fmt.Printf("\n[0-%d] Select children", len(traverse.Children)-1)
 		}
@@ -166,12 +166,12 @@ func (g *Graph) Explore() {
 		} else if text == "-" {
 			traverse = parents[len(parents)-1]
 			parents = parents[:len(parents)-1]
-			fmt.Printf("Parent selected %s\n", traverse.Name)
+			fmt.Printf("Parent selected %s\n", traverse.Label)
 		} else {
 			index, _ = strconv.Atoi(text)
 			parents = append(parents, traverse)
 			traverse = traverse.Children[index]
-			fmt.Printf("Children selected %d - %s\n", index, traverse.Name)
+			fmt.Printf("Children selected %d - %s\n", index, traverse.Label)
 		}
 	}
 }
@@ -184,9 +184,8 @@ func (g *Graph) childrenToString(node *Node, visited []*Node) string {
 		if child.IsIn(visited) == true {
 			continue
 		}
-		//fmt.Printf("visiting node %s %+v\n", child.Name, visited)
 		visited = append(visited, child)
-		buffer.WriteString(fmt.Sprintf("%d %s %s %d %#v\n", child.ID, child.Name, child.Label, len(child.Children), child.Completer))
+		buffer.WriteString(fmt.Sprintf("%d %s %d %#v\n", child.ID, child.Label, len(child.Children), child.Completer))
 		//fmt.Printf("visited %+v\n", visited)
 		buffer.WriteString(g.childrenToString(child, visited))
 	}
@@ -198,7 +197,7 @@ func (g *Graph) ToString() string {
 	var buffer bytes.Buffer
 	visited := []*Node{}
 	traverse := g.Root
-	buffer.WriteString(fmt.Sprintf("%d %s %s %d %#v\n", traverse.ID, traverse.Name, traverse.Label, len(traverse.Children), traverse.Completer))
+	buffer.WriteString(fmt.Sprintf("%d %s %d %#v\n", traverse.ID, traverse.Label, len(traverse.Children), traverse.Completer))
 	visited = append(visited, traverse)
 	buffer.WriteString(g.childrenToString(traverse, visited))
 	return buffer.String()

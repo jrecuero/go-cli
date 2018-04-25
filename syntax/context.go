@@ -3,7 +3,7 @@ package syntax
 // Context represents the structure that stores information about any match.
 type Context struct {
 	Matched   []*Node
-	Arguments []interface{}
+	Arguments interface{}
 }
 
 // NewContext creates a new Context instance.

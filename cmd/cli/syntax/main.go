@@ -19,21 +19,21 @@ func runParser() {
 
 func runNode() {
 	g := syntax.NewGraph()
-	var c1 = syntax.NewNode("Jose Carlos", "JC", nil)
-	var c2 = syntax.NewNode("Marcela Veronica", "MV", nil)
+	var c1 = syntax.NewNode("Jose Carlos", nil)
+	var c2 = syntax.NewNode("Marcela Veronica", nil)
 	g.Root.AddChild(c1)
 	g.Root.AddChild(c2)
-	fmt.Println(g.Root.ID, g.Root.Name, g.Root.Label, g.Root.Children)
+	fmt.Println(g.Root.ID, g.Root.Label, g.Root.Children)
 	for _, child := range g.Root.Children {
-		fmt.Println(child.ID, child.Name, child.Label, child.Children)
+		fmt.Println(child.ID, child.Label, child.Children)
 	}
 }
 
 func runGraph() {
 	g := syntax.NewGraph()
-	c1 := syntax.NewNode("Jose Carlos", "JC", nil)
+	c1 := syntax.NewNode("Jose Carlos", nil)
 	g.AddNode(c1)
-	c2 := syntax.NewNode("Marcela Veronica", "MV", nil)
+	c2 := syntax.NewNode("Marcela Veronica", nil)
 	g.AddNode(c2)
 	g.Terminate()
 	fmt.Println(g.ToString())
@@ -76,27 +76,27 @@ func runComplexMatcher() {
 	fmt.Println(m.MatchCommandLine(line))
 }
 
-func cmdHello(context interface{}, arguments interface{}) bool {
-	//name := arguments[0].(string)
-	data := arguments.(map[string]string)
-	name := data["name"]
-	fmt.Printf("Context: %v, Arguments: %v, Name: %s\n", context, arguments, name)
-	return true
-}
+//func cmdHello(context interface{}, arguments interface{}) bool {
+//    //name := arguments[0].(string)
+//    data := arguments.(map[string]string)
+//    name := data["name"]
+//    fmt.Printf("Context: %v, Arguments: %v, Name: %s\n", context, arguments, name)
+//    return true
+//}
 
-func runExecute() {
-	cmd := &syntax.Command{
-		Cb:        cmdHello,
-		Syntax:    nil,
-		Label:     "hello",
-		Name:      "hello",
-		Help:      "Hello command.",
-		Arguments: nil,
-	}
-	//arguments := []interface{}{"Jose Carlos", "Recuero Arias"}
-	arguments := map[string]string{"name": "Jose Carlos"}
-	syntax.Execute(cmd, arguments, nil)
-}
+//func runExecute() {
+//    cmd := &syntax.Command{
+//        Cb:        cmdHello,
+//        Syntax:    nil,
+//        Label:     "hello",
+//        Name:      "hello",
+//        Help:      "Hello command.",
+//        Arguments: nil,
+//    }
+//    //arguments := []interface{}{"Jose Carlos", "Recuero Arias"}
+//    arguments := map[string]string{"name": "Jose Carlos"}
+//    syntax.Execute(cmd, arguments, nil)
+//}
 
 func testa(data interface{}) {
 	fmt.Println(data)
@@ -111,13 +111,13 @@ func printCompleterInfo(ic syntax.ICompleter) {
 	fmt.Printf("completer content is: %#v\n", ic.GetContent())
 }
 
-func runCompleter() {
-	printCompleterInfo(syntax.NewIdentCompleter("me", nil))
-	printCompleterInfo(syntax.NewJointCompleter(""))
-	printCompleterInfo(syntax.NewStartCompleter())
-	printCompleterInfo(syntax.NewEndCompleter())
-	printCompleterInfo(syntax.NewLoopCompleter())
-}
+//func runCompleter() {
+//    printCompleterInfo(syntax.NewCIdent("me"))
+//    printCompleterInfo(syntax.NewCJoint(""))
+//    printCompleterInfo(syntax.NewCStart())
+//    printCompleterInfo(syntax.NewCEnd())
+//    printCompleterInfo(syntax.NewCLoop())
+//}
 
 func main() {
 	//runParser()
@@ -128,9 +128,10 @@ func main() {
 	//runExecute()
 	//testa(map[string]string{"name": "Jose Carlos", "last name": "Recuero Arias"})
 	//runSimpleMatcher()
-	runComplexMatcher()
+	//runComplexMatcher()
 	//runCompleter()
-	fmt.Println(commands.User)
-	fmt.Println(commands.Group)
-	commands.User.Cb(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
+	fmt.Println(commands.UserCmd)
+	//fmt.Println(commands.Group)
+	commands.UserCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
+	commands.ManagerCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos"})
 }

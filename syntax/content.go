@@ -9,6 +9,31 @@ type AContent struct {
 	completer ICompleter
 }
 
+// GetLabel returns content label.
+func (ac *AContent) GetLabel() string {
+	return ac.label
+}
+
+// GetType returns content type.
+func (ac *AContent) GetType() string {
+	return "string"
+}
+
+// GetDefault returns content default value.
+func (ac *AContent) GetDefault() interface{} {
+	return ac.label
+}
+
+// GetHelp return content help.
+func (ac *AContent) GetHelp() string {
+	return ac.help
+}
+
+// GetCompleter returns user command completer.
+func (ac *AContent) GetCompleter() ICompleter {
+	return ac.completer
+}
+
 // NewAContent returns a new AContent instance.
 func NewAContent(label string, completer ICompleter) IContent {
 	return &AContent{
@@ -23,30 +48,30 @@ type AJoint struct {
 	*AContent
 }
 
-// GetLabel returns joint content label.
-func (j *AJoint) GetLabel() string {
-	return j.label
-}
+//// GetLabel returns joint content label.
+//func (j *AJoint) GetLabel() string {
+//    return j.label
+//}
 
-// GetType returns joint content type.
-func (j *AJoint) GetType() string {
-	return "string"
-}
+//// GetType returns joint content type.
+//func (j *AJoint) GetType() string {
+//    return "string"
+//}
 
-// GetDefault returns joint content default value.
-func (j *AJoint) GetDefault() interface{} {
-	return j.label
-}
+//// GetDefault returns joint content default value.
+//func (j *AJoint) GetDefault() interface{} {
+//    return j.label
+//}
 
-// GetHelp return joint content help.
-func (j *AJoint) GetHelp() string {
-	return j.help
-}
+//// GetHelp return joint content help.
+//func (j *AJoint) GetHelp() string {
+//    return j.help
+//}
 
-// GetCompleter returns user command completer.
-func (j *AJoint) GetCompleter() ICompleter {
-	return j.completer
-}
+//// GetCompleter returns user command completer.
+//func (j *AJoint) GetCompleter() ICompleter {
+//    return j.completer
+//}
 
 // NewAJoint returns a new AJoint instance.
 func NewAJoint(label string, completer ICompleter) *AJoint {
