@@ -34,6 +34,11 @@ func (a *Argument) GetCompleter() ICompleter {
 	return a.Completer
 }
 
+// ToString returns the string with the content information.
+func (a *Argument) ToString() string {
+	return a.Label
+}
+
 // GetValueFromArguments returns the value for the given field in arguments
 // passed to.
 func GetValueFromArguments(field string, arguments interface{}) interface{} {
@@ -41,3 +46,15 @@ func GetValueFromArguments(field string, arguments interface{}) interface{} {
 	value := argos[field]
 	return value
 }
+
+// Setup initializes all argument fields.
+func (a *Argument) Setup() error {
+	if a.Completer == nil {
+		a.Completer = NewCompleterAny(a)
+	} else {
+		a.Completer.Setup(a)
+	}
+	return nil
+}
+
+var _ IContent = (*Argument)(nil)

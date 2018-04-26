@@ -2,12 +2,22 @@ package syntax
 
 const _cr = "<<<_CR_>>>"
 
+// GetLabelFromContent returns the label for any content interface.
+func GetLabelFromContent(content IContent) string {
+	if content == nil {
+		return "<nil>"
+	}
+	return content.GetLabel()
+}
+
 // Content represents any  content.
 type Content struct {
 	label     string
 	help      string
 	completer ICompleter
 }
+
+var _ IContent = (*Content)(nil)
 
 // GetLabel returns content label.
 func (c *Content) GetLabel() string {
@@ -52,6 +62,8 @@ func NewContent(label string, help string, completer ICompleter) IContent {
 type ContentJoint struct {
 	*Content
 }
+
+var _ IContent = (*ContentJoint)(nil)
 
 // NewContentJoint returns a new ContentJoint instance.
 func NewContentJoint(label string, help string, completer ICompleter) *ContentJoint {

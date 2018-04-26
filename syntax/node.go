@@ -3,6 +3,8 @@ package syntax
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/jrecuero/go-cli/tools"
 )
 
 var nodeID int
@@ -153,12 +155,35 @@ func (n *Node) mermaidLabel() string {
 	return buffer.String()
 }
 
-// ToMermaid returns the node in Mermaid graph format.
-func (n *Node) ToMermaid() string {
+// ToMermaidChildren returns node in Mermaid graph format.
+func (n *Node) ToMermaidChildren() string {
 	var buffer bytes.Buffer
 	for _, child := range n.Children {
-		//fmt.Printf("mermaid %s to %s\n", n.Label, child.Label)
 		buffer.WriteString(fmt.Sprintf("%s --> %s\n", n.mermaidLabel(), child.mermaidLabel()))
 	}
 	return buffer.String()
+}
+
+// ToContent returns node content information.
+func (n *Node) ToContent() string {
+	var buffer bytes.Buffer
+	c := n.Content
+	pattern := "[%-20s]\t%s\t[%-10s]\tdefault: %-8v\t'%-20s'\t%#v\n"
+	buffer.WriteString(fmt.Sprintf(pattern, tools.GetReflectType(c), c.GetLabel(), c.GetType(), c.GetDefault(), c.GetHelp(), tools.GetReflectType(c.GetCompleter())))
+	return buffer.String()
+}
+
+// ToContentChildren returns children node content information.
+func (n *Node) ToContentChildren() string {
+	var buffer bytes.Buffer
+	for _, child := range n.Children {
+		buffer.WriteString(child.ToContent())
+	}
+	return buffer.String()
+}
+
+// Setup the node for the given content.
+func (n *Node) Setup(content IContent) error {
+	n.Content = content
+	return nil
 }

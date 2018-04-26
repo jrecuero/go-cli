@@ -6,6 +6,11 @@ import (
 	"github.com/jrecuero/go-cli/syntax"
 )
 
+// UserCompleter is a custon completer for user arguments.
+type UserCompleter struct {
+	*syntax.CompleterIdent
+}
+
 // User represents a command
 type User struct {
 	syntax.Command
@@ -27,20 +32,27 @@ func (u *User) Enter(ctx *syntax.Context, arguments interface{}) error {
 // UserCmd command
 var UserCmd = &User{
 	syntax.Command{
-		Syntax: "user name age",
+		Syntax: "user name [ age | id ] ?",
 		Help:   "User command",
-		Arguments: []syntax.Argument{
+		Arguments: []*syntax.Argument{
 			{
-				Label:   "name",
-				Type:    "string",
-				Default: "",
-				Help:    "Name information",
+				Label:     "name",
+				Type:      "string",
+				Default:   "",
+				Help:      "Name information",
+				Completer: &UserCompleter{syntax.NewCompleterIdent(nil)},
 			},
 			{
 				Label:   "age",
 				Type:    "int",
 				Default: 0,
 				Help:    "Age information",
+			},
+			{
+				Label:   "id",
+				Type:    "int",
+				Default: 0,
+				Help:    "ID information",
 			},
 		},
 	},
@@ -51,7 +63,7 @@ var ManagerCmd = &User{
 	syntax.Command{
 		Syntax: "manager name",
 		Help:   "Manager command",
-		Arguments: []syntax.Argument{
+		Arguments: []*syntax.Argument{
 			{
 				Label:   "name",
 				Type:    "string",
@@ -62,22 +74,36 @@ var ManagerCmd = &User{
 	},
 }
 
-//func groupCb(context interface{}, arguments interface{}) bool {
-//    return true
-//}
+// Set represents a command
+type Set struct {
+	syntax.Command
+}
 
-//// Group command
-//var Group = syntax.Command{
-//    Syntax: "group name",
-//    Cb:     groupCb,
-//    Arguments: []syntax.Argument{
-//        {
-//            Label:   "name",
-//            Type:    "string",
-//            Default: "",
-//            Help:    "Name information",
-//        },
-//    },
-//    Label: "group",
-//    Help:  "Group information",
-//}
+// Enter is the default User, it executes with the running context.
+func (r *Set) Enter(ctx *syntax.Context, arguments interface{}) error {
+	value := syntax.GetValueFromArguments("value", arguments).(int)
+	fmt.Printf("Set speed to %d\n", value)
+	return nil
+}
+
+// SetSpeedCmd command
+var SetSpeedCmd = &Set{
+	syntax.Command{
+		Syntax: "set speed value",
+		Help:   "Set command",
+		Prefixes: []*syntax.Prefix{
+			{
+				Label: "speed",
+				Type:  "string",
+				Help:  "Set the speed",
+			},
+		},
+		Arguments: []*syntax.Argument{
+			{
+				Label: "value",
+				Type:  "int",
+				Help:  "Speed value",
+			},
+		},
+	},
+}

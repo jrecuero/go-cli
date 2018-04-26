@@ -9,4 +9,5 @@ type ICompleter interface {
 	Validate(ctx *Context, line interface{}) bool
 	GetContent() IContent
 	GetLabel() string
+	Setup(c IContent) error
 }

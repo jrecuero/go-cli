@@ -16,7 +16,7 @@ type Completer struct {
 // NewCompleter returns a new Completer instance.
 func NewCompleter(content IContent) *Completer {
 	c := &Completer{
-		label:   content.GetLabel(),
+		label:   GetLabelFromContent(content),
 		content: content,
 	}
 	return c
@@ -52,6 +52,19 @@ func (c *Completer) Complete(ctx *Context, line interface{}) (interface{}, bool)
 	return nil, false
 }
 
+// Setup the completer for the given content.
+func (c *Completer) Setup(content IContent) error {
+	c.content = content
+	return nil
+}
+
+// Match returns the match for a node completer.
+func (c *Completer) Match(ctx *Context, line interface{}, index int) (int, bool) {
+	return -1, false
+}
+
+var _ ICompleter = (*Completer)(nil)
+
 // CompleterCommand represents the completer for a command node.
 type CompleterCommand struct {
 	*Completer
@@ -73,6 +86,8 @@ func (cc *CompleterCommand) Match(ctx *Context, line interface{}, index int) (in
 	}
 	return index, false
 }
+
+var _ ICompleter = (*CompleterCommand)(nil)
 
 // CompleterIdent represents the completer for any CompleterIdent node.
 type CompleterIdent struct {
@@ -96,6 +111,8 @@ func (i *CompleterIdent) Match(ctx *Context, line interface{}, index int) (int, 
 	return index, false
 }
 
+var _ ICompleter = (*CompleterIdent)(nil)
+
 // CompleterAny represents the completer for CompleterAny character sequence node.
 type CompleterAny struct {
 	*Completer
@@ -104,10 +121,7 @@ type CompleterAny struct {
 // NewCompleterAny returns a new CompleterAny instance.
 func NewCompleterAny(content IContent) *CompleterAny {
 	a := &CompleterAny{
-		&Completer{
-			label:   content.GetLabel(),
-			content: content,
-		},
+		NewCompleter(content),
 	}
 	return a
 }
@@ -121,6 +135,8 @@ func (a *CompleterAny) Match(ctx *Context, line interface{}, index int) (int, bo
 	return index + 1, true
 }
 
+var _ ICompleter = (*CompleterAny)(nil)
+
 // CompleterCustom represents the completer for CompleterCustom node.
 type CompleterCustom struct {
 	*Completer
@@ -129,10 +145,7 @@ type CompleterCustom struct {
 // NewCompleterCustom returns a new CompleterCustom instance.
 func NewCompleterCustom(content IContent) *CompleterCustom {
 	c := &CompleterCustom{
-		&Completer{
-			label:   content.GetLabel(),
-			content: content,
-		},
+		NewCompleter(content),
 	}
 	return c
 }
@@ -145,6 +158,8 @@ func (c *CompleterCustom) Match(ctx *Context, line interface{}, index int) (int,
 	}
 	return index, false
 }
+
+var _ ICompleter = (*CompleterCustom)(nil)
 
 // CompleterJoint represents the completer for any joint node.
 type CompleterJoint struct {
@@ -175,6 +190,8 @@ func (j *CompleterJoint) Match(ctx *Context, line interface{}, index int) (int, 
 	}
 	return index, false
 }
+
+var _ ICompleter = (*CompleterJoint)(nil)
 
 // NewCompleterStart returns a new Start instance.
 func NewCompleterStart() *CompleterJoint {

@@ -9,6 +9,9 @@ import (
 	"strings"
 )
 
+const _mermaid = "MERMAID"
+const _content = "CONTENT"
+
 // Graph represents a full graph.
 type Graph struct {
 	Root        *Node
@@ -150,11 +153,13 @@ func (g *Graph) Explore() {
 	parents := []*Node{}
 	var index int
 	for {
-		fmt.Printf(fmt.Sprintf("\n\nID: %d Label: %s\n", traverse.ID, traverse.Label))
+		//fmt.Printf(fmt.Sprintf("\n\nID: %d Label: %s\n", traverse.ID, traverse.Label))
+		fmt.Printf(fmt.Sprintf("\n\nID: %d Node Information: %s\n", traverse.ID, traverse.ToContent()))
 		fmt.Printf(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
 		if len(traverse.Children) > 0 {
 			for i, child := range traverse.Children {
-				fmt.Printf("\t> %d %s\n", i, child.Label)
+				//fmt.Printf("\t> %d %s\n", i, child.Label)
+				fmt.Printf("\t> %d %s\n", i, child.ToContent())
 			}
 			fmt.Printf("\n[0-%d] Select children", len(traverse.Children)-1)
 		}
@@ -203,16 +208,19 @@ func (g *Graph) ToString() string {
 	return buffer.String()
 }
 
-func (g *Graph) childrenToMermaid(node *Node) string {
+func (g *Graph) childrenToCustom(node *Node, custom string) string {
 	var buffer bytes.Buffer
 	for _, child := range node.Children {
 		if child.IsIn(g.visited) == true {
 			continue
 		}
-		//fmt.Printf("graph for %s\n", child.Label)
-		buffer.WriteString(child.ToMermaid())
+		switch custom {
+		case _mermaid:
+			buffer.WriteString(child.ToMermaidChildren())
+		case _content:
+			buffer.WriteString(child.ToContentChildren())
+		}
 		g.visited = append(g.visited, child)
-		//fmt.Printf("add %s to g.visited\n", child.Label)
 	}
 	var children []*Node
 	if node.IsLoop == false || len(node.Children) == 0 {
@@ -221,14 +229,22 @@ func (g *Graph) childrenToMermaid(node *Node) string {
 		children = node.Children[len(node.Children)-1:]
 	}
 	for _, child := range children {
-		//fmt.Printf("children to process %s\n", child.Label)
-		//if child.IsIn(g.visited) == true {
-		//    continue
-		//}
-		//g.visited = append(g.visited, child)
-		buffer.WriteString(g.childrenToMermaid(child))
+		switch custom {
+		case _mermaid:
+			buffer.WriteString(g.childrenToMermaid(child))
+		case _content:
+			buffer.WriteString(g.childrenToContent(child))
+		}
 	}
 	return buffer.String()
+}
+
+func (g *Graph) childrenToMermaid(node *Node) string {
+	return g.childrenToCustom(node, _mermaid)
+}
+
+func (g *Graph) childrenToContent(node *Node) string {
+	return g.childrenToCustom(node, _content)
 }
 
 // ToMermaid returns the graph in Mermaid graph format.
@@ -236,9 +252,21 @@ func (g *Graph) ToMermaid() string {
 	var buffer bytes.Buffer
 	g.visited = []*Node{}
 	buffer.WriteString("graph TD\n")
-	buffer.WriteString(g.Root.ToMermaid())
+	buffer.WriteString(g.Root.ToMermaidChildren())
 	g.visited = append(g.visited, g.Root)
 	buffer.WriteString(g.childrenToMermaid(g.Root))
+	return buffer.String()
+}
+
+// ToContent returns node graph content information.
+func (g *Graph) ToContent() string {
+	var buffer bytes.Buffer
+	g.visited = []*Node{}
+	buffer.WriteString("Content\n")
+	buffer.WriteString(g.Root.ToContent())
+	buffer.WriteString(g.Root.ToContentChildren())
+	g.visited = append(g.visited, g.Root)
+	buffer.WriteString(g.childrenToContent(g.Root))
 	return buffer.String()
 }
 

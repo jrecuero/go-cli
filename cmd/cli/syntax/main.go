@@ -43,21 +43,21 @@ func runSyntax() {
 	//cs := syntax.NewCommandSyntax("SELECT name [age]? [id | passport]+")
 	cs := syntax.NewCommandSyntax("SELECT name [age]?")
 	fmt.Printf("%s\n%#v\n%p\n", cs.Syntax, cs.Parsed, cs.Syntax)
-	cs.CreateGraph()
-	//cs.syntax.Explore()
+	cs.CreateGraph(nil)
+	//cs.Graph.Explore()
 	fmt.Printf("%s", cs.Graph.ToString())
 }
 
 func runMermaid() {
 	cs := syntax.NewCommandSyntax("SELECT name [age]? [id | passport]+ [phone]* [male | female | other]!")
 	fmt.Printf("Syntax: %s\nParsed: %#v\nGraph: %p\n", cs.Syntax, cs.Parsed, cs.Graph)
-	cs.CreateGraph()
+	cs.CreateGraph(nil)
 	fmt.Printf("%s", cs.Graph.ToMermaid())
 }
 
 func runSimpleMatcher() {
 	cs := syntax.NewCommandSyntax("SELECT name age")
-	cs.CreateGraph()
+	cs.CreateGraph(nil)
 	fmt.Printf("%s", cs.Graph.ToString())
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	line := []string{"SELECT", "name", "age"}
@@ -66,7 +66,7 @@ func runSimpleMatcher() {
 
 func runComplexMatcher() {
 	cs := syntax.NewCommandSyntax("SELECT name [ age  | id ]?")
-	cs.CreateGraph()
+	cs.CreateGraph(nil)
 	fmt.Printf("%s", cs.Graph.ToString())
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	//line := []string{"SELECT", "name", "age"}
@@ -120,15 +120,31 @@ func printCompleterInfo(ic syntax.ICompleter) {
 //}
 
 func runUserCmd() {
-	commands.UserCmd.Setup()
-	fmt.Println(commands.UserCmd)
-	fmt.Printf("%#v\n", commands.UserCmd.CmdSyntax)
-	fmt.Printf("%#v\n", commands.UserCmd.CmdSyntax.Parsed)
-	//fmt.Printf("%#v\n", commands.UserCmd.CmdSyntax.Graph)
-	fmt.Printf("%s", commands.UserCmd.CmdSyntax.Graph.ToMermaid())
+	userCmd := commands.UserCmd
+	userCmd.Setup()
+	fmt.Println(userCmd)
+	fmt.Printf("%#v\n", userCmd.CmdSyntax)
+	fmt.Printf("%#v\n", userCmd.CmdSyntax.Parsed)
+	//fmt.Printf("%#v\n", userCmd.CmdSyntax.Graph)
+	fmt.Printf("\n%s\n", userCmd.CmdSyntax.Graph.ToMermaid())
+	fmt.Printf("\n%s\n", userCmd.CmdSyntax.Graph.ToContent())
 	//fmt.Println(commands.Group)
-	commands.UserCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
-	commands.ManagerCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos"})
+	userCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
+	managerCmd := commands.ManagerCmd
+	managerCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos"})
+	userCmd.CmdSyntax.Graph.Explore()
+}
+
+func runSetSpeedCmd() {
+	setSpeedCmd := commands.SetSpeedCmd
+	setSpeedCmd.Setup()
+	fmt.Println(setSpeedCmd)
+	fmt.Printf("%#v\n", setSpeedCmd.CmdSyntax)
+	fmt.Printf("%#v\n", setSpeedCmd.CmdSyntax.Parsed)
+	fmt.Printf("\n%s\n", setSpeedCmd.CmdSyntax.Graph.ToMermaid())
+	fmt.Printf("\n%s\n", setSpeedCmd.CmdSyntax.Graph.ToContent())
+	//setSpeedCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
+	//setSpeedCmd.CmdSyntax.Graph.Explore()
 }
 
 func main() {
@@ -143,4 +159,5 @@ func main() {
 	//runComplexMatcher()
 	//runCompleter()
 	runUserCmd()
+	//runSetSpeedCmd()
 }
