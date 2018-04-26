@@ -119,6 +119,18 @@ func printCompleterInfo(ic syntax.ICompleter) {
 //    printCompleterInfo(syntax.NewCLoop())
 //}
 
+func runUserCmd() {
+	commands.UserCmd.Setup()
+	fmt.Println(commands.UserCmd)
+	fmt.Printf("%#v\n", commands.UserCmd.CmdSyntax)
+	fmt.Printf("%#v\n", commands.UserCmd.CmdSyntax.Parsed)
+	//fmt.Printf("%#v\n", commands.UserCmd.CmdSyntax.Graph)
+	fmt.Printf("%s", commands.UserCmd.CmdSyntax.Graph.ToMermaid())
+	//fmt.Println(commands.Group)
+	commands.UserCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
+	commands.ManagerCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos"})
+}
+
 func main() {
 	//runParser()
 	//runNode()
@@ -130,8 +142,5 @@ func main() {
 	//runSimpleMatcher()
 	//runComplexMatcher()
 	//runCompleter()
-	fmt.Println(commands.UserCmd)
-	//fmt.Println(commands.Group)
-	commands.UserCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
-	commands.ManagerCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos"})
+	runUserCmd()
 }

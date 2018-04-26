@@ -3,7 +3,6 @@ package syntax
 // Command represents any CLI command internally in the system.
 type Command struct {
 	Callback
-	//cb          Callback
 	Syntax      string
 	CmdSyntax   *CommandSyntax
 	Label       string
@@ -13,29 +12,6 @@ type Command struct {
 	Namespace   string
 	ToNamespace string
 }
-
-//// Enter is the default Command, it executes with the running context.
-//func (c *Command) Enter(ctx *Context, arguments interface{}) error {
-//    return c.cb.Enter(ctx, arguments)
-//}
-
-//// PostEnter belongs only to mode commands and it executes with the new
-//// namespace context.
-//func (c *Command) PostEnter(ctx *Context, arguments interface{}) error {
-//    return c.cb.PostEnter(ctx, arguments)
-//}
-
-//// Exit belongs only to mode commands and it executes with the running
-//// namespace context.
-//func (c *Command) Exit(ctx *Context) error {
-//    return c.cb.Exit(ctx)
-//}
-
-//// PostExit belongs only to mode commands and it execute withe the parent
-//// namespace context, which will become the actual context.
-//func (c *Command) PostExit(ctx *Context) error {
-//    return c.cb.PostExit(ctx)
-//}
 
 // GetLabel returns user command label.
 func (c *Command) GetLabel() string {
@@ -62,7 +38,14 @@ func (c *Command) GetCompleter() ICompleter {
 	return c.Completer
 }
 
+// ToString returns the string with the content information.
+func (c *Command) ToString() string {
+	return c.label
+}
+
 // Setup initializes all command fields.
 func (c *Command) Setup() error {
+	c.CmdSyntax = NewCommandSyntax(c.Syntax)
+	c.CmdSyntax.CreateGraph()
 	return nil
 }

@@ -48,6 +48,7 @@ func lookForCloseBracket(toks []parser.Token, index int) (parser.Token, int) {
 // CreateGraph creates graph using parsed syntax.
 func (cs *CommandSyntax) CreateGraph() bool {
 	command := cs.Parsed.Command
+	// TODO: Add node content.
 	cs.Graph.AddNode(NewNode(command, nil))
 	var insideBlock bool
 	var block BlockType
@@ -56,6 +57,7 @@ func (cs *CommandSyntax) CreateGraph() bool {
 		case parser.IDENT:
 			argo := cs.Parsed.Arguments[i]
 			// Check if we are in a block, and use AddNodeToBlock in that case.
+			// TODO: Add node content.
 			newNode := NewNode(argo, nil)
 			if insideBlock == true {
 				cs.Graph.AddNodeToBlock(newNode)

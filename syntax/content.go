@@ -2,104 +2,77 @@ package syntax
 
 const _cr = "<<<_CR_>>>"
 
-// AContent represents any  content.
-type AContent struct {
+// Content represents any  content.
+type Content struct {
 	label     string
 	help      string
 	completer ICompleter
 }
 
 // GetLabel returns content label.
-func (ac *AContent) GetLabel() string {
-	return ac.label
+func (c *Content) GetLabel() string {
+	return c.label
 }
 
 // GetType returns content type.
-func (ac *AContent) GetType() string {
+func (c *Content) GetType() string {
 	return "string"
 }
 
 // GetDefault returns content default value.
-func (ac *AContent) GetDefault() interface{} {
-	return ac.label
+func (c *Content) GetDefault() interface{} {
+	return c.label
 }
 
 // GetHelp return content help.
-func (ac *AContent) GetHelp() string {
-	return ac.help
+func (c *Content) GetHelp() string {
+	return c.help
 }
 
 // GetCompleter returns user command completer.
-func (ac *AContent) GetCompleter() ICompleter {
-	return ac.completer
+func (c *Content) GetCompleter() ICompleter {
+	return c.completer
 }
 
-// NewAContent returns a new AContent instance.
-func NewAContent(label string, completer ICompleter) IContent {
-	return &AContent{
+// ToString returns the string with the content information.
+func (c *Content) ToString() string {
+	return c.label
+}
+
+// NewContent returns a new Content instance.
+func NewContent(label string, help string, completer ICompleter) IContent {
+	return &Content{
 		label:     label,
-		help:      "Joint content",
+		help:      help,
 		completer: completer,
 	}
 }
 
-// AJoint represents any joint content.
-type AJoint struct {
-	*AContent
+// ContentJoint represents any joint content.
+type ContentJoint struct {
+	*Content
 }
 
-//// GetLabel returns joint content label.
-//func (j *AJoint) GetLabel() string {
-//    return j.label
-//}
-
-//// GetType returns joint content type.
-//func (j *AJoint) GetType() string {
-//    return "string"
-//}
-
-//// GetDefault returns joint content default value.
-//func (j *AJoint) GetDefault() interface{} {
-//    return j.label
-//}
-
-//// GetHelp return joint content help.
-//func (j *AJoint) GetHelp() string {
-//    return j.help
-//}
-
-//// GetCompleter returns user command completer.
-//func (j *AJoint) GetCompleter() ICompleter {
-//    return j.completer
-//}
-
-// NewAJoint returns a new AJoint instance.
-func NewAJoint(label string, completer ICompleter) *AJoint {
-	return &AJoint{
-		&AContent{
-			label:     label,
-			help:      "Joint content",
-			completer: completer,
-		},
+// NewContentJoint returns a new ContentJoint instance.
+func NewContentJoint(label string, help string, completer ICompleter) *ContentJoint {
+	return &ContentJoint{
+		NewContent(label, help, completer).(*Content),
 	}
 }
 
 // CR represents the carrier return content.
-var CR *AJoint
+var CR *ContentJoint
 
 // GetCR returns CR variable.
-func GetCR() *AJoint {
+func GetCR() *ContentJoint {
 	if CR == nil {
-		CR = &AJoint{
-			&AContent{
-				label: _cr,
-				help:  "Carrier return",
-			},
+		CR = &ContentJoint{
+			NewContent(_cr, "Carrier return", nil).(*Content),
 		}
-		CR.completer = &CJoint{
+		CR.completer = &CompleterJoint{
 			&Completer{
 				label:   _sink,
-				Content: CR,
+				content: CR,
 			},
 		}
 	}

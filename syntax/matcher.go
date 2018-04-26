@@ -56,7 +56,7 @@ func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
 	for traverse != nil && len(traverse.Children) != 0 {
 		var found bool
 		for _, n := range traverse.Children {
-			if index, ok = n.Completer.Match(m.Ctx, tokens[index:], index); ok {
+			if index, ok = n.Completer().Match(m.Ctx, tokens[index:], index); ok {
 				traverse = n
 				fmt.Printf("traverse matched: %v\n", traverse)
 				m.Ctx.AddToken(n)

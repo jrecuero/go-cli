@@ -4,12 +4,6 @@ import (
 	"reflect"
 )
 
-// DbData represents the interface for any data in the database.
-type DbData interface {
-	Get() interface{}
-	ToString() string
-}
-
 // Layout represents the layout for a database table.
 type Layout struct {
 	ColName string
@@ -28,13 +22,6 @@ func GetLayout(data interface{}) []Layout {
 		})
 	}
 	return result
-}
-
-// Dbase represents the interface for database operations.
-type Dbase interface {
-	CreateTable(tbname string, layout []Layout) bool
-	AddRow(tbname string, entry DbData) (int, bool)
-	GetRow(tbname string, key int) (DbData, bool)
 }
 
 // Table represents the database table.
