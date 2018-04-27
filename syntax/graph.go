@@ -218,7 +218,7 @@ func (g *Graph) childrenToCustom(node *Node, custom string) string {
 		case _mermaid:
 			buffer.WriteString(child.ToMermaidChildren())
 		case _content:
-			buffer.WriteString(child.ToContentChildren())
+			buffer.WriteString(child.ToContent())
 		}
 		g.visited = append(g.visited, child)
 	}
@@ -264,7 +264,6 @@ func (g *Graph) ToContent() string {
 	g.visited = []*Node{}
 	buffer.WriteString("Content\n")
 	buffer.WriteString(g.Root.ToContent())
-	buffer.WriteString(g.Root.ToContentChildren())
 	g.visited = append(g.visited, g.Root)
 	buffer.WriteString(g.childrenToContent(g.Root))
 	return buffer.String()

@@ -49,6 +49,31 @@ func (c *Content) ToString() string {
 	return c.label
 }
 
+// IsCommand returns if content is a command.
+func (c *Content) IsCommand() bool {
+	return false
+}
+
+// IsMode returns if content is a mode.
+func (c *Content) IsMode() bool {
+	return false
+}
+
+// IsPrefix returns if content is a prefix.
+func (c *Content) IsPrefix() bool {
+	return false
+}
+
+// IsArgument returns if content is a argument.
+func (c *Content) IsArgument() bool {
+	return false
+}
+
+// IsJoint returns if content is a joint.
+func (c *Content) IsJoint() bool {
+	return false
+}
+
 // NewContent returns a new Content instance.
 func NewContent(label string, help string, completer ICompleter) IContent {
 	return &Content{

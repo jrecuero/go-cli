@@ -54,10 +54,13 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 	for i, tok := range cs.Parsed.Tokens {
 		switch tok {
 		case parser.IDENT:
-			// TODO: Process as Argument or Prefix is required here!!!.
-			argumentLabel := cs.Parsed.Arguments[i]
-			argument := c.LookForArgument(argumentLabel)
-			newNode := NewNode(argumentLabel, argument)
+			label := cs.Parsed.Arguments[i]
+			var newContent IContent
+			newContent, ok := c.LookForPrefix(label)
+			if ok != nil {
+				newContent, _ = c.LookForArgument(label)
+			}
+			newNode := NewNode(label, newContent)
 			// Check if we are in a block, and use AddNodeToBlock in that case.
 			if insideBlock == true {
 				cs.Graph.AddNodeToBlock(newNode)

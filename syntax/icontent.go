@@ -8,4 +8,9 @@ type IContent interface {
 	GetHelp() string
 	GetCompleter() ICompleter
 	ToString() string
+	IsCommand() bool
+	IsMode() bool
+	IsPrefix() bool
+	IsArgument() bool
+	IsJoint() bool
 }

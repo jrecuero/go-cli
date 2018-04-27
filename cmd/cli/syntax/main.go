@@ -144,7 +144,7 @@ func runSetSpeedCmd() {
 	fmt.Printf("\n%s\n", setSpeedCmd.CmdSyntax.Graph.ToMermaid())
 	fmt.Printf("\n%s\n", setSpeedCmd.CmdSyntax.Graph.ToContent())
 	//setSpeedCmd.Enter(nil, map[string]interface{}{"name": "Jose Carlos", "age": 51})
-	//setSpeedCmd.CmdSyntax.Graph.Explore()
+	setSpeedCmd.CmdSyntax.Graph.Explore()
 }
 
 func main() {
@@ -158,6 +158,6 @@ func main() {
 	//runSimpleMatcher()
 	//runComplexMatcher()
 	//runCompleter()
-	runUserCmd()
-	//runSetSpeedCmd()
+	//runUserCmd()
+	runSetSpeedCmd()
 }
