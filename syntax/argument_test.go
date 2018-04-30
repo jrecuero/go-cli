@@ -9,10 +9,9 @@ import (
 // TestArgument_Argument ensures the argument structure works properly.
 func TestArgument_Argument(t *testing.T) {
 	a := syntax.Argument{
-		Label:   "name",
+		Content: syntax.NewContent("name", "Name information", nil).(*syntax.Content),
 		Type:    "string",
 		Default: "",
-		Help:    "Name information",
 	}
 	if a.GetLabel() != "name" {
 		t.Errorf("GetLabel <Argument> failed")

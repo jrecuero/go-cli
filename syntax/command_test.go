@@ -9,14 +9,13 @@ import (
 // TestCommand_Command ensures the command structure works properly.
 func TestCommand_Command(t *testing.T) {
 	c := syntax.Command{
-		Syntax: "test name",
-		Help:   "Test command",
-		Arguments: []syntax.Argument{
+		Content: syntax.NewContent("", "Test command", nil).(*syntax.Content),
+		Syntax:  "test name",
+		Arguments: []*syntax.Argument{
 			{
-				Label:   "name",
+				Content: syntax.NewContent("name", "Name information", nil).(*syntax.Content),
 				Type:    "string",
 				Default: "",
-				Help:    "Name information",
 			},
 		},
 	}
