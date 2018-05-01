@@ -1,6 +1,8 @@
 package syntax
 
-import "errors"
+import (
+	"errors"
+)
 
 // NSActive represents the active namespace.
 type NSActive struct {
@@ -13,7 +15,7 @@ type NSActive struct {
 // NewNSActive creates a new NSActive instance.
 func NewNSActive(name string, ns *NameSpace) *NSActive {
 	a := &NSActive{}
-	a.Activate(name, ns, NewNSManager(name, ns))
+	a.Activate(name, ns, NewNSManager(ns))
 	return a
 }
 
@@ -43,6 +45,28 @@ type NSHandler struct {
 	active     *NSActive
 	namespaces map[string]*NameSpace
 	stack      []*NSActive
+}
+
+// NewNSHandler creates a new NSHandler instance.
+func NewNSHandler() *NSHandler {
+	h := &NSHandler{}
+	h.namespaces = make(map[string]*NameSpace)
+	return h
+}
+
+// GetNameSpaces returns all namespaces created in the handler.
+func (h *NSHandler) GetNameSpaces() map[string]*NameSpace {
+	return h.namespaces
+}
+
+// GetActive returns the active namespace.
+func (h *NSHandler) GetActive() *NSActive {
+	return h.active
+}
+
+// GetStack returns the namespace stack.
+func (h *NSHandler) GetStack() []*NSActive {
+	return h.stack
 }
 
 // FindNameSpace looks for a namespace for the given name.
@@ -119,18 +143,33 @@ func (h *NSHandler) DeactivateNameSpace(name string) (*NameSpace, error) {
 
 // SwitchToNameSpace switches the active namespace and store the all one.
 func (h *NSHandler) SwitchToNameSpace(name string) (*NameSpace, *NameSpace, error) {
-	var oldNS *NameSpace
+	var oldActive *NSActive
 	if h.active != nil {
-		oldNS = h.active.NS
+		oldActive = h.active
 	}
 	ns, ok := h.ActivateNameSpace(name)
 	if ok == nil {
-		return oldNS, ns, nil
+		h.stack = append(h.stack, oldActive)
+		return oldActive.NS, ns, nil
 	}
 	return nil, nil, errors.New("not found")
 }
 
 // SwitchBackToNameSpace switches back to the latest namespace.
 func (h *NSHandler) SwitchBackToNameSpace() (*NameSpace, *NameSpace, error) {
-	return nil, nil, nil
+	stackLen := len(h.stack)
+	if stackLen == 0 {
+		return nil, nil, errors.New("empty stack")
+	}
+	// lastActive contains the last active namespace, that will be the next
+	// active namespace now.
+	lastActive := h.stack[stackLen-1]
+	// active contains the actual actual namesapace, that will be removed.
+	active := h.active
+	ns, ok := h.ActivateNameSpace(lastActive.Name)
+	if ok == nil && ns == lastActive.NS {
+		h.stack = h.stack[:stackLen-1]
+		return active.NS, lastActive.NS, nil
+	}
+	return nil, nil, errors.New("not found")
 }

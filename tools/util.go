@@ -30,3 +30,19 @@ func GetReflectType(v interface{}) string {
 	r := reflect.ValueOf(v)
 	return r.Type().String()
 }
+
+// MapCast returns a map entry properly casted.
+func MapCast(value interface{}) map[string]interface{} {
+	return value.(map[string]interface{})
+}
+
+// KeysForMap returns all keys for a map as a  list
+func KeysForMap(table map[string]interface{}) []string {
+	keys := make([]string, len(table))
+	i := 0
+	for k := range table {
+		keys[i] = k
+		i++
+	}
+	return keys
+}

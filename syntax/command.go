@@ -1,6 +1,8 @@
 package syntax
 
-import "errors"
+import (
+	"errors"
+)
 
 // Command represents any CLI command internally in the system.
 type Command struct {

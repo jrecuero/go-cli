@@ -9,6 +9,18 @@ type NameSpace struct {
 	commands []*Command
 }
 
+// NewNameSpace returns a new namespace instance.
+func NewNameSpace(name string) *NameSpace {
+	return &NameSpace{
+		Name: name,
+	}
+}
+
+// GetCommands returns all commands for the namespace.
+func (ns *NameSpace) GetCommands() []*Command {
+	return ns.commands
+}
+
 // Add adds a new command to the namespace.
 func (ns *NameSpace) Add(c *Command) error {
 	ns.commands = append(ns.commands, c)
@@ -47,9 +59,4 @@ func (ns *NameSpace) DeleteForCommand(c *Command) error {
 		return ok
 	}
 	return errors.New("not found")
-}
-
-// GetCommands returns all commands for the namespace.
-func (ns *NameSpace) GetCommands() []*Command {
-	return ns.commands
 }
