@@ -1,7 +1,9 @@
 package tools
 
 import (
+	"errors"
 	"reflect"
+	"strings"
 )
 
 // Stoif converts a string array into an interface array.
@@ -45,4 +47,77 @@ func KeysForMap(table map[string]interface{}) []string {
 		i++
 	}
 	return keys
+}
+
+// SearchKeyInTable checks if the key is in the given array.
+func SearchKeyInTable(table []string, key string) error {
+	for _, v := range table {
+		if key == v {
+			return nil
+		}
+	}
+	return errors.New("not found")
+}
+
+// SearchKeyInMap checks if the key is in the given map.
+func SearchKeyInMap(table map[string]interface{}, key string) error {
+	for k := range table {
+		if key == k {
+			return nil
+		}
+	}
+	return errors.New("not found")
+}
+
+// GetAllEntriesFromMap returns all remaining entries in the given map.
+func GetAllEntriesFromMap(table map[string]interface{}) ([]interface{}, error) {
+	var results []interface{}
+	for _, entry := range table {
+		switch v := entry.(type) {
+		case map[string]interface{}:
+			locals, err := GetAllEntriesFromMap(v)
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, locals...)
+		default:
+			results = append(results, v)
+		}
+	}
+	return results, nil
+}
+
+// SearchSequenceInMap returns all entries that match the sequence.
+func SearchSequenceInMap(table map[string]interface{}, sequence []string) ([]interface{}, error) {
+	var results []interface{}
+	if len(sequence) == 0 {
+		locals, err := GetAllEntriesFromMap(table)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, locals...)
+		return results, nil
+	}
+	token := sequence[0]
+	entry := table[token]
+	if entry != nil {
+		switch v := entry.(type) {
+		case map[string]interface{}:
+			locals, err := SearchSequenceInMap(v, sequence[1:])
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, locals...)
+		default:
+			results = append(results, v)
+		}
+		return results, nil
+	}
+	return nil, errors.New("not found")
+}
+
+// SearchPatternInMap searches for the given pattern in the commands map.
+func SearchPatternInMap(table map[string]interface{}, pattern string) ([]interface{}, error) {
+	sequence := strings.Split(pattern, " ")
+	return SearchSequenceInMap(table, sequence)
 }

@@ -3,6 +3,8 @@ package syntax
 import (
 	"errors"
 	"strings"
+
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // NSManager represents the namespace manager.
@@ -77,12 +79,50 @@ func (m *NSManager) Setup() error {
 	return nil
 }
 
+//func getAllEntriesFromTable(table map[string]interface{}) ([]*Command, error) {
+//    var commands []*Command
+//    for _, c := range table {
+//        switch v := c.(type) {
+//        case map[string]interface{}:
+//            locals, _ := getAllEntriesFromTable(v)
+//            commands = append(commands, locals...)
+//        default:
+//            commands = append(commands, v.(*Command))
+//        }
+//    }
+//    return commands, nil
+//}
+
+//func searchPatternInTable(table map[string]interface{}, pattern []string) ([]*Command, error) {
+//    var commands []*Command
+//    if len(pattern) == 0 {
+//        locals, _ := getAllEntriesFromTable(table)
+//        commands = append(commands, locals...)
+//        return commands, nil
+//    }
+//    token := pattern[0]
+//    entry := table[token]
+//    if entry != nil {
+//        switch v := entry.(type) {
+//        case map[string]interface{}:
+//            locals, _ := searchPatternInTable(v, pattern[1:])
+//            commands = append(commands, locals...)
+//        default:
+//            commands = append(commands, v.(*Command))
+//        }
+//        return commands, nil
+//    }
+//    return nil, errors.New("not found")
+//}
+
 // Search searches for the given pattern in the commands map.
 func (m *NSManager) Search(pattern string) ([]*Command, error) {
-	var commands []*Command
-	sequence := strings.Split(pattern, " ")
-	if len(sequence) == 0 {
-		return nil, errors.New("no pattern")
+	//sequence := strings.Split(pattern, " ")
+	//return searchPatternInTable(m.commands, sequence)
+	locals, ok := tools.SearchPatternInMap(m.commands, pattern)
+	var results []*Command
+	for _, v := range locals {
+		results = append(results, v.(*Command))
 	}
-	return commands, nil
+	return results, ok
 }
