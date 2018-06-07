@@ -24,7 +24,7 @@ func (ns *NameSpace) GetCommands() []*Command {
 // Add adds a new command to the namespace.
 func (ns *NameSpace) Add(c *Command) error {
 	ns.commands = append(ns.commands, c)
-	c.AddNameSpace(ns.Name)
+	c.AddNameSpaceName(ns.Name)
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (ns *NameSpace) DeleteForIndex(index int) (*Command, error) {
 	}
 	command := ns.commands[index]
 	ns.commands = append(ns.commands[:index], ns.commands[index+1:]...)
-	if command.DeleteNameSpace(ns.Name) != nil {
+	if command.DeleteNameSpaceName(ns.Name) != nil {
 		return command, errors.New("namespace not found in command")
 	}
 	return command, nil

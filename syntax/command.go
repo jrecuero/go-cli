@@ -8,13 +8,13 @@ import (
 type Command struct {
 	*Callback
 	*Content
-	Syntax      string
-	CmdSyntax   *CommandSyntax
-	Arguments   []*Argument
-	Prefixes    []*Prefix
-	FullCmd     string
-	NameSpace   []string
-	ToNameSpace string
+	Syntax         string
+	CmdSyntax      *CommandSyntax
+	Arguments      []*Argument
+	Prefixes       []*Prefix
+	FullCmd        string
+	NameSpaceNames []string
+	ToNameSpace    string
 }
 
 // IsCommand returns if content is a command.
@@ -42,17 +42,17 @@ func (c *Command) LookForArgument(label string) (*Argument, error) {
 	return nil, errors.New("not found")
 }
 
-// AddNameSpace adds a new namespace.
-func (c *Command) AddNameSpace(ns string) error {
-	c.NameSpace = append(c.NameSpace, ns)
+// AddNameSpaceName adds a new namespace.
+func (c *Command) AddNameSpaceName(nsName string) error {
+	c.NameSpaceNames = append(c.NameSpaceNames, nsName)
 	return nil
 }
 
-// DeleteNameSpace deletes a namespace.
-func (c *Command) DeleteNameSpace(ns string) error {
-	for i, namespace := range c.NameSpace {
-		if namespace == ns {
-			c.NameSpace = append(c.NameSpace[:i], c.NameSpace[i+1:]...)
+// DeleteNameSpaceName deletes a namespace.
+func (c *Command) DeleteNameSpaceName(nsName string) error {
+	for i, nameSpaceNames := range c.NameSpaceNames {
+		if nameSpaceNames == nsName {
+			c.NameSpaceNames = append(c.NameSpaceNames[:i], c.NameSpaceNames[i+1:]...)
 			return nil
 		}
 	}

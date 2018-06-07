@@ -12,10 +12,26 @@ import (
 // to settle all namespace commands properly and to find commands based on the
 // command line input.
 type NSManager struct {
-	nsname   string
-	ns       *NameSpace
-	commands map[string]interface{}
-	ctx      *Context
+	nsname   string                 // NameSpace Manager name.
+	ns       *NameSpace             // NameSpace instance.
+	ctx      *Context               // Context instance.
+	commands map[string]interface{} // Contains all commands that can be used for the NameSpace Manager.
+}
+
+// NewNSManager creates a new NSManager instance.
+func NewNSManager(namespace *NameSpace) *NSManager {
+	if namespace == nil {
+		return &NSManager{}
+	}
+	return &NSManager{
+		nsname: namespace.Name,
+		ns:     namespace,
+	}
+}
+
+// GetName returns the NameSpace Manager name.
+func (m *NSManager) GetName() string {
+	return m.nsname
 }
 
 // GetNameSpace returns the namespace related with the namager.
@@ -28,15 +44,9 @@ func (m *NSManager) GetCommands() map[string]interface{} {
 	return m.commands
 }
 
-// NewNSManager creates a new NSManager instance.
-func NewNSManager(namespace *NameSpace) *NSManager {
-	if namespace == nil {
-		return &NSManager{}
-	}
-	return &NSManager{
-		nsname: namespace.Name,
-		ns:     namespace,
-	}
+// GetContext returns the manager context.
+func (m *NSManager) GetContext() *Context {
+	return m.ctx
 }
 
 // add inserts a new command in the internal command map.
@@ -64,6 +74,8 @@ func (m *NSManager) add(table map[string]interface{}, name []string, value inter
 }
 
 // Setup initializes the namespace manager.
+// It reads all commands for the NameSpace and will update the commands field
+// with all of them.
 func (m *NSManager) Setup() error {
 	if m.ns == nil {
 		return errors.New("no namespace")
@@ -78,42 +90,6 @@ func (m *NSManager) Setup() error {
 	}
 	return nil
 }
-
-//func getAllEntriesFromTable(table map[string]interface{}) ([]*Command, error) {
-//    var commands []*Command
-//    for _, c := range table {
-//        switch v := c.(type) {
-//        case map[string]interface{}:
-//            locals, _ := getAllEntriesFromTable(v)
-//            commands = append(commands, locals...)
-//        default:
-//            commands = append(commands, v.(*Command))
-//        }
-//    }
-//    return commands, nil
-//}
-
-//func searchPatternInTable(table map[string]interface{}, pattern []string) ([]*Command, error) {
-//    var commands []*Command
-//    if len(pattern) == 0 {
-//        locals, _ := getAllEntriesFromTable(table)
-//        commands = append(commands, locals...)
-//        return commands, nil
-//    }
-//    token := pattern[0]
-//    entry := table[token]
-//    if entry != nil {
-//        switch v := entry.(type) {
-//        case map[string]interface{}:
-//            locals, _ := searchPatternInTable(v, pattern[1:])
-//            commands = append(commands, locals...)
-//        default:
-//            commands = append(commands, v.(*Command))
-//        }
-//        return commands, nil
-//    }
-//    return nil, errors.New("not found")
-//}
 
 // Search searches for the given pattern in the commands map.
 func (m *NSManager) Search(pattern string) ([]*Command, error) {
