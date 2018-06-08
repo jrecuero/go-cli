@@ -34,29 +34,21 @@ var UserCmd = &User{
 	syntax.Command{
 		Content: syntax.NewContent("", "User command", nil).(*syntax.Content),
 		Syntax:  "user name [ age | id ] ?",
-		//Help:   "User command",
 		Arguments: []*syntax.Argument{
 			{
 				Content: syntax.NewContent("name", "", nil).(*syntax.Content),
-				//Label:     "name",
 				Type:    "string",
 				Default: "",
-				//Help:      "Name information",
-				//Completer: &UserCompleter{syntax.NewCompleterIdent(nil)},
 			},
 			{
 				Content: syntax.NewContent("age", "Age information", nil).(*syntax.Content),
-				//Label:   "age",
 				Type:    "int",
 				Default: 0,
-				//Help:    "Age information",
 			},
 			{
 				Content: syntax.NewContent("id", "ID information", nil).(*syntax.Content),
-				//Label:   "id",
 				Type:    "int",
 				Default: 0,
-				//Help:    "ID information",
 			},
 		},
 	},
@@ -67,14 +59,11 @@ var ManagerCmd = &User{
 	syntax.Command{
 		Content: syntax.NewContent("", "Manager command", nil).(*syntax.Content),
 		Syntax:  "manager name",
-		//Help:   "Manager command",
 		Arguments: []*syntax.Argument{
 			{
 				Content: syntax.NewContent("name", "", nil).(*syntax.Content),
-				//Label:   "name",
 				Type:    "string",
 				Default: "",
-				//Help:    "Name information",
 			},
 		},
 	},
@@ -97,14 +86,7 @@ var SetSpeedCmd = &Set{
 	syntax.Command{
 		Content: syntax.NewContent("", "Set command", nil).(*syntax.Content),
 		Syntax:  "set speed value",
-		//Help:   "Set command",
 		Prefixes: []*syntax.Prefix{
-			//{
-			//    Label:   "speed",
-			//    Type:    "string",
-			//    Default: "speed",
-			//    Help:    "Set the speed",
-			//},
 			{
 				Content: syntax.NewContent("speed", "Set the speed", nil).(*syntax.Content),
 				Type:    "string",
@@ -114,10 +96,8 @@ var SetSpeedCmd = &Set{
 		Arguments: []*syntax.Argument{
 			{
 				Content: syntax.NewContent("value", "Speed value", nil).(*syntax.Content),
-				//Label:   "value",
 				Type:    "int",
 				Default: 0,
-				//Help: "Speed value",
 			},
 		},
 	},
