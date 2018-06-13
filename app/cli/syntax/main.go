@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jrecuero/go-cli/cmd/cli/syntax/commands"
+	"github.com/jrecuero/go-cli/app/cli/syntax/commands"
 	"github.com/jrecuero/go-cli/parser"
 	"github.com/jrecuero/go-cli/syntax"
 )

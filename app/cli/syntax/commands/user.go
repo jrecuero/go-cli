@@ -35,21 +35,9 @@ var UserCmd = &User{
 		Content: syntax.NewContent("", "User command", nil).(*syntax.Content),
 		Syntax:  "user name [ age | id ] ?",
 		Arguments: []*syntax.Argument{
-			{
-				Content: syntax.NewContent("name", "", nil).(*syntax.Content),
-				Type:    "string",
-				Default: "",
-			},
-			{
-				Content: syntax.NewContent("age", "Age information", nil).(*syntax.Content),
-				Type:    "int",
-				Default: 0,
-			},
-			{
-				Content: syntax.NewContent("id", "ID information", nil).(*syntax.Content),
-				Type:    "int",
-				Default: 0,
-			},
+			syntax.NewArgument("name", "", nil, "string", ""),
+			syntax.NewArgument("age", "Age information", nil, "int", 0),
+			syntax.NewArgument("id", "ID information", nil, "int", 0),
 		},
 	},
 }
