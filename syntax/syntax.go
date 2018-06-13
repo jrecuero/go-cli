@@ -56,10 +56,7 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 		case parser.IDENT:
 			label := cs.Parsed.Arguments[i]
 			var newContent IContent
-			newContent, ok := c.LookForPrefix(label)
-			if ok != nil {
-				newContent, _ = c.LookForArgument(label)
-			}
+			newContent, _ = c.LookForArgument(label)
 			newNode := NewNode(label, newContent)
 			// Check if we are in a block, and use AddNodeToBlock in that case.
 			if insideBlock == true {

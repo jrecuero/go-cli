@@ -86,13 +86,6 @@ var SetSpeedCmd = &Set{
 	syntax.Command{
 		Content: syntax.NewContent("", "Set command", nil).(*syntax.Content),
 		Syntax:  "set speed value",
-		Prefixes: []*syntax.Prefix{
-			{
-				Content: syntax.NewContent("speed", "Set the speed", nil).(*syntax.Content),
-				Type:    "string",
-				Default: "speed",
-			},
-		},
 		Arguments: []*syntax.Argument{
 			{
 				Content: syntax.NewContent("value", "Speed value", nil).(*syntax.Content),

@@ -59,11 +59,6 @@ func (c *Content) IsMode() bool {
 	return false
 }
 
-// IsPrefix returns if content is a prefix.
-func (c *Content) IsPrefix() bool {
-	return false
-}
-
 // IsArgument returns if content is a argument.
 func (c *Content) IsArgument() bool {
 	return false

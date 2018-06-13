@@ -10,7 +10,6 @@ type IContent interface {
 	ToString() string
 	IsCommand() bool
 	IsMode() bool
-	IsPrefix() bool
 	IsArgument() bool
 	IsJoint() bool
 }
