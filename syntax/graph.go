@@ -33,7 +33,8 @@ func NewGraph() *Graph {
 	return g
 }
 
-// AddNode adds a new node to the graph.
+// AddNode adds a new node to the graph. It moves the Hook to the new Node
+// being added.
 func (g *Graph) AddNode(n *Node) bool {
 	g.Hook.AddChild(n)
 	g.Hook = n
@@ -102,14 +103,16 @@ func (g *Graph) EndLoop() bool {
 	return true
 }
 
-// AddNodeToBlock adds a node to a graph loop.
+// AddNodeToBlock adds a node to a graph loop. It adds the node to the Hook,
+// but it does update the Hook value. Loop is added as a Node child.
 func (g *Graph) AddNodeToBlock(n *Node) bool {
 	g.Hook.AddChild(n)
 	n.AddChild(g.ActiveBlock.Loop)
 	return true
 }
 
-// AddPathToBlock adds a node to a node path in a graph block.
+// AddPathToBlock adds a node to a node path in a graph block. It moves the
+// Hookd to the new Node being added.
 func (g *Graph) AddPathToBlock(n *Node) bool {
 	n.InPath = true
 	g.Hook.AddChild(n)
@@ -125,7 +128,8 @@ func (g *Graph) CreatePathToBlock(ln []*Node) bool {
 	return g.TerminatePathToBlock()
 }
 
-// AddIdentAndAnyToBlock adds an indent and an any node to the graph block.
+// AddIdentAndAnyToBlock adds an ident and an any node to the graph block. This
+// can be used to add nodes that contains keyword-value pairs.
 func (g *Graph) AddIdentAndAnyToBlock(ident *Node, any *Node) bool {
 	return g.CreatePathToBlock([]*Node{ident, any})
 }
