@@ -1,4 +1,4 @@
-package syntax
+package graph
 
 import (
 	"bufio"
@@ -26,8 +26,8 @@ type Graph struct {
 // NewGraph creates a new graph.
 func NewGraph() *Graph {
 	g := &Graph{
-		Root: NewRoot(),
-		Sink: NewSink(),
+		Root: NewNodeRoot(),
+		Sink: NewNodeSink(),
 	}
 	g.Hook = g.Root
 	return g
@@ -157,8 +157,7 @@ func (g *Graph) Explore() {
 	parents := []*Node{}
 	var index int
 	for {
-		//fmt.Printf(fmt.Sprintf("\n\nID: %d Label: %s\n", traverse.ID, traverse.Label))
-		fmt.Printf(fmt.Sprintf("\n\nID: %d Node Information: %s\n", traverse.ID, traverse.ToContent()))
+		fmt.Printf(fmt.Sprintf("\n\nNode Information: %s\n", traverse.ToContent()))
 		fmt.Printf(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
 		if len(traverse.Children) > 0 {
 			for i, child := range traverse.Children {
@@ -194,7 +193,7 @@ func (g *Graph) childrenToString(node *Node, visited []*Node) string {
 			continue
 		}
 		visited = append(visited, child)
-		buffer.WriteString(fmt.Sprintf("%d %s %d %#v\n", child.ID, child.Label, len(child.Children), child.Completer))
+		buffer.WriteString(fmt.Sprintf("%s %d\n", child.Label, len(child.Children)))
 		//fmt.Printf("visited %+v\n", visited)
 		buffer.WriteString(g.childrenToString(child, visited))
 	}
@@ -206,7 +205,7 @@ func (g *Graph) ToString() string {
 	var buffer bytes.Buffer
 	visited := []*Node{}
 	traverse := g.Root
-	buffer.WriteString(fmt.Sprintf("%d %s %d %#v\n", traverse.ID, traverse.Label, len(traverse.Children), traverse.Completer))
+	buffer.WriteString(fmt.Sprintf("%s %d\n", traverse.Label, len(traverse.Children)))
 	visited = append(visited, traverse)
 	buffer.WriteString(g.childrenToString(traverse, visited))
 	return buffer.String()

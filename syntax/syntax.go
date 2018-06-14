@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/parser"
 )
 
@@ -11,15 +12,15 @@ import (
 type CommandSyntax struct {
 	Syntax string
 	Parsed *parser.Syntax
-	Graph  *Graph
+	Graph  *graph.Graph
 }
 
 // mapTokenToBlock maps the parser token with required graph block to be created.
-var mapTokenToBlock = map[parser.Token]BlockType{
-	parser.QUESTION:   NOLOOPandSKIP,
-	parser.ASTERISK:   LOOPandSKIP,
-	parser.PLUS:       LOOPandNOSKIP,
-	parser.ADMIRATION: NOLOOPandNOSKIP,
+var mapTokenToBlock = map[parser.Token]graph.BlockType{
+	parser.QUESTION:   graph.NOLOOPandSKIP,
+	parser.ASTERISK:   graph.LOOPandSKIP,
+	parser.PLUS:       graph.LOOPandNOSKIP,
+	parser.ADMIRATION: graph.NOLOOPandNOSKIP,
 }
 
 // NewCommandSyntax returns a new instance of CommandSyntax.
@@ -28,7 +29,7 @@ func NewCommandSyntax(st string) *CommandSyntax {
 	return &CommandSyntax{
 		Syntax: st,
 		Parsed: ps,
-		Graph:  NewGraph(),
+		Graph:  graph.NewGraph(),
 	}
 }
 
@@ -48,16 +49,16 @@ func lookForCloseBracket(toks []parser.Token, index int) (parser.Token, int) {
 // CreateGraph creates graph using parsed syntax.
 func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 	commandLabel := cs.Parsed.Command
-	cs.Graph.AddNode(NewNode(commandLabel, c))
+	cs.Graph.AddNode(graph.NewNode(commandLabel, c))
 	var insideBlock bool
-	var block BlockType
+	var block graph.BlockType
 	for i, tok := range cs.Parsed.Tokens {
 		switch tok {
 		case parser.IDENT:
 			label := cs.Parsed.Arguments[i]
 			var newContent IContent
 			newContent, _ = c.LookForArgument(label)
-			newNode := NewNode(label, newContent)
+			newNode := graph.NewNode(label, newContent)
 			// Check if we are in a block, and use AddNodeToBlock in that case.
 			if insideBlock == true {
 				cs.Graph.AddNodeToBlock(newNode)
@@ -78,7 +79,7 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 			fmt.Printf("index=%d token=%d block=%d\n", index, endTok, block)
 			// Create the graph block, any node while in the block should be
 			// added to this block.
-			MapBlockToGraphFunc[block](cs.Graph)
+			graph.MapBlockToGraphFunc[block](cs.Graph)
 			break
 		case parser.CLOSEBRACKET:
 			if insideBlock == false {
@@ -93,28 +94,28 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 			}
 			break
 		case parser.ASTERISK:
-			if insideBlock == true || block != LOOPandSKIP {
+			if insideBlock == true || block != graph.LOOPandSKIP {
 				return false
 			}
-			block = NOBLOCK
+			block = graph.NOBLOCK
 			break
 		case parser.PLUS:
-			if insideBlock == true || block != LOOPandNOSKIP {
+			if insideBlock == true || block != graph.LOOPandNOSKIP {
 				return false
 			}
-			block = NOBLOCK
+			block = graph.NOBLOCK
 			break
 		case parser.QUESTION:
-			if insideBlock == true || block != NOLOOPandSKIP {
+			if insideBlock == true || block != graph.NOLOOPandSKIP {
 				return false
 			}
-			block = NOBLOCK
+			block = graph.NOBLOCK
 			break
 		case parser.ADMIRATION:
-			if insideBlock == true || block != NOLOOPandNOSKIP {
+			if insideBlock == true || block != graph.NOLOOPandNOSKIP {
 				return false
 			}
-			block = NOBLOCK
+			block = graph.NOBLOCK
 			break
 		case parser.AT:
 			if insideBlock == true {

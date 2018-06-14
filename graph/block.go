@@ -1,4 +1,4 @@
-package syntax
+package graph
 
 // BlockType represents block type can be present in a graph.
 type BlockType int
@@ -21,27 +21,12 @@ const (
 
 // Block represents a graph block.
 type Block struct {
-	ID         int
 	Start      *Node
 	End        *Node
 	Loop       *Node
 	IsSkip     bool
 	IsLoop     bool
 	Terminated bool
-}
-
-// NewBlock creates a new graph block.
-func NewBlock(id int) *Block {
-	b := &Block{
-		ID:         id,
-		Start:      NewStart(id),
-		End:        NewEnd(id),
-		Loop:       NewLoop(id),
-		IsLoop:     false,
-		IsSkip:     false,
-		Terminated: false,
-	}
-	return b
 }
 
 // CreateBlockNoLoopAndSkip creates a graph block without a loop
@@ -98,4 +83,17 @@ func (b *Block) Terminate() bool {
 	}
 	b.Terminated = true
 	return true
+}
+
+// NewBlock creates a new graph block.
+func NewBlock(id int) *Block {
+	b := &Block{
+		Start:      NewNodeStart(id),
+		End:        NewNodeEnd(id),
+		Loop:       NewNodeLoop(id),
+		IsLoop:     false,
+		IsSkip:     false,
+		Terminated: false,
+	}
+	return b
 }
