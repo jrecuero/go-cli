@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jrecuero/go-cli/cmd/cli/syntax/commands"
+	"github.com/jrecuero/go-cli/app/cli/syntax/commands"
+	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/parser"
 	"github.com/jrecuero/go-cli/syntax"
 )
@@ -18,22 +19,22 @@ func runParser() {
 }
 
 func runNode() {
-	g := syntax.NewGraph()
-	var c1 = syntax.NewNode("Jose Carlos", nil)
-	var c2 = syntax.NewNode("Marcela Veronica", nil)
+	g := graph.NewGraph(nil)
+	var c1 = graph.NewNode("Jose Carlos", nil)
+	var c2 = graph.NewNode("Marcela Veronica", nil)
 	g.Root.AddChild(c1)
 	g.Root.AddChild(c2)
-	fmt.Println(g.Root.ID, g.Root.Label, g.Root.Children)
+	fmt.Println(g.Root.Label, g.Root.Children)
 	for _, child := range g.Root.Children {
-		fmt.Println(child.ID, child.Label, child.Children)
+		fmt.Println(child.Label, child.Children)
 	}
 }
 
 func runGraph() {
-	g := syntax.NewGraph()
-	c1 := syntax.NewNode("Jose Carlos", nil)
+	g := graph.NewGraph(nil)
+	c1 := graph.NewNode("Jose Carlos", nil)
 	g.AddNode(c1)
-	c2 := syntax.NewNode("Marcela Veronica", nil)
+	c2 := graph.NewNode("Marcela Veronica", nil)
 	g.AddNode(c2)
 	g.Terminate()
 	fmt.Println(g.ToString())
@@ -108,7 +109,6 @@ func testa(data interface{}) {
 func printCompleterInfo(ic syntax.ICompleter) {
 	fmt.Printf("new completer is: %#v\n", ic)
 	fmt.Printf("completer label is: %s\n", ic.GetLabel())
-	fmt.Printf("completer content is: %#v\n", ic.GetContent())
 }
 
 //func runCompleter() {
@@ -147,6 +147,32 @@ func runSetSpeedCmd() {
 	setSpeedCmd.CmdSyntax.Graph.Explore()
 }
 
+func runManagerCmd() {
+	//command := commands.UserCmd
+	command := commands.ManagerCmd
+	command.Setup()
+	cs := command.CmdSyntax
+	//fmt.Printf("%s", cs.Graph.ToString())
+	//fmt.Printf("%s", cs.Graph.ToMermaid())
+	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	fmt.Printf("%#v\n", m)
+	//line := []string{"user", "name", "age"}
+	line := []string{"manager", "name"}
+	m.MatchCommandLine(line)
+}
+
+func runNewUserCmd() {
+	command := commands.UserCmd
+	command.Setup()
+	cs := command.CmdSyntax
+	//fmt.Printf("%s", cs.Graph.ToString())
+	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	fmt.Printf("%#v\n", m)
+	line := []string{"user", "name", "age"}
+	m.MatchCommandLine(line)
+	//fmt.Printf("%s", cs.Graph.ToMermaid())
+}
+
 func main() {
 	//runParser()
 	//runNode()
@@ -159,5 +185,7 @@ func main() {
 	//runComplexMatcher()
 	//runCompleter()
 	//runUserCmd()
-	runSetSpeedCmd()
+	//runSetSpeedCmd()
+	//runManagerCmd()
+	runNewUserCmd()
 }

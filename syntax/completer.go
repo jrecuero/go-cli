@@ -9,22 +9,14 @@ const _loop = "LOOP"
 
 // Completer represents any generic completer.
 type Completer struct {
-	label   string
-	content IContent
+	label string
 }
 
 // NewCompleter returns a new Completer instance.
-func NewCompleter(content IContent) *Completer {
-	c := &Completer{
-		label:   GetLabelFromContent(content),
-		content: content,
+func NewCompleter(label string) *Completer {
+	return &Completer{
+		label: label,
 	}
-	return c
-}
-
-// GetContent returns the content for any completer.
-func (c *Completer) GetContent() IContent {
-	return c.content
 }
 
 // GetLabel returns the label for any completer.
@@ -33,33 +25,27 @@ func (c *Completer) GetLabel() string {
 }
 
 // Validate checks if the content is value for the given line.
-func (c *Completer) Validate(ctx *Context, line interface{}) bool {
+func (c *Completer) Validate(ctx *Context, content IContent, line interface{}, index int) bool {
 	return true
 }
 
 // Help returns the help for any node completer.
-func (c *Completer) Help(ctx *Context, line interface{}) (interface{}, bool) {
+func (c *Completer) Help(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	return nil, false
 }
 
 // Query returns the query for any node completer.
-func (c *Completer) Query(ctx *Context, line interface{}) (interface{}, bool) {
+func (c *Completer) Query(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	return nil, false
 }
 
 // Complete returns the complete match for any node completer.
-func (c *Completer) Complete(ctx *Context, line interface{}) (interface{}, bool) {
+func (c *Completer) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	return nil, false
 }
 
-// Setup the completer for the given content.
-func (c *Completer) Setup(content IContent) error {
-	c.content = content
-	return nil
-}
-
 // Match returns the match for a node completer.
-func (c *Completer) Match(ctx *Context, line interface{}, index int) (int, bool) {
+func (c *Completer) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	return -1, false
 }
 
@@ -71,17 +57,16 @@ type CompleterCommand struct {
 }
 
 // NewCompleterCommand returns a new CompleterCommand instance.
-func NewCompleterCommand(content IContent) *CompleterCommand {
-	i := &CompleterCommand{
-		NewCompleter(content),
+func NewCompleterCommand(label string) *CompleterCommand {
+	return &CompleterCommand{
+		NewCompleter(label),
 	}
-	return i
 }
 
 // Match returns the match for a command node completer.
-func (cc *CompleterCommand) Match(ctx *Context, line interface{}, index int) (int, bool) {
+func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == cc.GetLabel() {
+	if tokens[index] == content.GetLabel() {
 		return index + 1, true
 	}
 	return index, false
@@ -95,17 +80,16 @@ type CompleterIdent struct {
 }
 
 // NewCompleterIdent returns a new CompleterIdent instance.
-func NewCompleterIdent(content IContent) *CompleterIdent {
-	i := &CompleterIdent{
-		NewCompleter(content),
+func NewCompleterIdent(label string) *CompleterIdent {
+	return &CompleterIdent{
+		NewCompleter(label),
 	}
-	return i
 }
 
 // Match returns the match for any ident node completer.
-func (i *CompleterIdent) Match(ctx *Context, line interface{}, index int) (int, bool) {
+func (i *CompleterIdent) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == i.GetLabel() {
+	if tokens[index] == i.GetLabel() {
 		return index + 1, true
 	}
 	return index, false
@@ -119,17 +103,16 @@ type CompleterAny struct {
 }
 
 // NewCompleterAny returns a new CompleterAny instance.
-func NewCompleterAny(content IContent) *CompleterAny {
-	a := &CompleterAny{
-		NewCompleter(content),
+func NewCompleterAny(label string) *CompleterAny {
+	return &CompleterAny{
+		NewCompleter(label),
 	}
-	return a
 }
 
 // Match returns the match for CompleterAny node completer.
-func (a *CompleterAny) Match(ctx *Context, line interface{}, index int) (int, bool) {
+func (a *CompleterAny) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == CR.GetLabel() {
+	if tokens[index] == CR.GetLabel() {
 		return index, false
 	}
 	return index + 1, true
@@ -143,17 +126,16 @@ type CompleterCustom struct {
 }
 
 // NewCompleterCustom returns a new CompleterCustom instance.
-func NewCompleterCustom(content IContent) *CompleterCustom {
-	c := &CompleterCustom{
-		NewCompleter(content),
+func NewCompleterCustom(label string) *CompleterCustom {
+	return &CompleterCustom{
+		NewCompleter(label),
 	}
-	return c
 }
 
 // Match returns the match for CompleterCustom node completer.
-func (c *CompleterCustom) Match(ctx *Context, line interface{}, index int) (int, bool) {
+func (c *CompleterCustom) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == c.GetContent().GetLabel() {
+	if tokens[index] == content.GetLabel() {
 		return index + 1, true
 	}
 	return index, false
@@ -171,24 +153,21 @@ func NewCompleterJoint(label string) *CompleterJoint {
 	if label == "" {
 		label = "JOINT"
 	}
-	j := &CompleterJoint{
-		&Completer{
-			label: label,
-		},
+	return &CompleterJoint{
+		NewCompleter(label),
 	}
-	return j
 }
 
 // Match returns the match for any joint node completer.
-func (j *CompleterJoint) Match(ctx *Context, line interface{}, index int) (int, bool) {
-	if j.GetContent() == nil {
+func (j *CompleterJoint) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
+	if content == nil {
 		return index, true
 	}
 	tokens := line.([]string)
-	if tokens[0] == j.GetContent().GetLabel() {
+	if tokens[index] == content.GetLabel() {
 		return index + 1, true
 	}
-	return index, false
+	return index, true
 }
 
 var _ ICompleter = (*CompleterJoint)(nil)
@@ -210,11 +189,5 @@ func NewCompleterLoop() *CompleterJoint {
 
 // NewCompleterSink returns a new sinkn completer instance.
 func NewCompleterSink() *CompleterJoint {
-	j := &CompleterJoint{
-		&Completer{
-			label:   _sink,
-			content: CR,
-		},
-	}
-	return j
+	return NewCompleterJoint(_sink)
 }

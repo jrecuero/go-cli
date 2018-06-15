@@ -11,7 +11,6 @@ type Command struct {
 	Syntax         string
 	CmdSyntax      *CommandSyntax
 	Arguments      []*Argument
-	Prefixes       []*Prefix
 	FullCmd        string
 	NameSpaceNames []string
 	ToNameSpace    string
@@ -20,16 +19,6 @@ type Command struct {
 // IsCommand returns if content is a command.
 func (c *Command) IsCommand() bool {
 	return true
-}
-
-// LookForPrefix searches for an prefix in a Command with the given label.
-func (c *Command) LookForPrefix(label string) (*Prefix, error) {
-	for _, prefix := range c.Prefixes {
-		if prefix.GetLabel() == label {
-			return prefix, nil
-		}
-	}
-	return nil, errors.New("not found")
 }
 
 // LookForArgument searches for an argument in a Command with the given label.
@@ -65,15 +54,9 @@ func (c *Command) Setup() error {
 	c.CmdSyntax.CreateGraph(c)
 	c.label = c.CmdSyntax.Parsed.Command
 	if c.completer == nil {
-		c.completer = NewCompleterCommand(c)
-	} else {
-		c.completer.Setup(c)
+		c.completer = NewCompleterCommand(c.GetLabel())
 	}
 	c.FullCmd = c.GetLabel()
-	for _, prefix := range c.Prefixes {
-		c.FullCmd += " " + prefix.GetLabel()
-		prefix.Setup()
-	}
 	for _, argument := range c.Arguments {
 		argument.Setup()
 	}

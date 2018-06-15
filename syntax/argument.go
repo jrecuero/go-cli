@@ -15,12 +15,19 @@ func GetValueFromArguments(field string, arguments interface{}) interface{} {
 	return value
 }
 
+// NewArgument creates a new Argument instance.
+func NewArgument(label string, help string, completer ICompleter, atype string, adefault interface{}) *Argument {
+	return &Argument{
+		Content: NewContent(label, help, completer).(*Content),
+		Type:    atype,
+		Default: adefault,
+	}
+}
+
 // Setup initializes all argument fields.
 func (a *Argument) Setup() error {
 	if a.completer == nil {
-		a.completer = NewCompleterAny(a)
-	} else {
-		a.completer.Setup(a)
+		a.completer = NewCompleterAny(a.GetLabel())
 	}
 	return nil
 }

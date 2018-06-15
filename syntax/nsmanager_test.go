@@ -2,7 +2,6 @@ package syntax_test
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
@@ -11,78 +10,21 @@ import (
 
 var commands []*syntax.Command
 
-func quickCommandAllPrefixes(pattern string) *syntax.Command {
+func buildQuickCommand(pattern string) *syntax.Command {
 	cmd := &syntax.Command{
 		Content: syntax.NewContent("", fmt.Sprintf("Help for %s", pattern), nil).(*syntax.Content),
 		Syntax:  pattern,
 	}
-	seq := strings.Split(pattern, " ")
-	for _, prefix := range seq[1:] {
-		cmd.Prefixes = append(cmd.Prefixes, &syntax.Prefix{
-			Content: syntax.NewContent(prefix, fmt.Sprintf("Help for %s", pattern), nil).(*syntax.Content),
-			Type:    "string",
-			Default: prefix,
-		})
-	}
+	//seq := strings.Split(pattern, " ")
 	return cmd
 }
 
 func setupCommands() {
 	commands = []*syntax.Command{
-		quickCommandAllPrefixes("set speed device"),
-		quickCommandAllPrefixes("set speed aux"),
-		quickCommandAllPrefixes("set baudrate main"),
+		buildQuickCommand("set speed device"),
+		buildQuickCommand("set speed aux"),
+		buildQuickCommand("set baudrate main"),
 	}
-	//commands = []*syntax.Command{
-	//    {
-	//        Content: syntax.NewContent("", "Set speed device command", nil).(*syntax.Content),
-	//        Syntax:  "set speed device",
-	//        Prefixes: []*syntax.Prefix{
-	//            {
-	//                Content: syntax.NewContent("speed", "Set the speed", nil).(*syntax.Content),
-	//                Type:    "string",
-	//                Default: "speed",
-	//            },
-	//            {
-	//                Content: syntax.NewContent("device", "Set device", nil).(*syntax.Content),
-	//                Type:    "string",
-	//                Default: "device",
-	//            },
-	//        },
-	//    },
-	//    {
-	//        Content: syntax.NewContent("", "Set speed aux command", nil).(*syntax.Content),
-	//        Syntax:  "set speed aux",
-	//        Prefixes: []*syntax.Prefix{
-	//            {
-	//                Content: syntax.NewContent("speed", "Set the speed", nil).(*syntax.Content),
-	//                Type:    "string",
-	//                Default: "speed",
-	//            },
-	//            {
-	//                Content: syntax.NewContent("aux", "Set aux", nil).(*syntax.Content),
-	//                Type:    "string",
-	//                Default: "aux",
-	//            },
-	//        },
-	//    },
-	//    {
-	//        Content: syntax.NewContent("", "Set main baudrate", nil).(*syntax.Content),
-	//        Syntax:  "set baudrate main",
-	//        Prefixes: []*syntax.Prefix{
-	//            {
-	//                Content: syntax.NewContent("baudrate", "Set the baudrate", nil).(*syntax.Content),
-	//                Type:    "string",
-	//                Default: "baudrate",
-	//            },
-	//            {
-	//                Content: syntax.NewContent("main", "Set main", nil).(*syntax.Content),
-	//                Type:    "string",
-	//                Default: "main",
-	//            },
-	//        },
-	//    },
-	//}
 }
 
 func createNameSpaceForTest() *syntax.NameSpace {

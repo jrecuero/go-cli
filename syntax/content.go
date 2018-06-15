@@ -59,11 +59,6 @@ func (c *Content) IsMode() bool {
 	return false
 }
 
-// IsPrefix returns if content is a prefix.
-func (c *Content) IsPrefix() bool {
-	return false
-}
-
 // IsArgument returns if content is a argument.
 func (c *Content) IsArgument() bool {
 	return false
@@ -103,14 +98,9 @@ var CR *ContentJoint
 // GetCR returns CR variable.
 func GetCR() *ContentJoint {
 	if CR == nil {
+		completer := NewCompleterSink()
 		CR = &ContentJoint{
-			NewContent(_cr, "Carrier return", nil).(*Content),
-		}
-		CR.completer = &CompleterJoint{
-			&Completer{
-				label:   _sink,
-				content: CR,
-			},
+			NewContent(_cr, "Carrier return", completer).(*Content),
 		}
 	}
 	return CR

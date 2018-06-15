@@ -1,4 +1,4 @@
-package syntax
+package graph
 
 import (
 	"bufio"
@@ -12,6 +12,17 @@ import (
 const _mermaid = "MERMAID"
 const _content = "CONTENT"
 
+// SetupGraph represents all customizable fields for the Graph. Content
+// information should be enclosed in these instances.
+type SetupGraph struct {
+	RootContent  interface{}
+	SinkContent  interface{}
+	JointContent interface{}
+	StartContent interface{}
+	EndContent   interface{}
+	LoopContent  interface{}
+}
+
 // Graph represents a full graph.
 type Graph struct {
 	Root        *Node
@@ -21,19 +32,25 @@ type Graph struct {
 	ActiveBlock *Block
 	Terminated  bool
 	visited     []*Node
+	Setup       *SetupGraph
 }
 
 // NewGraph creates a new graph.
-func NewGraph() *Graph {
+func NewGraph(setupG *SetupGraph) *Graph {
+	if setupG == nil {
+		setupG = &SetupGraph{}
+	}
 	g := &Graph{
-		Root: NewRoot(),
-		Sink: NewSink(),
+		Root:  NewNodeRoot(setupG.RootContent),
+		Sink:  NewNodeSink(setupG.SinkContent),
+		Setup: setupG,
 	}
 	g.Hook = g.Root
 	return g
 }
 
-// AddNode adds a new node to the graph.
+// AddNode adds a new node to the graph. It moves the Hook to the new Node
+// being added.
 func (g *Graph) AddNode(n *Node) bool {
 	g.Hook.AddChild(n)
 	g.Hook = n
@@ -43,7 +60,7 @@ func (g *Graph) AddNode(n *Node) bool {
 // newBlock creates a new generic block in the graph.
 func (g *Graph) newBlock() {
 	index := len(g.Blocks)
-	g.ActiveBlock = NewBlock(index)
+	g.ActiveBlock = NewBlock(index, g.Setup.StartContent, g.Setup.EndContent, g.Setup.LoopContent)
 	g.Blocks = append(g.Blocks, g.ActiveBlock)
 }
 
@@ -102,14 +119,16 @@ func (g *Graph) EndLoop() bool {
 	return true
 }
 
-// AddNodeToBlock adds a node to a graph loop.
+// AddNodeToBlock adds a node to a graph loop. It adds the node to the Hook,
+// but it does update the Hook value. Loop is added as a Node child.
 func (g *Graph) AddNodeToBlock(n *Node) bool {
 	g.Hook.AddChild(n)
 	n.AddChild(g.ActiveBlock.Loop)
 	return true
 }
 
-// AddPathToBlock adds a node to a node path in a graph block.
+// AddPathToBlock adds a node to a node path in a graph block. It moves the
+// Hookd to the new Node being added.
 func (g *Graph) AddPathToBlock(n *Node) bool {
 	n.InPath = true
 	g.Hook.AddChild(n)
@@ -125,7 +144,8 @@ func (g *Graph) CreatePathToBlock(ln []*Node) bool {
 	return g.TerminatePathToBlock()
 }
 
-// AddIdentAndAnyToBlock adds an indent and an any node to the graph block.
+// AddIdentAndAnyToBlock adds an ident and an any node to the graph block. This
+// can be used to add nodes that contains keyword-value pairs.
 func (g *Graph) AddIdentAndAnyToBlock(ident *Node, any *Node) bool {
 	return g.CreatePathToBlock([]*Node{ident, any})
 }
@@ -153,8 +173,7 @@ func (g *Graph) Explore() {
 	parents := []*Node{}
 	var index int
 	for {
-		//fmt.Printf(fmt.Sprintf("\n\nID: %d Label: %s\n", traverse.ID, traverse.Label))
-		fmt.Printf(fmt.Sprintf("\n\nID: %d Node Information: %s\n", traverse.ID, traverse.ToContent()))
+		fmt.Printf(fmt.Sprintf("\n\nNode Information: %s\n", traverse.ToContent()))
 		fmt.Printf(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
 		if len(traverse.Children) > 0 {
 			for i, child := range traverse.Children {
@@ -190,7 +209,7 @@ func (g *Graph) childrenToString(node *Node, visited []*Node) string {
 			continue
 		}
 		visited = append(visited, child)
-		buffer.WriteString(fmt.Sprintf("%d %s %d %#v\n", child.ID, child.Label, len(child.Children), child.Completer))
+		buffer.WriteString(fmt.Sprintf("%s %d\n", child.Label, len(child.Children)))
 		//fmt.Printf("visited %+v\n", visited)
 		buffer.WriteString(g.childrenToString(child, visited))
 	}
@@ -202,7 +221,7 @@ func (g *Graph) ToString() string {
 	var buffer bytes.Buffer
 	visited := []*Node{}
 	traverse := g.Root
-	buffer.WriteString(fmt.Sprintf("%d %s %d %#v\n", traverse.ID, traverse.Label, len(traverse.Children), traverse.Completer))
+	buffer.WriteString(fmt.Sprintf("%s %d\n", traverse.Label, len(traverse.Children)))
 	visited = append(visited, traverse)
 	buffer.WriteString(g.childrenToString(traverse, visited))
 	return buffer.String()
