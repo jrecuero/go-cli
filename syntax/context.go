@@ -1,10 +1,8 @@
 package syntax
 
-import "github.com/jrecuero/go-cli/graph"
-
 // Context represents the structure that stores information about any match.
 type Context struct {
-	Matched   []*graph.Node
+	Matched   []*ContentNode
 	Arguments interface{}
 }
 
@@ -15,7 +13,7 @@ func NewContext() *Context {
 }
 
 // AddToken adds a matched token to the context.
-func (c *Context) AddToken(n *graph.Node) error {
+func (c *Context) AddToken(n *ContentNode) error {
 	c.Matched = append(c.Matched, n)
 	return nil
 }

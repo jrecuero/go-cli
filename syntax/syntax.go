@@ -1,7 +1,6 @@
 package syntax
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/jrecuero/go-cli/graph"
@@ -27,8 +26,9 @@ var mapTokenToBlock = map[parser.Token]graph.BlockType{
 func NewCommandSyntax(st string) *CommandSyntax {
 	ps, _ := parser.NewParser(strings.NewReader(st)).Parse()
 	setupG := &graph.SetupGraph{
-		RootContent:  NewContentJoint("Root", "Root content", NewCompleterJoint("root")),
-		SinkContent:  NewContentJoint("Sink", "Sink content", NewCompleterSink()),
+		RootContent: NewContentJoint("Root", "Root content", NewCompleterJoint("root")),
+		//SinkContent:  NewContentJoint("Sink", "Sink content", NewCompleterSink()),
+		SinkContent:  GetCR(),
 		JointContent: NewContentJoint("Joint", "Joint content", NewCompleterJoint("joint")),
 		StartContent: NewContentJoint("Start", "Start content", NewCompleterStart()),
 		EndContent:   NewContentJoint("End", "End content", NewCompleterEnd()),
@@ -54,10 +54,21 @@ func lookForCloseBracket(toks []parser.Token, index int) (parser.Token, int) {
 	return parser.ILLEGAL, -1
 }
 
+// addNodeToGraph adds a content node to a graph with proper casting.
+func (cs *CommandSyntax) addNodeToGraph(cn *ContentNode) bool {
+	return cs.Graph.AddNode(ContentNodeToNode(cn))
+}
+
+// addNodeToBlockToGraph adds a content node to a block graph with proper
+// casting.
+func (cs *CommandSyntax) addNodeToBlockToGraph(cn *ContentNode) bool {
+	return cs.Graph.AddNodeToBlock(ContentNodeToNode(cn))
+}
+
 // CreateGraph creates graph using parsed syntax.
 func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 	commandLabel := cs.Parsed.Command
-	cs.Graph.AddNode(graph.NewNode(commandLabel, c))
+	cs.addNodeToGraph(NewContentNode(commandLabel, c))
 	var insideBlock bool
 	var block graph.BlockType
 	for i, tok := range cs.Parsed.Tokens {
@@ -66,12 +77,12 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 			label := cs.Parsed.Arguments[i]
 			var newContent IContent
 			newContent, _ = c.LookForArgument(label)
-			newNode := graph.NewNode(label, newContent)
+			newNode := NewContentNode(label, newContent)
 			// Check if we are in a block, and use AddNodeToBlock in that case.
 			if insideBlock == true {
-				cs.Graph.AddNodeToBlock(newNode)
+				cs.addNodeToBlockToGraph(newNode)
 			} else {
-				cs.Graph.AddNode(newNode)
+				cs.addNodeToGraph(newNode)
 			}
 			break
 		case parser.OPENBRACKET:
@@ -82,9 +93,9 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 			// Look forward in the parsed syntax in order to identify which
 			// kind of block has to be created.
 			// Look for the next entry after parser.CLOSEBRACKET.
-			endTok, index := lookForCloseBracket(cs.Parsed.Tokens, i)
+			endTok, _ := lookForCloseBracket(cs.Parsed.Tokens, i)
 			block = mapTokenToBlock[endTok]
-			fmt.Printf("index=%d token=%d block=%d\n", index, endTok, block)
+			//fmt.Printf("index=%d token=%d block=%d\n", index, endTok, block)
 			// Create the graph block, any node while in the block should be
 			// added to this block.
 			graph.MapBlockToGraphFunc[block](cs.Graph)

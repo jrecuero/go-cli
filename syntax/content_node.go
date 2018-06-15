@@ -65,3 +65,22 @@ func (cn *ContentNode) Validate(ctx interface{}, line interface{}, index int) bo
 	}
 	return true
 }
+
+// NewContentNode creates a new content node instance.
+func NewContentNode(label string, content IContent) *ContentNode {
+	return &ContentNode{
+		graph.NewNode(label, content),
+	}
+}
+
+// ContentNodeToNode casts a ContentNode to a Node
+func ContentNodeToNode(cn *ContentNode) *graph.Node {
+	return cn.Node
+}
+
+// NodeToContentNode casts a Node to a ContentNode
+func NodeToContentNode(n *graph.Node) *ContentNode {
+	return &ContentNode{
+		Node: n,
+	}
+}

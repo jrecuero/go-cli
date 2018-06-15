@@ -40,7 +40,7 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 func (m *Matcher) MatchCommandLine(line interface{}) bool {
 	fmt.Printf("MatchCommandLine, line: %v\n", line)
 	tokens := line.([]string)
-	tokens = append(tokens, CR.GetLabel())
+	tokens = append(tokens, GetCR().GetLabel())
 	index, result := m.MatchWithGraph(tokens)
 	if index != len(tokens) {
 		fmt.Printf("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
@@ -58,10 +58,11 @@ func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
 	for traverse != nil && len(traverse.Children) != 0 {
 		var found bool
 		for _, n := range traverse.Children {
-			if index, ok = n.Match(m.Ctx, tokens[index:], index); ok {
+			cn := NodeToContentNode(n)
+			if index, ok = cn.Match(m.Ctx, tokens, index); ok {
 				traverse = n
 				fmt.Printf("traverse matched: %v\n", traverse)
-				m.Ctx.AddToken(n)
+				m.Ctx.AddToken(cn)
 				found = true
 				break
 			}

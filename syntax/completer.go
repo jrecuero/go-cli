@@ -89,7 +89,7 @@ func NewCompleterIdent(label string) *CompleterIdent {
 // Match returns the match for any ident node completer.
 func (i *CompleterIdent) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == i.GetLabel() {
+	if tokens[index] == i.GetLabel() {
 		return index + 1, true
 	}
 	return index, false
@@ -112,7 +112,7 @@ func NewCompleterAny(label string) *CompleterAny {
 // Match returns the match for CompleterAny node completer.
 func (a *CompleterAny) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == CR.GetLabel() {
+	if tokens[index] == CR.GetLabel() {
 		return index, false
 	}
 	return index + 1, true
@@ -135,7 +135,7 @@ func NewCompleterCustom(label string) *CompleterCustom {
 // Match returns the match for CompleterCustom node completer.
 func (c *CompleterCustom) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
-	if tokens[0] == content.GetLabel() {
+	if tokens[index] == content.GetLabel() {
 		return index + 1, true
 	}
 	return index, false
@@ -164,10 +164,10 @@ func (j *CompleterJoint) Match(ctx *Context, content IContent, line interface{},
 		return index, true
 	}
 	tokens := line.([]string)
-	if tokens[0] == content.GetLabel() {
+	if tokens[index] == content.GetLabel() {
 		return index + 1, true
 	}
-	return index, false
+	return index, true
 }
 
 var _ ICompleter = (*CompleterJoint)(nil)
