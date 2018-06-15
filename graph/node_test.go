@@ -29,7 +29,7 @@ func TestNode_NewNode(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewNodeJoint("joint"),
+			n: graph.NewNodeJoint("joint", nil),
 			exp: &graph.Node{
 				Label:    "joint",
 				Children: nil,
@@ -44,7 +44,7 @@ func TestNode_NewNode(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewNodeRoot(),
+			n: graph.NewNodeRoot(nil),
 			exp: &graph.Node{
 				Label:    "ROOT",
 				Children: nil,
@@ -59,7 +59,7 @@ func TestNode_NewNode(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewNodeStart(4),
+			n: graph.NewNodeStart(4, nil),
 			exp: &graph.Node{
 				Label:    "START",
 				Children: nil,
@@ -74,7 +74,7 @@ func TestNode_NewNode(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewNodeEnd(5),
+			n: graph.NewNodeEnd(5, nil),
 			exp: &graph.Node{
 				Label:    "END",
 				Children: nil,
@@ -89,7 +89,7 @@ func TestNode_NewNode(t *testing.T) {
 			},
 		},
 		{
-			n: graph.NewNodeLoop(6),
+			n: graph.NewNodeLoop(6, nil),
 			exp: &graph.Node{
 				Label:    "LOOP",
 				Children: nil,
@@ -210,5 +210,45 @@ func TestNode_ToContent(t *testing.T) {
 	exp = "[string              ]	\"CHILD ONE\"\n[string              ]	\"CHILD TWO\"\n"
 	if !reflect.DeepEqual(output, exp) {
 		t.Errorf("node content mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", exp, output)
+	}
+}
+
+// TestNode_Match tests Node.Match behavior..
+func TestNode_Match(t *testing.T) {
+	n := graph.NewNode("main", "MAIN")
+	if index, ok := n.Match(nil, nil, 0); index != 1 || ok != true {
+		t.Errorf("match operation failed")
+	}
+}
+
+// TestNode_Help tests Node.Help behavior.
+func TestNode_Help(t *testing.T) {
+	n := graph.NewNode("main", "MAIN")
+	if itf, ok := n.Help(nil, nil, 0); itf != "MAIN" || ok != true {
+		t.Errorf("help operation failed")
+	}
+}
+
+// TestNode_Query tests Node.Query behavior.
+func TestNode_Query(t *testing.T) {
+	n := graph.NewNode("main", "MAIN")
+	if itf, ok := n.Query(nil, nil, 0); itf != nil || ok != true {
+		t.Errorf("query operation failed")
+	}
+}
+
+// TestNode_Complete tests Node.Complete behavior.
+func TestNode_Complete(t *testing.T) {
+	n := graph.NewNode("main", "MAIN")
+	if itf, ok := n.Complete(nil, nil, 0); itf != "MAIN" || ok != true {
+		t.Errorf("complete operation failed")
+	}
+}
+
+// TestNode_Validate tests Node.Validate behavior.
+func TestNode_Validate(t *testing.T) {
+	n := graph.NewNode("main", "MAIN")
+	if ok := n.Validate(nil, nil, 0); ok != true {
+		t.Errorf("validate operation failed")
 	}
 }

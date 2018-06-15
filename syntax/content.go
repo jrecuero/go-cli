@@ -98,14 +98,13 @@ var CR *ContentJoint
 // GetCR returns CR variable.
 func GetCR() *ContentJoint {
 	if CR == nil {
-		CR = &ContentJoint{
-			NewContent(_cr, "Carrier return", nil).(*Content),
-		}
-		CR.completer = &CompleterJoint{
+		completer := &CompleterJoint{
 			&Completer{
-				label:   _sink,
-				content: CR,
+				label: _sink,
 			},
+		}
+		CR = &ContentJoint{
+			NewContent(_cr, "Carrier return", completer).(*Content),
 		}
 	}
 	return CR

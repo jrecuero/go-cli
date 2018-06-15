@@ -9,7 +9,7 @@ import (
 
 // TestBlock_NewBlock ensures the block structure works properly
 func TestBlock_NewBlock(t *testing.T) {
-	b := graph.NewBlock(10)
+	b := graph.NewBlock(10, nil, nil, nil)
 	if b.Start.BlockID != 10 || b.Start.IsStart == false {
 		t.Errorf("new block operation failed: Start")
 	} else if b.End.BlockID != 10 || b.End.IsEnd == false {
@@ -27,7 +27,7 @@ func TestBlock_NewBlock(t *testing.T) {
 
 // TestBlock_CreateBlockNoLoopAndSkip ensures the block structure works properly
 func TestBlock_CreateBlockNoLoopAndSkip(t *testing.T) {
-	b := graph.NewBlock(1)
+	b := graph.NewBlock(1, nil, nil, nil)
 	if b.CreateBlockNoLoopAndSkip() == false {
 		t.Errorf("create block no loop and skip operation failed")
 	} else if b.IsLoop != false || b.IsSkip != true {
@@ -45,7 +45,7 @@ func TestBlock_CreateBlockNoLoopAndSkip(t *testing.T) {
 
 // TestBlock_CreateBlockLoopAndSkip ensures the block structure works properly
 func TestBlock_CreateBlockLoopAndSkip(t *testing.T) {
-	b := graph.NewBlock(1)
+	b := graph.NewBlock(1, nil, nil, nil)
 	if b.CreateBlockLoopAndSkip() == false {
 		t.Errorf("create block loop and skip operation failed")
 	} else if b.IsLoop != true || b.IsSkip != true {
@@ -65,7 +65,7 @@ func TestBlock_CreateBlockLoopAndSkip(t *testing.T) {
 
 // TestBlock_CreateBlockNoLoopAndNoSkip ensures the block structure works properly
 func TestBlock_CreateBlockNoLoopAndNoSkip(t *testing.T) {
-	b := graph.NewBlock(1)
+	b := graph.NewBlock(1, nil, nil, nil)
 	if b.CreateBlockNoLoopAndNoSkip() == false {
 		t.Errorf("create block no loop and no skip operation failed")
 	} else if b.IsLoop != false || b.IsSkip != false {
@@ -81,7 +81,7 @@ func TestBlock_CreateBlockNoLoopAndNoSkip(t *testing.T) {
 
 // TestBlock_CreateBlockLoopAndNoSkip ensures the block structure works properly
 func TestBlock_CreateBlockLoopAndNoSkip(t *testing.T) {
-	b := graph.NewBlock(1)
+	b := graph.NewBlock(1, nil, nil, nil)
 	if b.CreateBlockLoopAndNoSkip() == false {
 		t.Errorf("create block loop and no skip operation failed")
 	} else if b.IsLoop != true || b.IsSkip != false {
@@ -99,7 +99,7 @@ func TestBlock_CreateBlockLoopAndNoSkip(t *testing.T) {
 
 // TestBlock_Terminate ensures the block structure works properly
 func TestBlock_Terminate(t *testing.T) {
-	b := graph.NewBlock(1)
+	b := graph.NewBlock(1, nil, nil, nil)
 	if b.CreateBlockNoLoopAndSkip() == false {
 		t.Errorf("create block no loop and skip operation failed")
 	} else if b.Terminate() == false {
@@ -112,7 +112,7 @@ func TestBlock_Terminate(t *testing.T) {
 		t.Errorf("terminate operation failed: match Start:End")
 	}
 
-	b = graph.NewBlock(2)
+	b = graph.NewBlock(2, nil, nil, nil)
 	if b.CreateBlockLoopAndNoSkip() == false {
 		t.Errorf("create block no loop and skip operation failed")
 	} else if b.Terminate() == false {

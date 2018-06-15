@@ -26,10 +26,18 @@ var mapTokenToBlock = map[parser.Token]graph.BlockType{
 // NewCommandSyntax returns a new instance of CommandSyntax.
 func NewCommandSyntax(st string) *CommandSyntax {
 	ps, _ := parser.NewParser(strings.NewReader(st)).Parse()
+	setupG := &graph.SetupGraph{
+		RootContent:  NewContentJoint("Root", "Root content", NewCompleterJoint("root")),
+		SinkContent:  NewContentJoint("Sink", "Sink content", NewCompleterSink()),
+		JointContent: NewContentJoint("Joint", "Joint content", NewCompleterJoint("joint")),
+		StartContent: NewContentJoint("Start", "Start content", NewCompleterStart()),
+		EndContent:   NewContentJoint("End", "End content", NewCompleterEnd()),
+		LoopContent:  NewContentJoint("Loop", "Loop content", NewCompleterLoop()),
+	}
 	return &CommandSyntax{
 		Syntax: st,
 		Parsed: ps,
-		Graph:  graph.NewGraph(),
+		Graph:  graph.NewGraph(setupG),
 	}
 }
 

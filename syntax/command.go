@@ -54,9 +54,7 @@ func (c *Command) Setup() error {
 	c.CmdSyntax.CreateGraph(c)
 	c.label = c.CmdSyntax.Parsed.Command
 	if c.completer == nil {
-		c.completer = NewCompleterCommand(c)
-	} else {
-		c.completer.Setup(c)
+		c.completer = NewCompleterCommand(c.GetLabel())
 	}
 	c.FullCmd = c.GetLabel()
 	for _, argument := range c.Arguments {

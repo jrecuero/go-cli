@@ -86,11 +86,11 @@ func (b *Block) Terminate() bool {
 }
 
 // NewBlock creates a new graph block.
-func NewBlock(id int) *Block {
+func NewBlock(id int, startContent interface{}, endContent interface{}, loopContent interface{}) *Block {
 	b := &Block{
-		Start:      NewNodeStart(id),
-		End:        NewNodeEnd(id),
-		Loop:       NewNodeLoop(id),
+		Start:      NewNodeStart(id, startContent),
+		End:        NewNodeEnd(id, endContent),
+		Loop:       NewNodeLoop(id, loopContent),
 		IsLoop:     false,
 		IsSkip:     false,
 		Terminated: false,

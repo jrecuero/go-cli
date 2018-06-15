@@ -91,22 +91,22 @@ func (n *Node) Match(ctx interface{}, line interface{}, index int) (int, bool) {
 }
 
 // Help returns the help for any node.
-func (n *Node) Help(ctx interface{}, line interface{}) (interface{}, bool) {
+func (n *Node) Help(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	return n.Content, true
 }
 
 // Query returns the query for any node.
-func (n *Node) Query(ctx interface{}, line interface{}) (interface{}, bool) {
+func (n *Node) Query(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	return nil, true
 }
 
 // Complete returns the complete match for any node.
-func (n *Node) Complete(ctx interface{}, line interface{}) (interface{}, bool) {
+func (n *Node) Complete(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	return n.Content, true
 }
 
 // Validate checks if the content is value for the given line.
-func (n *Node) Validate(ctx interface{}, line interface{}) bool {
+func (n *Node) Validate(ctx interface{}, line interface{}, index int) bool {
 	return true
 }
 
@@ -123,8 +123,8 @@ func NewNode(label string, content interface{}) *Node {
 // NewNodeJoint create a new graph joint node.
 // Joint node is any node that does not contain information but is used
 // to build the graph.
-func NewNodeJoint(label string) *Node {
-	node := NewNode(label, nil)
+func NewNodeJoint(label string, content interface{}) *Node {
+	node := NewNode(label, content)
 	node.IsJoint = true
 	return node
 }
@@ -132,8 +132,8 @@ func NewNodeJoint(label string) *Node {
 // NewNodeRoot creates a new graph root node.
 // Root node is at the top of the graph, it starts the graph and only
 // can be one Root node in the graph.
-func NewNodeRoot() *Node {
-	node := NewNodeJoint("ROOT")
+func NewNodeRoot(content interface{}) *Node {
+	node := NewNodeJoint("ROOT", content)
 	node.IsRoot = true
 	return node
 }
@@ -141,8 +141,8 @@ func NewNodeRoot() *Node {
 // NewNodeSink creates a new graph sink node.
 // Sink node is at the bottom of the graph, it terminates the graph only
 // can be one sink node.
-func NewNodeSink() *Node {
-	node := NewNodeJoint("SINK")
+func NewNodeSink(content interface{}) *Node {
+	node := NewNodeJoint("SINK", content)
 	node.IsSink = true
 	return node
 }
@@ -150,8 +150,8 @@ func NewNodeSink() *Node {
 // NewNodeStart creates a new graph start node.
 // Start node is used for building loop graphs, and it identifies the
 // start point of the loop.
-func NewNodeStart(id int) *Node {
-	node := NewNodeJoint("START")
+func NewNodeStart(id int, content interface{}) *Node {
+	node := NewNodeJoint("START", content)
 	node.IsStart = true
 	node.BlockID = id
 	return node
@@ -160,8 +160,8 @@ func NewNodeStart(id int) *Node {
 // NewNodeEnd creates a new graph end node.
 // End node is used for building loop graphs, and it identifies the
 // end point or exit of the loop.
-func NewNodeEnd(id int) *Node {
-	node := NewNodeJoint("END")
+func NewNodeEnd(id int, content interface{}) *Node {
+	node := NewNodeJoint("END", content)
 	node.IsEnd = true
 	node.BlockID = id
 	return node
@@ -170,8 +170,8 @@ func NewNodeEnd(id int) *Node {
 // NewNodeLoop creates a new graph loop node.
 // Loop node is used for building loop graphs, and it identfies the
 // loop part which will point to the start of the loop.
-func NewNodeLoop(id int) *Node {
-	node := NewNodeJoint("LOOP")
+func NewNodeLoop(id int, content interface{}) *Node {
+	node := NewNodeJoint("LOOP", content)
 	node.IsLoop = true
 	node.BlockID = id
 	return node

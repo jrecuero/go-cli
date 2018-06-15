@@ -12,6 +12,17 @@ import (
 const _mermaid = "MERMAID"
 const _content = "CONTENT"
 
+// SetupGraph represents all customizable fields for the Graph. Content
+// information should be enclosed in these instances.
+type SetupGraph struct {
+	RootContent  interface{}
+	SinkContent  interface{}
+	JointContent interface{}
+	StartContent interface{}
+	EndContent   interface{}
+	LoopContent  interface{}
+}
+
 // Graph represents a full graph.
 type Graph struct {
 	Root        *Node
@@ -21,13 +32,18 @@ type Graph struct {
 	ActiveBlock *Block
 	Terminated  bool
 	visited     []*Node
+	Setup       *SetupGraph
 }
 
 // NewGraph creates a new graph.
-func NewGraph() *Graph {
+func NewGraph(setupG *SetupGraph) *Graph {
+	if setupG == nil {
+		setupG = &SetupGraph{}
+	}
 	g := &Graph{
-		Root: NewNodeRoot(),
-		Sink: NewNodeSink(),
+		Root:  NewNodeRoot(setupG.RootContent),
+		Sink:  NewNodeSink(setupG.SinkContent),
+		Setup: setupG,
 	}
 	g.Hook = g.Root
 	return g
@@ -44,7 +60,7 @@ func (g *Graph) AddNode(n *Node) bool {
 // newBlock creates a new generic block in the graph.
 func (g *Graph) newBlock() {
 	index := len(g.Blocks)
-	g.ActiveBlock = NewBlock(index)
+	g.ActiveBlock = NewBlock(index, g.Setup.StartContent, g.Setup.EndContent, g.Setup.LoopContent)
 	g.Blocks = append(g.Blocks, g.ActiveBlock)
 }
 

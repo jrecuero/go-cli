@@ -2,7 +2,6 @@ package syntax_test
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
@@ -16,7 +15,7 @@ func buildQuickCommand(pattern string) *syntax.Command {
 		Content: syntax.NewContent("", fmt.Sprintf("Help for %s", pattern), nil).(*syntax.Content),
 		Syntax:  pattern,
 	}
-	seq := strings.Split(pattern, " ")
+	//seq := strings.Split(pattern, " ")
 	return cmd
 }
 
