@@ -1,5 +1,7 @@
 package syntax
 
+import "fmt"
+
 // Argument represents any CLI argument information.
 type Argument struct {
 	*Content
@@ -30,6 +32,17 @@ func (a *Argument) Setup() error {
 		a.completer = NewCompleterAny(a.GetLabel())
 	}
 	return nil
+}
+
+// CreateKeywordFromSelf creates a new Argument instance that contains the
+// argument in keyword format
+func (a *Argument) CreateKeywordFromSelf() *Argument {
+	label := fmt.Sprintf("-%s", a.label)
+	return &Argument{
+		Content: NewContent(label, a.help, NewCompleterIdent(label)).(*Content),
+		Type:    "string",
+		Default: label,
+	}
 }
 
 var _ IContent = (*Argument)(nil)

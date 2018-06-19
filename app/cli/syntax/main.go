@@ -168,7 +168,7 @@ func runNewUserCmd() {
 	//fmt.Printf("%s", cs.Graph.ToString())
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	fmt.Printf("%#v\n", m)
-	line := []string{"user", "name", "age"}
+	line := []string{"user", "josecarlos", "-age", "51"}
 	m.MatchCommandLine(line)
 	//fmt.Printf("%s", cs.Graph.ToMermaid())
 }

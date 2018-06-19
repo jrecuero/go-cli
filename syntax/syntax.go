@@ -65,6 +65,12 @@ func (cs *CommandSyntax) addNodeToBlockToGraph(cn *ContentNode) bool {
 	return cs.Graph.AddNodeToBlock(ContentNodeToNode(cn))
 }
 
+// addNodeAndNodeToBlockToGraph adds a key-value pair to a block graph with
+// proper casting.
+func (cs *CommandSyntax) addNodeAndNodeToBlockToGraph(cnkey *ContentNode, cnval *ContentNode) bool {
+	return cs.Graph.AddIdentAndAnyToBlock(ContentNodeToNode(cnkey), ContentNodeToNode(cnval))
+}
+
 // CreateGraph creates graph using parsed syntax.
 func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 	commandLabel := cs.Parsed.Command
@@ -75,12 +81,16 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 		switch tok {
 		case parser.IDENT:
 			label := cs.Parsed.Arguments[i]
-			var newContent IContent
-			newContent, _ = c.LookForArgument(label)
+			//var newContent IContent
+			newContent, _ := c.LookForArgument(label)
 			newNode := NewContentNode(label, newContent)
 			// Check if we are in a block, and use AddNodeToBlock in that case.
 			if insideBlock == true {
-				cs.addNodeToBlockToGraph(newNode)
+				//cs.addNodeToBlockToGraph(newNode)
+				//keyContent := newContent.(*Argument).CreateKeywordFromSelf()
+				keyContent := newContent.CreateKeywordFromSelf()
+				keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
+				cs.addNodeAndNodeToBlockToGraph(keyNode, newNode)
 			} else {
 				cs.addNodeToGraph(newNode)
 			}
