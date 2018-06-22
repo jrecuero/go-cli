@@ -59,11 +59,12 @@ func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
 		var found bool
 		for _, n := range traverse.Children {
 			cn := NodeToContentNode(n)
-			indexDebug := index
+			indexMatched := index
 			if index, ok = cn.Match(m.Ctx, tokens, index); ok {
+				valueMatched := tokens[indexMatched]
 				traverse = n
-				fmt.Printf("traverse matched: %d %s => %v\n", indexDebug, tokens[indexDebug], traverse)
-				m.Ctx.AddToken(cn)
+				fmt.Printf("traverse matched: %d %s => %v\n", indexMatched, valueMatched, traverse)
+				m.Ctx.AddToken(cn, valueMatched)
 				found = true
 				break
 			}

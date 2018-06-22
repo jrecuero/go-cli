@@ -1,8 +1,23 @@
 package syntax
 
+// Token represents the structure that stores information with any token that
+// has been matched.
+type Token struct {
+	Node  *ContentNode
+	Value string
+}
+
+// NewToken creates a new Token instance.
+func NewToken(cn *ContentNode, v string) *Token {
+	return &Token{
+		Node:  cn,
+		Value: v,
+	}
+}
+
 // Context represents the structure that stores information about any match.
 type Context struct {
-	Matched   []*ContentNode
+	Matched   []*Token
 	Arguments interface{}
 }
 
@@ -13,8 +28,9 @@ func NewContext() *Context {
 }
 
 // AddToken adds a matched token to the context.
-func (c *Context) AddToken(n *ContentNode) error {
-	c.Matched = append(c.Matched, n)
+func (c *Context) AddToken(n *ContentNode, v string) error {
+	token := NewToken(n, v)
+	c.Matched = append(c.Matched, token)
 	return nil
 }
 

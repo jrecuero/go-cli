@@ -171,6 +171,9 @@ func runNewUserCmd() {
 	line := []string{"user", "josecarlos", "-age", "51"}
 	m.MatchCommandLine(line)
 	//fmt.Printf("%s", cs.Graph.ToMermaid())
+	for _, token := range m.Ctx.Matched {
+		fmt.Printf("%s : %s\n", token.Node.Label, token.Value)
+	}
 }
 
 func main() {
