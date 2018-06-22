@@ -172,7 +172,7 @@ func runNewUserCmd() {
 	m.MatchCommandLine(line)
 	//fmt.Printf("%s", cs.Graph.ToMermaid())
 	for _, token := range m.Ctx.Matched {
-		fmt.Printf("%s : %s\n", token.Node.Label, token.Value)
+		fmt.Printf("[%s] %s : %s \n", token.Node.GetContent().GetStrType(), token.Node.Label, token.Value)
 	}
 }
 

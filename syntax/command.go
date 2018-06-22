@@ -21,6 +21,11 @@ func (c *Command) IsCommand() bool {
 	return true
 }
 
+// GetStrType returns the short string for the content type.
+func (c *Command) GetStrType() string {
+	return "C"
+}
+
 // LookForArgument searches for an argument in a Command with the given label.
 func (c *Command) LookForArgument(label string) (*Argument, error) {
 	for _, argo := range c.Arguments {

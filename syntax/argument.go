@@ -9,23 +9,6 @@ type Argument struct {
 	Default interface{}
 }
 
-// GetValueFromArguments returns the value for the given field in arguments
-// passed to.
-func GetValueFromArguments(field string, arguments interface{}) interface{} {
-	argos := arguments.(map[string]interface{})
-	value := argos[field]
-	return value
-}
-
-// NewArgument creates a new Argument instance.
-func NewArgument(label string, help string, completer ICompleter, atype string, adefault interface{}) *Argument {
-	return &Argument{
-		Content: NewContent(label, help, completer).(*Content),
-		Type:    atype,
-		Default: adefault,
-	}
-}
-
 // Setup initializes all argument fields.
 func (a *Argument) Setup() error {
 	if a.completer == nil {
@@ -45,4 +28,31 @@ func (a *Argument) CreateKeywordFromSelf() *Argument {
 	}
 }
 
+// IsArgument returns if content is an argument..
+func (a *Argument) IsArgument() bool {
+	return true
+}
+
+// GetStrType returns the short string for the content type.
+func (a *Argument) GetStrType() string {
+	return "A"
+}
+
 var _ IContent = (*Argument)(nil)
+
+// GetValueFromArguments returns the value for the given field in arguments
+// passed to.
+func GetValueFromArguments(field string, arguments interface{}) interface{} {
+	argos := arguments.(map[string]interface{})
+	value := argos[field]
+	return value
+}
+
+// NewArgument creates a new Argument instance.
+func NewArgument(label string, help string, completer ICompleter, atype string, adefault interface{}) *Argument {
+	return &Argument{
+		Content: NewContent(label, help, completer).(*Content),
+		Type:    atype,
+		Default: adefault,
+	}
+}

@@ -1,15 +1,5 @@
 package syntax
 
-const _cr = "<<<_CR_>>>"
-
-// GetLabelFromContent returns the label for any content interface.
-func GetLabelFromContent(content IContent) string {
-	if content == nil {
-		return "<nil>"
-	}
-	return content.GetLabel()
-}
-
 // Content represents any  content.
 type Content struct {
 	label     string
@@ -69,6 +59,11 @@ func (c *Content) IsJoint() bool {
 	return false
 }
 
+// GetStrType returns the short string for the content type.
+func (c *Content) GetStrType() string {
+	return "X"
+}
+
 // NewContent returns a new Content instance.
 func NewContent(label string, help string, completer ICompleter) IContent {
 	return &Content{
@@ -78,30 +73,10 @@ func NewContent(label string, help string, completer ICompleter) IContent {
 	}
 }
 
-// ContentJoint represents any joint content.
-type ContentJoint struct {
-	*Content
-}
-
-var _ IContent = (*ContentJoint)(nil)
-
-// NewContentJoint returns a new ContentJoint instance.
-func NewContentJoint(label string, help string, completer ICompleter) *ContentJoint {
-	return &ContentJoint{
-		NewContent(label, help, completer).(*Content),
+// GetLabelFromContent returns the label for any content interface.
+func GetLabelFromContent(content IContent) string {
+	if content == nil {
+		return "<nil>"
 	}
-}
-
-// CR represents the carrier return content.
-var CR *ContentJoint
-
-// GetCR returns CR variable.
-func GetCR() *ContentJoint {
-	if CR == nil {
-		completer := NewCompleterSink()
-		CR = &ContentJoint{
-			NewContent(_cr, "Carrier return", completer).(*Content),
-		}
-	}
-	return CR
+	return content.GetLabel()
 }
