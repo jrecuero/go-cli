@@ -16,6 +16,7 @@ type NSManager struct {
 	ns       *NameSpace             // NameSpace instance.
 	ctx      *Context               // Context instance.
 	commands map[string]interface{} // Contains all commands that can be used for the NameSpace Manager.
+	isup     bool
 }
 
 // NewNSManager creates a new NSManager instance.

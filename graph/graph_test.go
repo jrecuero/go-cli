@@ -17,40 +17,46 @@ func TestGraph_NewGraph(t *testing.T) {
 			g: graph.NewGraph(nil),
 			exp: &graph.Graph{
 				Root: &graph.Node{
-					Label:    "ROOT",
-					Children: nil,
-					IsRoot:   true,
-					IsSink:   false,
-					IsStart:  false,
-					IsEnd:    false,
-					IsLoop:   false,
-					IsJoint:  true,
-					InPath:   false,
-					BlockID:  -1,
+					Label:         "ROOT",
+					Children:      nil,
+					IsRoot:        true,
+					IsSink:        false,
+					IsNext:        false,
+					IsStart:       false,
+					IsEnd:         false,
+					IsLoop:        false,
+					IsJoint:       true,
+					InPath:        false,
+					AllowChildren: true,
+					BlockID:       -1,
 				},
-				Sink: &graph.Node{
-					Label:    "SINK",
-					Children: nil,
-					IsRoot:   false,
-					IsSink:   true,
-					IsStart:  false,
-					IsEnd:    false,
-					IsLoop:   false,
-					IsJoint:  true,
-					InPath:   false,
-					BlockID:  -1,
-				},
+				//Sink: &graph.Node{
+				//    Label:         "SINK",
+				//    Children:      nil,
+				//    IsRoot:        false,
+				//    IsSink:        true,
+				//    IsNext:        false,
+				//    IsStart:       false,
+				//    IsEnd:         false,
+				//    IsLoop:        false,
+				//    IsJoint:       true,
+				//    InPath:        false,
+				//    AllowChildren: false,
+				//    BlockID:       -1,
+				//},
 				Hook: &graph.Node{
-					Label:    "ROOT",
-					Children: nil,
-					IsRoot:   true,
-					IsSink:   false,
-					IsStart:  false,
-					IsEnd:    false,
-					IsLoop:   false,
-					IsJoint:  true,
-					InPath:   false,
-					BlockID:  -1,
+					Label:         "ROOT",
+					Children:      nil,
+					IsRoot:        true,
+					IsSink:        false,
+					IsNext:        false,
+					IsStart:       false,
+					IsEnd:         false,
+					IsLoop:        false,
+					IsJoint:       true,
+					InPath:        false,
+					AllowChildren: true,
+					BlockID:       -1,
 				},
 				Blocks:      nil,
 				ActiveBlock: nil,
@@ -184,7 +190,9 @@ func TestGraph_AddNodeToLoop(t *testing.T) {
 
 // TestGraph_Terminate ensures the graph structure works properly
 func TestGraph_Terminate(t *testing.T) {
-	g := graph.NewGraph(nil)
+	g := graph.NewGraph(&graph.SetupGraph{
+		SinkContent: "sink content",
+	})
 	g.Terminate()
 	if g.Hook != nil {
 		t.Errorf("graph was not terminated properly Hook=%p", g.Hook)
@@ -200,7 +208,9 @@ func TestGraph_Terminate(t *testing.T) {
 
 // TestGraph_ToString ensures the graph is serialize properly
 func TestGraph_ToString(t *testing.T) {
-	g := graph.NewGraph(nil)
+	g := graph.NewGraph(&graph.SetupGraph{
+		SinkContent: "sink content",
+	})
 	g.Terminate()
 	var tests = []struct {
 		got string

@@ -17,6 +17,7 @@ const _content = "CONTENT"
 type SetupGraph struct {
 	RootContent  interface{}
 	SinkContent  interface{}
+	NextContent  interface{}
 	JointContent interface{}
 	StartContent interface{}
 	EndContent   interface{}
@@ -27,6 +28,7 @@ type SetupGraph struct {
 type Graph struct {
 	Root        *Node
 	Sink        *Node
+	Next        *Node
 	Hook        *Node
 	Blocks      []*Block
 	ActiveBlock *Block
@@ -43,6 +45,7 @@ func NewGraph(setupG *SetupGraph) *Graph {
 	g := &Graph{
 		Root:  NewNodeRoot(setupG.RootContent),
 		Sink:  NewNodeSink(setupG.SinkContent),
+		Next:  NewNodeNext(setupG.NextContent),
 		Setup: setupG,
 	}
 	g.Hook = g.Root
@@ -161,7 +164,12 @@ func (g *Graph) TerminatePathToBlock() bool {
 // Graph is terminated when no more nodes can be added and the sink
 // node has been linked to the last node in the graph.
 func (g *Graph) Terminate() {
-	g.Hook.AddChild(g.Sink)
+	if g.Sink != nil {
+		g.Hook.AddChild(g.Sink)
+	}
+	if g.Next != nil {
+		g.Hook.AddChild(g.Next)
+	}
 	g.Hook = nil
 	g.Terminated = true
 }
@@ -227,6 +235,7 @@ func (g *Graph) ToString() string {
 	return buffer.String()
 }
 
+// childrenToCustom allows to build a mermaid graph or a content graph.
 func (g *Graph) childrenToCustom(node *Node, custom string) string {
 	var buffer bytes.Buffer
 	for _, child := range node.Children {
@@ -258,10 +267,12 @@ func (g *Graph) childrenToCustom(node *Node, custom string) string {
 	return buffer.String()
 }
 
+// childrenToMermaid calls the custom build for mermaid graph.
 func (g *Graph) childrenToMermaid(node *Node) string {
 	return g.childrenToCustom(node, _mermaid)
 }
 
+// childrenToContent calls the custom build for content graph.
 func (g *Graph) childrenToContent(node *Node) string {
 	return g.childrenToCustom(node, _content)
 }

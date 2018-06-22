@@ -9,23 +9,28 @@ import (
 
 // Node represents a node in the graph.
 type Node struct {
-	Label    string
-	Children []*Node
-	IsRoot   bool
-	IsSink   bool
-	IsStart  bool
-	IsEnd    bool
-	IsLoop   bool
-	IsJoint  bool
-	InPath   bool
-	BlockID  int
-	Content  interface{}
+	Label         string
+	Children      []*Node
+	IsRoot        bool
+	IsSink        bool
+	IsStart       bool
+	IsEnd         bool
+	IsLoop        bool
+	IsJoint       bool
+	IsNext        bool
+	InPath        bool
+	BlockID       int
+	AllowChildren bool
+	Content       interface{}
 }
 
 // AddChild adds a new child node.
 func (n *Node) AddChild(child *Node) bool {
-	n.Children = append(n.Children, child)
-	return true
+	if n.AllowChildren {
+		n.Children = append(n.Children, child)
+		return true
+	}
+	return false
 }
 
 // PrependChild adds a new child node first in the array.
@@ -113,9 +118,10 @@ func (n *Node) Validate(ctx interface{}, line interface{}, index int) bool {
 // NewNode creates a new graph node.
 func NewNode(label string, content interface{}) *Node {
 	node := &Node{
-		Label:   label,
-		BlockID: -1,
-		Content: content,
+		Label:         label,
+		BlockID:       -1,
+		Content:       content,
+		AllowChildren: true,
 	}
 	return node
 }
@@ -142,9 +148,25 @@ func NewNodeRoot(content interface{}) *Node {
 // Sink node is at the bottom of the graph, it terminates the graph only
 // can be one sink node.
 func NewNodeSink(content interface{}) *Node {
-	node := NewNodeJoint("SINK", content)
-	node.IsSink = true
-	return node
+	if content != nil {
+		node := NewNodeJoint("SINK", content)
+		node.IsSink = true
+		node.AllowChildren = false
+		return node
+	}
+	return nil
+}
+
+// NewNodeNext creates a new graph next node.
+// Next node is at the botton of the graph, it allows the command to be
+// chained with the next command.
+func NewNodeNext(content interface{}) *Node {
+	if content != nil {
+		node := NewNodeJoint("NEXT", content)
+		node.IsNext = true
+		return node
+	}
+	return nil
 }
 
 // NewNodeStart creates a new graph start node.
