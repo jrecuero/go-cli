@@ -2,9 +2,6 @@ package syntax
 
 import (
 	"errors"
-	"strings"
-
-	"github.com/jrecuero/go-cli/tools"
 )
 
 // NSManager represents the namespace manager.
@@ -12,11 +9,13 @@ import (
 // to settle all namespace commands properly and to find commands based on the
 // command line input.
 type NSManager struct {
-	nsname   string                 // NameSpace Manager name.
-	ns       *NameSpace             // NameSpace instance.
-	ctx      *Context               // Context instance.
-	commands map[string]interface{} // Contains all commands that can be used for the NameSpace Manager.
-	isup     bool
+	nsname   string       // NameSpace Manager name.
+	ns       *NameSpace   // NameSpace instance.
+	ctx      *Context     // Context instance.
+	isup     bool         // Is NSManager up or down?
+	cmdTree  *CommandTree // CommandTree instance
+	commands []*Command   // Contains all commands that can be used for the NameSpace Manager.
+	//commands map[string]interface{} // Contains all commands that can be used for the NameSpace Manager.
 }
 
 // NewNSManager creates a new NSManager instance.
@@ -31,34 +30,39 @@ func NewNSManager(namespace *NameSpace) *NSManager {
 }
 
 // GetName returns the NameSpace Manager name.
-func (m *NSManager) GetName() string {
-	return m.nsname
+func (nsm *NSManager) GetName() string {
+	return nsm.nsname
 }
 
 // GetNameSpace returns the namespace related with the namager.
-func (m *NSManager) GetNameSpace() *NameSpace {
-	return m.ns
+func (nsm *NSManager) GetNameSpace() *NameSpace {
+	return nsm.ns
 }
 
 // GetCommands returns the manager commands.
-func (m *NSManager) GetCommands() map[string]interface{} {
-	return m.commands
+func (nsm *NSManager) GetCommands() []*Command {
+	return nsm.commands
 }
 
 // GetContext returns the manager context.
-func (m *NSManager) GetContext() *Context {
-	return m.ctx
+func (nsm *NSManager) GetContext() *Context {
+	return nsm.ctx
+}
+
+// GetCommandTree returns the manager command tree instance.
+func (nsm *NSManager) GetCommandTree() *CommandTree {
+	return nsm.cmdTree
 }
 
 // add inserts a new command in the internal command map.
-func (m *NSManager) add(table map[string]interface{}, name []string, value interface{}) error {
+func (nsm *NSManager) add(table map[string]interface{}, name []string, value interface{}) error {
 	label := name[0]
 	if table[label] == nil {
 		if len(name) == 1 {
 			table[label] = value
 		} else {
 			table[label] = make(map[string]interface{})
-			m.add(table[label].(map[string]interface{}), name[1:], value)
+			nsm.add(table[label].(map[string]interface{}), name[1:], value)
 		}
 	} else {
 		switch v := table[label].(type) {
@@ -66,7 +70,7 @@ func (m *NSManager) add(table map[string]interface{}, name []string, value inter
 			if len(name) == 1 {
 				return errors.New("too short")
 			}
-			m.add(v, name[1:], value)
+			nsm.add(v, name[1:], value)
 		default:
 			return errors.New("error")
 		}
@@ -77,29 +81,42 @@ func (m *NSManager) add(table map[string]interface{}, name []string, value inter
 // Setup initializes the namespace manager.
 // It reads all commands for the NameSpace and will update the commands field
 // with all of them.
-func (m *NSManager) Setup() error {
-	if m.ns == nil {
+func (nsm *NSManager) Setup() error {
+	if nsm.ns == nil {
 		return errors.New("no namespace")
 	}
-	m.commands = make(map[string]interface{})
-	for _, cmd := range m.ns.GetCommands() {
-		cmdSeq := strings.Split(cmd.FullCmd, " ")
-		err := m.add(m.commands, cmdSeq, cmd)
-		if err != nil {
-			return err
-		}
+	//nsm.commands = make(map[string]interface{})
+	for _, cmd := range nsm.ns.GetCommands() {
+		//cmdSeq := strings.Split(cmd.FullCmd, " ")
+		//err := nsm.add(nsm.commands, cmdSeq, cmd)
+		nsm.commands = append(nsm.commands, cmd)
+		//if err != nil {
+		//    return err
+		//}
 	}
+	nsm.CreateCommandTree()
 	return nil
 }
 
 // Search searches for the given pattern in the commands map.
-func (m *NSManager) Search(pattern string) ([]*Command, error) {
-	//sequence := strings.Split(pattern, " ")
-	//return searchPatternInTable(m.commands, sequence)
-	locals, ok := tools.SearchPatternInMap(m.commands, pattern)
-	var results []*Command
-	for _, v := range locals {
-		results = append(results, v.(*Command))
+func (nsm *NSManager) Search(pattern string) ([]*Command, error) {
+	////sequence := strings.Split(pattern, " ")
+	////return searchPatternInTable(nsm.commands, sequence)
+	//locals, ok := tools.SearchPatternInMap(nsm.commands, pattern)
+	//var results []*Command
+	//for _, v := range locals {
+	//    results = append(results, v.(*Command))
+	//}
+	//return results, ok
+	return nil, errors.New("error")
+}
+
+// CreateCommandTree creates the command tree with all commands already stored
+// in the manager.
+func (nsm *NSManager) CreateCommandTree() error {
+	nsm.cmdTree = NewCommandTree()
+	for _, cmd := range nsm.commands {
+		nsm.cmdTree.AddTo(nil, cmd)
 	}
-	return results, ok
+	return nil
 }

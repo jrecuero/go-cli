@@ -14,6 +14,7 @@ type Command struct {
 	FullCmd        string
 	NameSpaceNames []string
 	ToNameSpace    string
+	Parent         *Command
 }
 
 // IsCommand returns if content is a command.
@@ -70,3 +71,13 @@ func (c *Command) Setup() error {
 
 var _ IContent = (*Command)(nil)
 var _ ICallback = (*Command)(nil)
+
+// NewCommand creates a new command instance.
+func NewCommand(parent *Command, syntax string, help string, arguments []*Argument) *Command {
+	return &Command{
+		Content:   NewContent("", help, nil).(*Content),
+		Syntax:    syntax,
+		Arguments: arguments,
+		Parent:    parent,
+	}
+}

@@ -1,8 +1,6 @@
 package syntax
 
 import (
-	"fmt"
-
 	"github.com/jrecuero/go-cli/graph"
 )
 
@@ -38,12 +36,12 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 
 // MatchCommandLine matches the given command line with the graph.
 func (m *Matcher) MatchCommandLine(line interface{}) bool {
-	fmt.Printf("MatchCommandLine, line: %v\n", line)
+	//fmt.Printf("MatchCommandLine, line: %v\n", line)
 	tokens := line.([]string)
 	tokens = append(tokens, GetCR().GetLabel())
 	index, result := m.MatchWithGraph(tokens)
 	if index != len(tokens) {
-		fmt.Printf("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
+		//fmt.Printf("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
 		return false
 	}
 	return result
@@ -53,7 +51,7 @@ func (m *Matcher) MatchCommandLine(line interface{}) bool {
 func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
 	var index int
 	var ok bool
-	fmt.Printf("MatchWithGraph, tokens: %v\n", tokens)
+	//fmt.Printf("MatchWithGraph, tokens: %v\n", tokens)
 	traverse := m.G.Root
 	for traverse != nil && len(traverse.Children) != 0 {
 		var found bool
@@ -63,7 +61,7 @@ func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
 			if index, ok = cn.Match(m.Ctx, tokens, index); ok {
 				valueMatched := tokens[indexMatched]
 				traverse = n
-				fmt.Printf("traverse matched: %d %s => %v\n", indexMatched, valueMatched, traverse)
+				//fmt.Printf("traverse matched: %d %s => %v\n", indexMatched, valueMatched, traverse)
 				m.Ctx.AddToken(cn, valueMatched)
 				found = true
 				break
