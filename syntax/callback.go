@@ -1,10 +1,13 @@
 package syntax
 
+import "fmt"
+
 // Callback represents the type for any command callback.
 type Callback struct{}
 
 // Enter is the default callback, it executes with the running context.
 func (c *Callback) Enter(ctx *Context, arguments interface{}) error {
+	fmt.Println(">>>>> Default Enter")
 	return nil
 }
 
@@ -17,6 +20,7 @@ func (c *Callback) PostEnter(ctx *Context, arguments interface{}) error {
 // Exit belongs only to mode commands and it executes with the running
 // namespace context.
 func (c *Callback) Exit(ctx *Context) error {
+	fmt.Println(">>>>> Default Exit")
 	return nil
 }
 

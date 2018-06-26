@@ -1,6 +1,7 @@
 package syntax_test
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -57,6 +58,79 @@ func TestCommandTree_AddTo_Default(t *testing.T) {
 		got := cn.Content.(*syntax.Command)
 		if !reflect.DeepEqual(c, got) {
 			t.Errorf("add to command tree error:\n\texp: %#v\n\tgot: %#v\n", c, got)
+		}
+	}
+}
+
+// TestCommandTree_AddTo_WithChildren ensures CommandTree works properly.
+func TestCommandTree_AddTAddTo_WithChildren(t *testing.T) {
+	getCmd := syntax.NewCommand(nil, "get", "Get test command", nil)
+	setCmd := syntax.NewCommand(nil, "set", "Set test command", nil)
+	//speedCmd := syntax.NewCommand(setCmd, "baudrate", "Set baudrate test command", nil)
+	speedCmd := syntax.NewCommand(setCmd,
+		"baudrate",
+		"Set baudrate test command",
+		[]*syntax.Argument{
+			syntax.NewArgument("speedv", "Speed value", nil, "int", 0),
+		})
+	setupCmd := syntax.NewCommand(nil, "setup", "Setup test command", nil)
+	commands := []*syntax.Command{
+		getCmd,
+		setCmd,
+		speedCmd,
+		setupCmd,
+	}
+	ct := syntax.NewCommandTree()
+	var cn *syntax.ContentNode
+	for _, c := range commands {
+		cn = ct.AddTo(nil, c)
+	}
+	for _, c := range commands {
+		cn = ct.SearchFlat(c)
+		got := cn.Content.(*syntax.Command)
+		fmt.Printf("\n")
+		fmt.Printf("%#v\n", cn)
+		fmt.Printf("%#v\n", got)
+		fmt.Printf("%#v\n", got.Content)
+		fmt.Printf("%#v\n", got.CmdSyntax)
+		if !reflect.DeepEqual(c, got) {
+			t.Errorf("search deep error:\n\texp: %#v\n\tgot: %#v\n", c, got)
+		}
+	}
+}
+
+type SetCommands struct {
+	*syntax.Command
+}
+
+func (sc *SetCommands) Enter(ctx *syntax.Context, arguments interface{}) error {
+	fmt.Printf(">>>>> SetCommand Enter\n")
+	return nil
+}
+
+// TestCommandTree_AddTo_WithCallback ensures CommandTree works properly.
+func TestCommandTree_AddTAddTo_WithCallback(t *testing.T) {
+	setCmd := &SetCommands{
+		syntax.NewCommand(nil, "set", "Set test command", nil),
+	}
+	getCmd := syntax.NewCommand(nil, "get", "Get test command", nil)
+	setupCmd := syntax.NewCommand(nil, "setup", "Setup test command", nil)
+	commands := []*syntax.Command{
+		getCmd,
+		setCmd.Command,
+		setupCmd,
+	}
+	ct := syntax.NewCommandTree()
+	var cn *syntax.ContentNode
+	for _, c := range commands {
+		cn = ct.AddTo(nil, c)
+	}
+	for _, c := range commands {
+		cn = ct.SearchFlat(c)
+		got := cn.Content.(*syntax.Command)
+		fmt.Printf("%#v\n", got)
+		if !reflect.DeepEqual(c, got) {
+			t.Errorf("search deep error:\n\texp: %#v\n\tgot: %#v\n", c, got)
 		}
 	}
 }

@@ -50,9 +50,11 @@ func GetValueFromArguments(field string, arguments interface{}) interface{} {
 
 // NewArgument creates a new Argument instance.
 func NewArgument(label string, help string, completer ICompleter, atype string, adefault interface{}) *Argument {
-	return &Argument{
+	argo := &Argument{
 		Content: NewContent(label, help, completer).(*Content),
 		Type:    atype,
 		Default: adefault,
 	}
+	argo.Setup()
+	return argo
 }

@@ -74,10 +74,12 @@ var _ ICallback = (*Command)(nil)
 
 // NewCommand creates a new command instance.
 func NewCommand(parent *Command, syntax string, help string, arguments []*Argument) *Command {
-	return &Command{
+	command := &Command{
 		Content:   NewContent("", help, nil).(*Content),
 		Syntax:    syntax,
 		Arguments: arguments,
 		Parent:    parent,
 	}
+	command.Setup()
+	return command
 }
