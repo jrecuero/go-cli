@@ -218,7 +218,7 @@ func (g *Graph) childrenToString(node *Node, visited []*Node) string {
 		}
 		visited = append(visited, child)
 		buffer.WriteString(fmt.Sprintf("%s %d\n", child.Label, len(child.Children)))
-		//fmt.Printf("visited %+v\n", visited)
+		//tools.Log().Printf("visited %+v\n", visited)
 		buffer.WriteString(g.childrenToString(child, visited))
 	}
 	return buffer.String()

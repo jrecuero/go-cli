@@ -2,6 +2,7 @@ package syntax
 
 import (
 	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // ContentNode represents any node which content is IContent.
@@ -17,7 +18,7 @@ func (cn *ContentNode) GetContent() IContent {
 // Match returns the match for content node.
 func (cn *ContentNode) Match(ctx interface{}, line interface{}, index int) (int, bool) {
 	content := cn.GetContent()
-	//fmt.Printf("%s %v %d %#v\n", content.GetLabel(), line, index, content.GetCompleter())
+	tools.Log().Printf("%s %v %d %#v\n", content.GetLabel(), line, index, content.GetCompleter())
 	if completer := content.GetCompleter(); completer != nil {
 		context := ctx.(*Context)
 		return completer.Match(context, content, line, index)

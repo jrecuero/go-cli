@@ -10,11 +10,11 @@ type Argument struct {
 }
 
 // Setup initializes all argument fields.
-func (a *Argument) Setup() error {
+func (a *Argument) Setup() *Argument {
 	if a.completer == nil {
 		a.completer = NewCompleterAny(a.GetLabel())
 	}
-	return nil
+	return a
 }
 
 // CreateKeywordFromSelf creates a new Argument instance that contains the

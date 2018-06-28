@@ -9,13 +9,13 @@ import (
 // to settle all namespace commands properly and to find commands based on the
 // command line input.
 type NSManager struct {
-	nsname   string       // NameSpace Manager name.
-	ns       *NameSpace   // NameSpace instance.
-	ctx      *Context     // Context instance.
-	isup     bool         // Is NSManager up or down?
-	cmdTree  *CommandTree // CommandTree instance
-	commands []*Command   // Contains all commands that can be used for the NameSpace Manager.
-	//commands map[string]interface{} // Contains all commands that can be used for the NameSpace Manager.
+	nsname    string       // NameSpace Manager name.
+	ns        *NameSpace   // NameSpace instance.
+	ctx       *Context     // Context instance.
+	isup      bool         // Is NSManager up or down?
+	cmdTree   *CommandTree // CommandTree instance
+	parseTree *ParseTree   // ParseTree instance
+	commands  []*Command   // Contains all commands that can be used for the NameSpace Manager.
 }
 
 // NewNSManager creates a new NSManager instance.
@@ -54,6 +54,11 @@ func (nsm *NSManager) GetCommandTree() *CommandTree {
 	return nsm.cmdTree
 }
 
+// GetParseTree returns the manager parse tree instance.
+func (nsm *NSManager) GetParseTree() *ParseTree {
+	return nsm.parseTree
+}
+
 // add inserts a new command in the internal command map.
 func (nsm *NSManager) add(table map[string]interface{}, name []string, value interface{}) error {
 	label := name[0]
@@ -81,9 +86,9 @@ func (nsm *NSManager) add(table map[string]interface{}, name []string, value int
 // Setup initializes the namespace manager.
 // It reads all commands for the NameSpace and will update the commands field
 // with all of them.
-func (nsm *NSManager) Setup() error {
+func (nsm *NSManager) Setup() *NSManager {
 	if nsm.ns == nil {
-		return errors.New("no namespace")
+		return nil
 	}
 	//nsm.commands = make(map[string]interface{})
 	for _, cmd := range nsm.ns.GetCommands() {
@@ -95,7 +100,7 @@ func (nsm *NSManager) Setup() error {
 		//}
 	}
 	nsm.CreateCommandTree()
-	return nil
+	return nsm
 }
 
 // Search searches for the given pattern in the commands map.
@@ -118,5 +123,11 @@ func (nsm *NSManager) CreateCommandTree() error {
 	for _, cmd := range nsm.commands {
 		nsm.cmdTree.AddTo(nil, cmd)
 	}
+	return nil
+}
+
+// CreateParseTree creates the parse tree with all commands already stored in
+// the manager command tree.
+func (nsm *NSManager) CreateParseTree() error {
 	return nil
 }

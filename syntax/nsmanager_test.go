@@ -1,17 +1,17 @@
 package syntax_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 func createNameSpaceForTest() *syntax.NameSpace {
 	commands := []*syntax.Command{
-		syntax.NewCommand(nil, "set", "Set test help", nil),
-		syntax.NewCommand(nil, "get", "Get test help", nil),
-		syntax.NewCommand(nil, "config", "Config test help", nil),
+		syntax.NewCommand(nil, "set", "Set test help", nil, nil).SetupGraph(false),
+		syntax.NewCommand(nil, "get", "Get test help", nil, nil).SetupGraph(false),
+		syntax.NewCommand(nil, "config", "Config test help", nil, nil).SetupGraph(false),
 	}
 	ns := syntax.NewNameSpace("test")
 	for _, c := range commands {
@@ -39,11 +39,11 @@ func TestNSManager_NSManager(t *testing.T) {
 	//    t.Errorf("create manager: commands: set command: len")
 	//}
 	//for k, v := range nsm.GetCommands() {
-	//    fmt.Printf("%s  %#v\n\n", k, v)
+	//    tools.Log().Printf("%s  %#v\n\n", k, v)
 	//    for k2, v2 := range tools.MapCast(v) {
-	//        fmt.Printf("%s  %#v\n\n", k2, v2)
+	//        tools.Log().Printf("%s  %#v\n\n", k2, v2)
 	//        for k3, v3 := range tools.MapCast(v2) {
-	//            fmt.Printf("%s  %#v\n\n", k3, v3)
+	//            tools.Log().Printf("%s  %#v\n\n", k3, v3)
 	//        }
 	//    }
 	//}
@@ -54,10 +54,10 @@ func TestNSManager_CreateCommandTree(t *testing.T) {
 	ns := createNameSpaceForTest()
 	nsm := syntax.NewNSManager(ns)
 	err := nsm.Setup()
-	if err != nil {
+	if err == nil {
 		t.Errorf("NSManager setup error: %v", err)
 	}
 	for _, c := range nsm.GetCommandTree().Root.Children {
-		fmt.Printf("%#v\n", c)
+		tools.Log().Printf("%#v\n", c)
 	}
 }

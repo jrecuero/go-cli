@@ -1,12 +1,12 @@
 package parser_test
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/jrecuero/go-cli/parser"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // Ensure the parser can parse string into Syntax
@@ -82,7 +82,7 @@ func TestParser_ParseSyntax(t *testing.T) {
 			t.Errorf("%d. %q\n\nsyntax mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.syntax, syntax)
 		} else {
 			if syntax != nil {
-				fmt.Printf("command: %s arguments: %s tokens: %d\n",
+				tools.Log().Printf("command: %s arguments: %s tokens: %d\n",
 					tt.syntax.Command, tt.syntax.Arguments, tt.syntax.Tokens)
 			}
 		}

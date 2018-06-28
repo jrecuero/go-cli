@@ -15,6 +15,7 @@ type Command struct {
 	NameSpaceNames []string
 	ToNameSpace    string
 	Parent         *Command
+	HasChildren    bool
 }
 
 // IsCommand returns if content is a command.
@@ -55,10 +56,10 @@ func (c *Command) DeleteNameSpaceName(nsName string) error {
 }
 
 // Setup initializes all command fields.
-func (c *Command) Setup() error {
+func (c *Command) Setup() *Command {
 	c.CmdSyntax = NewCommandSyntax(c.Syntax)
-	c.CmdSyntax.CreateGraph(c)
-	c.label = c.CmdSyntax.Parsed.Command
+	//c.CmdSyntax.CreateGraph(c)
+	//c.label = c.CmdSyntax.Parsed.Command
 	if c.completer == nil {
 		c.completer = NewCompleterCommand(c.GetLabel())
 	}
@@ -66,15 +67,26 @@ func (c *Command) Setup() error {
 	for _, argument := range c.Arguments {
 		argument.Setup()
 	}
-	return nil
+	return c
+}
+
+// SetupGraph creates the command syntax graph.
+func (c *Command) SetupGraph(children bool) *Command {
+	c.HasChildren = children
+	c.CmdSyntax.CreateGraph(c)
+	c.label = c.CmdSyntax.Parsed.Command
+	return c
 }
 
 var _ IContent = (*Command)(nil)
-var _ ICallback = (*Command)(nil)
 
 // NewCommand creates a new command instance.
-func NewCommand(parent *Command, syntax string, help string, arguments []*Argument) *Command {
+func NewCommand(parent *Command, syntax string, help string, arguments []*Argument, callbacks *Callback) *Command {
+	if callbacks == nil {
+		callbacks = NewCallback(nil, nil, nil, nil)
+	}
 	command := &Command{
+		Callback:  callbacks,
 		Content:   NewContent("", help, nil).(*Content),
 		Syntax:    syntax,
 		Arguments: arguments,

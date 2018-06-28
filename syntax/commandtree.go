@@ -15,7 +15,7 @@ type CommandTree struct {
 func (ct *CommandTree) searchDeep(node *graph.Node, c *Command) *graph.Node {
 	for _, child := range node.Children {
 		childCmd := child.Content.(*Command)
-		//fmt.Printf("\tchild: %v\n\tcommand: %#v\n", childCmd, c)
+		//tools.Log().Printf("\tchild: %v\n\tcommand: %#v\n", childCmd, c)
 		if reflect.DeepEqual(childCmd, c) {
 			return child
 		}

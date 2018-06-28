@@ -35,7 +35,7 @@ func (p *Parser) Parse() (*Syntax, error) {
 	syntax := &Syntax{}
 
 	tok, lit := p.scanIgnoreWhitespace()
-	//fmt.Printf("1. tok is '%s'\n", lit)
+	//tools.Log().Printf("1. tok is '%s'\n", lit)
 	if tok != IDENT {
 		return nil, fmt.Errorf("found %q, expected command", lit)
 	}
@@ -46,7 +46,7 @@ func (p *Parser) Parse() (*Syntax, error) {
 	for {
 		// Read a field
 		tok, lit = p.scanIgnoreWhitespace()
-		//fmt.Printf("2. tok:%d, lit: '%s'\n", tok, lit)
+		//tools.Log().Printf("2. tok:%d, lit: '%s'\n", tok, lit)
 		if tok == ILLEGAL {
 			return nil, fmt.Errorf("found %q, expected argument", lit)
 		} else if tok == EOF {

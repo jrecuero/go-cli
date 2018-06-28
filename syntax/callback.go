@@ -1,33 +1,78 @@
 package syntax
 
-import "fmt"
+// EnterFunc represents generic callback for enter functions.
+type EnterFunc = func(ctx *Context, arguments interface{}) error
+
+// ExitFunc represents generic callback for exit functions.
+type ExitFunc = func(ctx *Context) error
 
 // Callback represents the type for any command callback.
-type Callback struct{}
+type Callback struct {
+	Enter     EnterFunc
+	PostEnter EnterFunc
+	Exit      ExitFunc
+	PostExit  ExitFunc
+}
 
-// Enter is the default callback, it executes with the running context.
-func (c *Callback) Enter(ctx *Context, arguments interface{}) error {
-	fmt.Println(">>>>> Default Enter")
+// SetEnter sets new value for Enter field.
+func (cb *Callback) SetEnter(enter EnterFunc) *Callback {
+	cb.Enter = enter
+	return cb
+}
+
+// SetExit sets new value for Exit field.
+func (cb *Callback) SetExit(exit ExitFunc) *Callback {
+	cb.Exit = exit
+	return cb
+}
+
+// defaultEnter is the default callback, it executes with the running context.
+func defaultEnter(ctx *Context, arguments interface{}) error {
 	return nil
 }
 
-// PostEnter belongs only to mode commands and it executes with the new
+// defaultPostEnter belongs only to mode commands and it executes with the new
 // namespace context.
-func (c *Callback) PostEnter(ctx *Context, arguments interface{}) error {
+func defaultPostEnter(ctx *Context, arguments interface{}) error {
 	return nil
 }
 
-// Exit belongs only to mode commands and it executes with the running
+// defaultExit belongs only to mode commands and it executes with the running
 // namespace context.
-func (c *Callback) Exit(ctx *Context) error {
-	fmt.Println(">>>>> Default Exit")
+func defaultExit(ctx *Context) error {
 	return nil
 }
 
-// PostExit belongs only to mode commands and it execute withe the parent
+// defaultPostExit belongs only to mode commands and it execute withe the parent
 // namespace context, which will become the actual context.
-func (c *Callback) PostExit(ctx *Context) error {
+func defaultPostExit(ctx *Context) error {
 	return nil
 }
 
-var _ ICallback = (*Callback)(nil)
+// NewCallback creates a new Callback instance.
+func NewCallback(enterCb EnterFunc, postEnterCb EnterFunc, exitCb ExitFunc, postExitCb ExitFunc) *Callback {
+	callback := &Callback{
+		Enter:     defaultEnter,
+		PostEnter: defaultPostEnter,
+		Exit:      defaultExit,
+		PostExit:  defaultPostExit,
+	}
+	if enterCb != nil {
+		callback.Enter = enterCb
+	}
+	if postEnterCb != nil {
+		callback.PostEnter = postEnterCb
+	}
+	if exitCb != nil {
+		callback.Exit = exitCb
+	}
+	if postExitCb != nil {
+		callback.PostExit = postExitCb
+	}
+	return callback
+}
+
+// NewDefaultCallback creates a new Callback instance with default methods.
+func NewDefaultCallback() *Callback {
+	return NewCallback(nil, nil, nil, nil)
+}

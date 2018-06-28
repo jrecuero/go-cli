@@ -105,7 +105,7 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 			// Look for the next entry after parser.CLOSEBRACKET.
 			endTok, _ := lookForCloseBracket(cs.Parsed.Tokens, i)
 			block = mapTokenToBlock[endTok]
-			//fmt.Printf("index=%d token=%d block=%d\n", index, endTok, block)
+			//tools.Log().Printf("index=%d token=%d block=%d\n", index, endTok, block)
 			// Create the graph block, any node while in the block should be
 			// added to this block.
 			graph.MapBlockToGraphFunc[block](cs.Graph)

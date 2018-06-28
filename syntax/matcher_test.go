@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // TestMatcher_NewMatcher ensures the matcher structure works properly.
@@ -29,7 +30,7 @@ func TestMatcher_Matcher(t *testing.T) {
 	}
 	command.Setup()
 	cs := command.CmdSyntax
-	//fmt.Printf("%s", cs.Graph.ToString())
+	tools.Log().Printf("%s", cs.Graph.ToString())
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	line := []string{"SELECT", "name", "age"}
 	m.MatchCommandLine(line)
