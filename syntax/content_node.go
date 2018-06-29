@@ -79,11 +79,17 @@ func NewContentNode(label string, content IContent) *ContentNode {
 
 // ContentNodeToNode casts a ContentNode to a Node
 func ContentNodeToNode(cn *ContentNode) *graph.Node {
+	if cn == nil {
+		return nil
+	}
 	return cn.Node
 }
 
 // NodeToContentNode casts a Node to a ContentNode
 func NodeToContentNode(n *graph.Node) *ContentNode {
+	if n == nil {
+		return nil
+	}
 	return &ContentNode{
 		Node: n,
 	}

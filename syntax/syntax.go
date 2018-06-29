@@ -1,6 +1,7 @@
 package syntax
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jrecuero/go-cli/graph"
@@ -73,7 +74,19 @@ func (cs *CommandSyntax) addNodeAndNodeToBlockToGraph(cnkey *ContentNode, cnval 
 
 // CreateGraph creates graph using parsed syntax.
 func (cs *CommandSyntax) CreateGraph(c *Command) bool {
+	if c.HasChildren && cs.Graph.Next == nil {
+		cs.Graph.Next = graph.NewNodeNext(NewContentJoint("Next", "Next content", NewCompleterJoint("next")))
+	}
 	commandLabel := cs.Parsed.Command
+	// Updating the Root and Sink labels will allow to distinguish them between
+	// any other command.
+	cs.Graph.Root.Label = fmt.Sprintf("%s-%s", cs.Graph.Root.Label, commandLabel)
+	if cs.Graph.Sink != nil {
+		cs.Graph.Sink.Label = fmt.Sprintf("%s-%s", cs.Graph.Sink.Label, commandLabel)
+	}
+	if cs.Graph.Next != nil {
+		cs.Graph.Next.Label = fmt.Sprintf("%s-%s", cs.Graph.Next.Label, commandLabel)
+	}
 	cs.addNodeToGraph(NewContentNode(commandLabel, c))
 	var insideBlock bool
 	var block graph.BlockType

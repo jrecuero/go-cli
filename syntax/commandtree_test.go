@@ -87,7 +87,7 @@ func TestCommandTree_AddTo_WithChildren(t *testing.T) {
 		cn = ct.AddTo(nil, c)
 	}
 	for _, c := range commands {
-		cn = ct.SearchFlat(c)
+		cn = ct.SearchFlatToContentNode(c)
 		got := cn.Content.(*syntax.Command)
 
 		tools.Log().Printf("\n")
@@ -152,7 +152,7 @@ func TestCommandTree_AddTo_WithCallback(t *testing.T) {
 		cn = ct.AddTo(nil, c)
 	}
 	for _, c := range commands {
-		cn = ct.SearchFlat(c)
+		cn = ct.SearchFlatToContentNode(c)
 		got := cn.Content.(*syntax.Command)
 		tools.Log().Printf("%#v\n", got)
 		got.Enter(nil, nil)
@@ -182,20 +182,20 @@ func TestCommandTree_SearchDeep(t *testing.T) {
 		cn = ct.AddTo(ct.Root, c)
 	}
 	for _, c := range commands {
-		cn = ct.SearchDeep(c)
+		cn = ct.SearchDeepToContentNode(c)
 		got := cn.Content.(*syntax.Command)
 		if !reflect.DeepEqual(c, got) {
 			t.Errorf("search deep error:\n\texp: %#v\n\tgot: %#v\n", c, got)
 		}
 	}
 
-	cn = ct.SearchDeep(commands[0])
+	cn = ct.SearchDeepToContentNode(commands[0])
 	deep := syntax.NewCommand(nil, "baudrate", "Baudrate test command", nil, nil).SetupGraph(false)
 	deepNode := ct.AddTo(syntax.ContentNodeToNode(cn), deep)
 	if deepNode == nil {
 		t.Errorf("add to command tree error: nil")
 	}
-	cn = ct.SearchDeep(deep)
+	cn = ct.SearchDeepToContentNode(deep)
 	got := cn.Content.(*syntax.Command)
 	if !reflect.DeepEqual(deep, got) {
 		t.Errorf("search deep error:\n\texp: %#v\n\tgot: %#v\n", deep, got)
@@ -215,7 +215,7 @@ func TestCommandTree_SearchFlat(t *testing.T) {
 		cn = ct.AddTo(nil, c)
 	}
 	for _, c := range commands {
-		cn = ct.SearchFlat(c)
+		cn = ct.SearchFlatToContentNode(c)
 		got := cn.Content.(*syntax.Command)
 		if !reflect.DeepEqual(c, got) {
 			t.Errorf("search deep error:\n\texp: %#v\n\tgot: %#v\n", c, got)
@@ -223,12 +223,12 @@ func TestCommandTree_SearchFlat(t *testing.T) {
 	}
 
 	deep := syntax.NewCommand(commands[0], "baudrate", "Baudrate test command", nil, nil).SetupGraph(false)
-	cn = ct.SearchFlat(deep.Parent)
+	cn = ct.SearchFlatToContentNode(deep.Parent)
 	deepNode := ct.AddTo(syntax.ContentNodeToNode(cn), deep)
 	if deepNode == nil {
 		t.Errorf("add to command tree error: nil")
 	}
-	cn = ct.SearchFlat(deep)
+	cn = ct.SearchFlatToContentNode(deep)
 	tools.Log().Printf("%#v\n", cn)
 	tools.Log().Printf("%#v\n", cn.Content)
 	got := cn.Content.(*syntax.Command)

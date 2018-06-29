@@ -12,54 +12,68 @@ type CommandTree struct {
 }
 
 // searchDeep searches for a command searching children first.
-func (ct *CommandTree) searchDeep(node *graph.Node, c *Command) *graph.Node {
-	for _, child := range node.Children {
-		childCmd := child.Content.(*Command)
-		//tools.Log().Printf("\tchild: %v\n\tcommand: %#v\n", childCmd, c)
-		if reflect.DeepEqual(childCmd, c) {
-			return child
-		}
-		retChild := ct.searchDeep(child, c)
-		if retChild != nil {
-			return retChild
+func (ct *CommandTree) searchDeep(node *graph.Node, cmd *Command) *graph.Node {
+	if cmd != nil {
+		for _, child := range node.Children {
+			childCmd := child.Content.(*Command)
+			//tools.Log().Printf("\tchild: %v\n\tcommand: %#v\n", childCmd, cmd)
+			if reflect.DeepEqual(childCmd, cmd) {
+				return child
+			}
+			retChild := ct.searchDeep(child, cmd)
+			if retChild != nil {
+				return retChild
+			}
 		}
 	}
 	return nil
 }
 
-// searchFlaat searches for a command searching siblings first.
-func (ct *CommandTree) searchFlat(node *graph.Node, c *Command) *graph.Node {
-	for _, child := range node.Children {
-		childCmd := child.Content.(*Command)
-		if reflect.DeepEqual(childCmd, c) {
-			return child
+// searchFlat searches for a command searching siblings first.
+func (ct *CommandTree) searchFlat(node *graph.Node, cmd *Command) *graph.Node {
+	if cmd != nil {
+		for _, child := range node.Children {
+			childCmd := child.Content.(*Command)
+			if reflect.DeepEqual(childCmd, cmd) {
+				return child
+			}
 		}
-	}
-	for _, child := range node.Children {
-		retChild := ct.searchFlat(child, c)
-		if retChild != nil {
-			return retChild
+		for _, child := range node.Children {
+			retChild := ct.searchFlat(child, cmd)
+			if retChild != nil {
+				return retChild
+			}
 		}
 	}
 	return nil
 }
 
 // SearchDeep looks for the given command in the Command Tree.
-func (ct *CommandTree) SearchDeep(c *Command) *ContentNode {
-	return NodeToContentNode(ct.searchDeep(ct.Root, c))
+func (ct *CommandTree) SearchDeep(cmd *Command) *graph.Node {
+	return ct.searchDeep(ct.Root, cmd)
 }
 
 // SearchFlat looks for the given command in the Command Tree.
-func (ct *CommandTree) SearchFlat(c *Command) *ContentNode {
-	return NodeToContentNode(ct.searchFlat(ct.Root, c))
+func (ct *CommandTree) SearchFlat(cmd *Command) *graph.Node {
+	return ct.searchFlat(ct.Root, cmd)
+}
+
+// SearchDeepToContentNode looks for the given command in the Command Tree.
+func (ct *CommandTree) SearchDeepToContentNode(cmd *Command) *ContentNode {
+	return NodeToContentNode(ct.SearchDeep(cmd))
+}
+
+// SearchFlatToContentNode looks for the given command in the Command Tree.
+func (ct *CommandTree) SearchFlatToContentNode(cmd *Command) *ContentNode {
+	return NodeToContentNode(ct.SearchFlat(cmd))
 }
 
 // AddTo adds a new command to the command tree.
-func (ct *CommandTree) AddTo(parent *graph.Node, c *Command) *ContentNode {
+func (ct *CommandTree) AddTo(parent *graph.Node, cmd *Command) *ContentNode {
 	if parent == nil {
 		parent = ct.Root
 	}
-	node := NewContentNode(c.GetLabel(), c)
+	node := NewContentNode(cmd.GetLabel(), cmd)
 	parent.AddChild(ContentNodeToNode(node))
 	return node
 }

@@ -26,6 +26,7 @@ type Node struct {
 
 // AddChild adds a new child node.
 func (n *Node) AddChild(child *Node) bool {
+	tools.Log().Printf("AddChild:\n\tn: %#v\n\tchild: %#v\n", n, child)
 	if n.AllowChildren {
 		n.Children = append(n.Children, child)
 		return true

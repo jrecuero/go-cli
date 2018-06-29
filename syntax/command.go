@@ -87,7 +87,7 @@ func NewCommand(parent *Command, syntax string, help string, arguments []*Argume
 	}
 	command := &Command{
 		Callback:  callbacks,
-		Content:   NewContent("", help, nil).(*Content),
+		Content:   NewContent(syntax, help, nil).(*Content),
 		Syntax:    syntax,
 		Arguments: arguments,
 		Parent:    parent,

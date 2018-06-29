@@ -14,7 +14,6 @@ type ParseTree struct {
 
 // AddCommand adds a new command to the command parsing tree.
 func (pt *ParseTree) AddCommand(parent *Command, cmd *Command) error {
-	tools.Log().Printf("ParseTree:AddCommand parent: %#v command: %#v\n", parent, cmd)
 	var hook *graph.Node
 	if parent == nil {
 		hook = pt.Root
@@ -22,7 +21,10 @@ func (pt *ParseTree) AddCommand(parent *Command, cmd *Command) error {
 		hook = parent.CmdSyntax.Graph.Next
 	}
 	cmdGraph := cmd.CmdSyntax.Graph
+	tools.Log().Printf("ParseTree:AddCommand\n\tparent: %#v\n\tcommand: %#v\n\tcmdGraph: %#v\n", parent, cmd, cmdGraph)
 	hook.AddChild(cmdGraph.Root)
+	//tools.Log().Printf("Hook: %#p\n", hook)
+	//tools.Log().Printf("pt.Root: %#p\n", pt.Root)
 	return nil
 }
 

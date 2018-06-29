@@ -2,6 +2,10 @@ package syntax
 
 import (
 	"errors"
+	"fmt"
+
+	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // NSManager represents the namespace manager.
@@ -59,30 +63,6 @@ func (nsm *NSManager) GetParseTree() *ParseTree {
 	return nsm.parseTree
 }
 
-// add inserts a new command in the internal command map.
-func (nsm *NSManager) add(table map[string]interface{}, name []string, value interface{}) error {
-	label := name[0]
-	if table[label] == nil {
-		if len(name) == 1 {
-			table[label] = value
-		} else {
-			table[label] = make(map[string]interface{})
-			nsm.add(table[label].(map[string]interface{}), name[1:], value)
-		}
-	} else {
-		switch v := table[label].(type) {
-		case map[string]interface{}:
-			if len(name) == 1 {
-				return errors.New("too short")
-			}
-			nsm.add(v, name[1:], value)
-		default:
-			return errors.New("error")
-		}
-	}
-	return nil
-}
-
 // Setup initializes the namespace manager.
 // It reads all commands for the NameSpace and will update the commands field
 // with all of them.
@@ -90,44 +70,61 @@ func (nsm *NSManager) Setup() *NSManager {
 	if nsm.ns == nil {
 		return nil
 	}
-	//nsm.commands = make(map[string]interface{})
 	for _, cmd := range nsm.ns.GetCommands() {
-		//cmdSeq := strings.Split(cmd.FullCmd, " ")
-		//err := nsm.add(nsm.commands, cmdSeq, cmd)
 		nsm.commands = append(nsm.commands, cmd)
-		//if err != nil {
-		//    return err
-		//}
 	}
-	nsm.CreateCommandTree()
+	nsm.cmdTree = NewCommandTree()
+	if err := nsm.CreateCommandTree(); err != nil {
+		return nil
+	}
+	nsm.parseTree = NewParseTree()
+	if err := nsm.CreateParseTree(nil); err != nil {
+		return nil
+	}
 	return nsm
 }
 
 // Search searches for the given pattern in the commands map.
 func (nsm *NSManager) Search(pattern string) ([]*Command, error) {
-	////sequence := strings.Split(pattern, " ")
-	////return searchPatternInTable(nsm.commands, sequence)
-	//locals, ok := tools.SearchPatternInMap(nsm.commands, pattern)
-	//var results []*Command
-	//for _, v := range locals {
-	//    results = append(results, v.(*Command))
-	//}
-	//return results, ok
 	return nil, errors.New("error")
 }
 
 // CreateCommandTree creates the command tree with all commands already stored
 // in the manager.
 func (nsm *NSManager) CreateCommandTree() error {
-	nsm.cmdTree = NewCommandTree()
 	for _, cmd := range nsm.commands {
-		nsm.cmdTree.AddTo(nil, cmd)
+		// Look for the command parent in the command tree.
+		parent := nsm.cmdTree.SearchFlat(cmd.Parent)
+		nsm.cmdTree.AddTo(parent, cmd)
 	}
 	return nil
 }
 
 // CreateParseTree creates the parse tree with all commands already stored in
 // the manager command tree.
-func (nsm *NSManager) CreateParseTree() error {
+func (nsm *NSManager) CreateParseTree(root *graph.Node) error {
+	var parentCmd *Command
+	var traverse *graph.Node
+	if root == nil {
+		traverse = nsm.cmdTree.Root
+		parentCmd = nil
+	} else {
+		traverse = root
+		parentCmd = root.Content.(*Command)
+	}
+	for _, node := range traverse.Children {
+		cmd := node.Content.(*Command)
+		// At this point there is enought information to identify if command
+		// has subcommands (children), so the graphical tree can be properly
+		// built for the command.
+		//tools.Log().Println("SetupGraph")
+		cmd.SetupGraph(len(node.Children) != 0)
+		//tools.Log().Printf("parseTree.Root: %p\n", nsm.parseTree.Root)
+		tools.Log().Printf("Add Command to Parse Tree:\n\tparent: %#v\n\tcmd: %#v\n", parentCmd, cmd)
+		nsm.parseTree.AddCommand(parentCmd, cmd)
+		if err := nsm.CreateParseTree(node); err != nil {
+			return fmt.Errorf("traverse children error: %v", err)
+		}
+	}
 	return nil
 }
