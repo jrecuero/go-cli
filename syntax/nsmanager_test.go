@@ -9,12 +9,44 @@ import (
 )
 
 func createNameSpaceForTest() *syntax.NameSpace {
-	setCmd := syntax.NewCommand(nil, "set", "Set test help", nil, nil)
+	//setCmd := syntax.NewCommand(nil, "set", "Set test help", nil, nil)
+	//setCmd := &syntax.Command{
+	//    Content: syntax.NewContent("set", "Set command", nil).(*syntax.Content),
+	//    Syntax:  "set version",
+	//    Arguments: []*syntax.Argument{
+	//        syntax.NewArgument("version", "Version number", nil, "string", ""),
+	//    },
+	//}
+	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
+		[]*syntax.Argument{
+			syntax.NewArgument("version", "Version number", nil, "string", ""),
+		}, nil)
+	getCmd := syntax.NewCommand(nil, "get", "Get test help", nil, nil)
+	//setBaudrateCmd :=syntax.NewCommand(setCmd, "baudrate", "Set Baudrate test help", nil, nil),
+	setBaudrateCmd := syntax.NewCommand(setCmd, "baudrate [speed | parity]?", "Set baudrate help",
+		[]*syntax.Argument{
+			syntax.NewArgument("speed", "Baudrate speed", nil, "string", ""),
+			syntax.NewArgument("parity", "Baudrate parity value", nil, "string", ""),
+		}, nil)
+	setSpeedCmd := syntax.NewCommand(setCmd, "speed", "Set Speed test help", nil, nil)
+	setSpeedDeviceCmd := syntax.NewCommand(setSpeedCmd, "device name", "Set speed device help",
+		[]*syntax.Argument{
+			syntax.NewArgument("name", "Device name", nil, "string", ""),
+		}, nil)
+	getSpeedCmd := syntax.NewCommand(getCmd, "speed [device]?", "Get speed help",
+		[]*syntax.Argument{
+			syntax.NewArgument("device", "Device", nil, "string", ""),
+		}, nil)
 	commands := []*syntax.Command{
 		setCmd,
-		syntax.NewCommand(nil, "get", "Get test help", nil, nil),
+		getCmd,
 		syntax.NewCommand(nil, "config", "Config test help", nil, nil),
-		syntax.NewCommand(setCmd, "baudrate", "Set Baudrate test help", nil, nil),
+		setBaudrateCmd,
+		setSpeedCmd,
+		syntax.NewCommand(getCmd, "baudrate", "Get Baudrate test help", nil, nil),
+		//syntax.NewCommand(getCmd, "speed", "Get Speed test help", nil, nil),
+		getSpeedCmd,
+		setSpeedDeviceCmd,
 	}
 	ns := syntax.NewNameSpace("test")
 	for _, c := range commands {

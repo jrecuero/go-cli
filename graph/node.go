@@ -7,8 +7,11 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
+var masterID int
+
 // Node represents a node in the graph.
 type Node struct {
+	id            int
 	Label         string
 	Children      []*Node
 	IsRoot        bool
@@ -54,12 +57,16 @@ func (n *Node) mermaidLabel() string {
 	var buffer bytes.Buffer
 	if n.BlockID == -1 {
 		if n.IsJoint == true {
-			buffer.WriteString(fmt.Sprintf("%s((%s))", n.Label, n.Label))
+			buffer.WriteString(fmt.Sprintf("%s-%d((%s))", n.Label, n.id, n.Label))
 		} else {
-			buffer.WriteString(n.Label)
+			buffer.WriteString(fmt.Sprintf("%s-%d[%s]", n.Label, n.id, n.Label))
 		}
 	} else {
-		buffer.WriteString(fmt.Sprintf("%s-%d((%s))", n.Label, n.BlockID, n.Label))
+		if n.IsJoint == true {
+			buffer.WriteString(fmt.Sprintf("%s-%d-%d((%s))", n.Label, n.id, n.BlockID, n.Label))
+		} else {
+			buffer.WriteString(fmt.Sprintf("%s-%d-%d[%s]", n.Label, n.id, n.BlockID, n.Label))
+		}
 	}
 	return buffer.String()
 }
@@ -118,7 +125,9 @@ func (n *Node) Validate(ctx interface{}, line interface{}, index int) bool {
 
 // NewNode creates a new graph node.
 func NewNode(label string, content interface{}) *Node {
+	masterID++
 	node := &Node{
+		id:            masterID,
 		Label:         label,
 		BlockID:       -1,
 		Content:       content,

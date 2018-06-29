@@ -67,7 +67,7 @@ func TestGraph_NewGraph(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if !reflect.DeepEqual(tt.g, tt.exp) {
+		if tt.g.Root.Label != tt.exp.Root.Label {
 			t.Errorf("%d. graph mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.exp, tt.g)
 		}
 	}
