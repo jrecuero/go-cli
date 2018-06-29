@@ -33,9 +33,11 @@ func createNameSpaceForTest() *syntax.NameSpace {
 		[]*syntax.Argument{
 			syntax.NewArgument("name", "Device name", nil, "string", ""),
 		}, nil)
-	getSpeedCmd := syntax.NewCommand(getCmd, "speed [device]?", "Get speed help",
+	getSpeedCmd := syntax.NewCommand(getCmd, "speed [device name | value]?", "Get speed help",
 		[]*syntax.Argument{
 			syntax.NewArgument("device", "Device", nil, "string", ""),
+			syntax.NewArgument("name", "Device name", nil, "string", ""),
+			syntax.NewArgument("value", "Speed value", nil, "string", ""),
 		}, nil)
 	commands := []*syntax.Command{
 		setCmd,

@@ -71,6 +71,12 @@ func (cs *CommandSyntax) addNodeAndNodeToBlockToGraph(cnkey *ContentNode, cnval 
 	return cs.Graph.AddIdentAndAnyToBlock(ContentNodeToNode(cnkey), ContentNodeToNode(cnval))
 }
 
+// addNodeAndNodeToPathBlockToGraph adds a key-value pair to a block graph with
+// proper casting.
+func (cs *CommandSyntax) addNodeAndNodeToPathBlockToGraph(cnkey *ContentNode, cnval *ContentNode) bool {
+	return cs.Graph.AddIdentAndAnyToPathBlock(ContentNodeToNode(cnkey), ContentNodeToNode(cnval))
+}
+
 // CreateGraph creates graph using parsed syntax.
 func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 	if c.HasChildren && cs.Graph.Next == nil {
@@ -79,6 +85,8 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 	commandLabel := cs.Parsed.Command
 	cs.addNodeToGraph(NewContentNode(commandLabel, c))
 	var insideBlock bool
+	var piped bool
+	var inpath bool
 	var block graph.BlockType
 	for i, tok := range cs.Parsed.Tokens {
 		switch tok {
@@ -93,7 +101,19 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 				//keyContent := newContent.(*Argument).CreateKeywordFromSelf()
 				keyContent := newContent.CreateKeywordFromSelf()
 				keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
-				cs.addNodeAndNodeToBlockToGraph(keyNode, newNode)
+				if !inpath {
+					// First token in a block should always be a key-pair.
+					cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+				} else if piped {
+					// Next tokens shoudl check if a pipied has been found, it
+					// piped was present, the add a key-pair.
+					cs.Graph.TerminatePathToBlock()
+					cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+				} else {
+					// If pipe as not been found, then add a simple node.
+					cs.addNodeToGraph(newNode)
+				}
+				inpath = true
 			} else {
 				cs.addNodeToGraph(newNode)
 			}
@@ -112,57 +132,71 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 			// Create the graph block, any node while in the block should be
 			// added to this block.
 			graph.MapBlockToGraphFunc[block](cs.Graph)
+			piped = false
 			break
 		case parser.CLOSEBRACKET:
 			if insideBlock == false {
 				return false
 			}
 			insideBlock = false
+			if piped || inpath {
+				cs.Graph.TerminatePathToBlock()
+			}
 			cs.Graph.EndLoop()
+			piped = false
+			inpath = false
 			break
 		case parser.PIPE:
 			if insideBlock == false {
 				return false
 			}
+			piped = true
 			break
 		case parser.ASTERISK:
 			if insideBlock == true || block != graph.LOOPandSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
+			piped = false
 			break
 		case parser.PLUS:
 			if insideBlock == true || block != graph.LOOPandNOSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
+			piped = false
 			break
 		case parser.QUESTION:
 			if insideBlock == true || block != graph.NOLOOPandSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
+			piped = false
 			break
 		case parser.ADMIRATION:
 			if insideBlock == true || block != graph.NOLOOPandNOSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
+			piped = false
 			break
 		case parser.AT:
 			if insideBlock == true {
 				return false
 			}
+			piped = false
 			break
 		case parser.OPENMARK:
 			if insideBlock == false {
 				return false
 			}
+			piped = false
 			break
 		case parser.CLOSEMARK:
 			if insideBlock == false {
 				return false
 			}
+			piped = false
 			break
 		}
 	}

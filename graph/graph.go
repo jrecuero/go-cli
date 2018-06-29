@@ -144,12 +144,19 @@ func (g *Graph) CreatePathToBlock(ln []*Node) bool {
 	for _, n := range ln {
 		g.AddPathToBlock(n)
 	}
-	return g.TerminatePathToBlock()
+	return true
 }
 
 // AddIdentAndAnyToBlock adds an ident and an any node to the graph block. This
 // can be used to add nodes that contains keyword-value pairs.
 func (g *Graph) AddIdentAndAnyToBlock(ident *Node, any *Node) bool {
+	g.CreatePathToBlock([]*Node{ident, any})
+	return g.TerminatePathToBlock()
+}
+
+// AddIdentAndAnyToPathBlock adds an ident and an any node to the graph block. This
+// can be used to add nodes that contains keyword-value pairs.
+func (g *Graph) AddIdentAndAnyToPathBlock(ident *Node, any *Node) bool {
 	return g.CreatePathToBlock([]*Node{ident, any})
 }
 
