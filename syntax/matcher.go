@@ -42,10 +42,35 @@ func (m *Matcher) MatchCommandLine(line interface{}) bool {
 	tokens = append(tokens, GetCR().GetLabel())
 	index, result := m.MatchWithGraph(tokens)
 	if index != len(tokens) {
-		tools.Log().Printf("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
+		tools.Tracer("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
 		return false
 	}
+	for _, mt := range m.Ctx.Matched {
+		tools.Tracer("Context matched: %s %s %v\n", mt.Node.GetContent().GetLabel(), mt.Value, mt)
+	}
 	return result
+}
+
+// traverseAndMatchGraph finds a match in the graph for the given tokens.
+func (m *Matcher) traverseAndMatchGraph(node *graph.Node, tokens []string, index int) (*graph.Node, int, bool) {
+	for _, n := range node.Children {
+		cn := NodeToContentNode(n)
+		tools.Tracer("node check for matching: %d %s => %#v\n", index, tokens[index], cn.GetContent().GetLabel())
+		if indexMatched, ok := cn.Match(m.Ctx, tokens, index); ok {
+			tools.Tracer("node matched: %d:%d %v %s => %v\n", indexMatched, index, ok, tokens[index], cn.GetContent().GetLabel())
+			child := n
+			for indexMatched == index {
+				if child, indexMatched, ok = m.traverseAndMatchGraph(child, tokens, indexMatched); !ok {
+					break
+				}
+			}
+			if indexMatched != index {
+				tools.Tracer("confirmed matched: %d %s => %v\n", indexMatched, tokens[index], cn.GetContent().GetLabel())
+				return child, indexMatched, true
+			}
+		}
+	}
+	return nil, index, false
 }
 
 // MatchWithGraph matches the given token sequence with the graph.
@@ -55,22 +80,11 @@ func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
 	tools.Log().Printf("MatchWithGraph, tokens: %v\n", tokens)
 	traverse := m.G.Root
 	for traverse != nil && len(traverse.Children) != 0 {
-		var found bool
-		for _, n := range traverse.Children {
-			cn := NodeToContentNode(n)
-			indexMatched := index
-			if index, ok = cn.Match(m.Ctx, tokens, index); ok {
-				valueMatched := tokens[indexMatched]
-				traverse = n
-				tools.Log().Printf("traverse matched: %d %s => %v\n", indexMatched, valueMatched, traverse)
-				m.Ctx.AddToken(cn, valueMatched)
-				found = true
-				break
-			}
-		}
-		if !found {
+		if traverse, index, ok = m.traverseAndMatchGraph(traverse, tokens, index); !ok {
 			return index, false
 		}
+		tools.Tracer("add token to context: %#v %s\n", NodeToContentNode(traverse).GetContent().GetLabel(), tokens[index-1])
+		m.Ctx.AddToken(NodeToContentNode(traverse), tokens[index-1])
 	}
 	return index, true
 }

@@ -12,5 +12,6 @@ type IContent interface {
 	IsMode() bool
 	IsArgument() bool
 	IsJoint() bool
+	IsMatchable() bool
 	GetStrType() string
 }

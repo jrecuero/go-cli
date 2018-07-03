@@ -5,6 +5,7 @@ type Content struct {
 	label     string
 	help      string
 	completer ICompleter
+	matchable bool
 }
 
 var _ IContent = (*Content)(nil)
@@ -57,6 +58,11 @@ func (c *Content) IsArgument() bool {
 // IsJoint returns if content is a joint.
 func (c *Content) IsJoint() bool {
 	return false
+}
+
+// IsMatchable returns if content is matchable.
+func (c *Content) IsMatchable() bool {
+	return c.matchable
 }
 
 // GetStrType returns the short string for the content type.

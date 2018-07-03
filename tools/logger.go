@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
 var logger *log.Logger
 var loggerJSON *os.File
+var mutex sync.Mutex
 
 // Log configures the log file.
 func Log() *log.Logger {
@@ -23,6 +25,8 @@ func Log() *log.Logger {
 }
 
 func inlog(format string, params ...interface{}) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	Log().Printf(format, params...)
 }
 

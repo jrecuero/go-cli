@@ -160,14 +160,15 @@ func NewCompleterJoint(label string) *CompleterJoint {
 
 // Match returns the match for any joint node completer.
 func (j *CompleterJoint) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	if content == nil {
+	//tools.Tracer("CompleterJoint:Match:content: %#v\n", content.GetLabel())
+	if content == nil || !content.IsMatchable() {
 		return index, true
 	}
 	tokens := line.([]string)
 	if tokens[index] == content.GetLabel() {
 		return index + 1, true
 	}
-	return index, true
+	return index, false
 }
 
 var _ ICompleter = (*CompleterJoint)(nil)

@@ -24,6 +24,7 @@ func NewContentJoint(label string, help string, completer ICompleter) *ContentJo
 	content := &ContentJoint{
 		NewContent(label, help, completer).(*Content),
 	}
+	content.matchable = false
 	return content
 }
 
@@ -37,6 +38,7 @@ func GetCR() *ContentJoint {
 		CR = &ContentJoint{
 			NewContent(_cr, "Carrier return", completer).(*Content),
 		}
+		CR.matchable = true
 	}
 	return CR
 }

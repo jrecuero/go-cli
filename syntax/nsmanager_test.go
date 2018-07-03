@@ -98,10 +98,14 @@ func TestNSManager_Setup(t *testing.T) {
 	for _, c := range nsm.GetCommandTree().Root.Children {
 		tools.Log().Printf("%#v\n", c)
 	}
-	fmt.Println(nsm.GetCommandTree().ToMermaid())
+	//fmt.Println(nsm.GetCommandTree().ToMermaid())
 	tools.Log().Println("Display Parse Tree")
 	for _, c := range nsm.GetParseTree().Root.Children {
 		tools.Log().Printf("%#v\n", c)
 	}
-	fmt.Println(nsm.GetParseTree().ToMermaid())
+	//fmt.Println(nsm.GetParseTree().ToMermaid())
+
+	m := syntax.NewMatcher(syntax.NewContext(), nsm.GetParseTree().Graph)
+	line := []string{"set", "1.0", "speed"}
+	fmt.Println(m.MatchCommandLine(line))
 }
