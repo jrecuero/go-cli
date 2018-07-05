@@ -107,14 +107,22 @@ func TestNSManager_Setup(t *testing.T) {
 
 	ctx := syntax.NewContext()
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
-	line := []string{"set", "1.0", "speed"}
+	line := []string{"set", "1.0", "speed", "device", "home"}
 	fmt.Println(m.MatchCommandLine(line))
 	fmt.Println(ctx.GetLastCommand())
-	//for _, cmd := range ctx.GetCommandBox() {
-	//    fmt.Printf("%#v\n", cmd)
-	//}
-	fmt.Println()
+	fmt.Println("-----------------------------------------")
 	for _, token := range ctx.Matched {
-		fmt.Printf("%#v %s\n\n", token.Node.GetContent(), token.Value)
+		c := token.Node.GetContent()
+		fmt.Printf("%v %v %#v %s\n", c.IsCommand(), c.IsArgument(), c.GetLabel(), token.Value)
 	}
+	fmt.Println("-----------------------------------------")
+	for i, cbox := range ctx.GetCommandBox() {
+		fmt.Printf("%d %#v\n", i, cbox)
+	}
+	fmt.Println("-----------------------------------------")
+	v, _ := ctx.GetArgValueForArgLabel("set", "version")
+	fmt.Printf("set version is %#v\n", v)
+	v, _ = ctx.GetArgValueForArgLabel("device", "name")
+	fmt.Printf("device name is %#v\n", v)
+	fmt.Println("-----------------------------------------")
 }

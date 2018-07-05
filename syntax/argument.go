@@ -12,7 +12,7 @@ type Argument struct {
 // Setup initializes all argument fields.
 func (a *Argument) Setup() *Argument {
 	if a.completer == nil {
-		a.completer = NewCompleterAny(a.GetLabel())
+		a.completer = NewCompleterArgument(a.GetLabel())
 	}
 	return a
 }

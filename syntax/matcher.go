@@ -45,9 +45,9 @@ func (m *Matcher) MatchCommandLine(line interface{}) bool {
 		tools.Tracer("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
 		return false
 	}
-	for _, mt := range m.Ctx.Matched {
-		tools.Tracer("Context matched: %s %s %v\n", mt.Node.GetContent().GetLabel(), mt.Value, mt)
-	}
+	//for _, mt := range m.Ctx.Matched {
+	//    tools.Tracer("Context matched: %s %s %v\n", mt.Node.GetContent().GetLabel(), mt.Value, mt)
+	//}
 	return result
 }
 

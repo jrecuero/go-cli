@@ -8,12 +8,12 @@ type ContentJoint struct {
 }
 
 // IsJoint returns if content is a joint.
-func (c *ContentJoint) IsJoint() bool {
+func (cj *ContentJoint) IsJoint() bool {
 	return true
 }
 
 // GetStrType returns the short string for the content type.
-func (c *ContentJoint) GetStrType() string {
+func (cj *ContentJoint) GetStrType() string {
 	return "J"
 }
 

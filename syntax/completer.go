@@ -67,7 +67,7 @@ func NewCompleterCommand(label string) *CompleterCommand {
 func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
 	if tokens[index] == content.GetLabel() {
-		ctx.SetLastCommand(content.(*Command))
+		//ctx.SetLastCommand(content.(*Command))
 		return index + 1, true
 	}
 	return index, false
@@ -98,28 +98,26 @@ func (i *CompleterIdent) Match(ctx *Context, content IContent, line interface{},
 
 var _ ICompleter = (*CompleterIdent)(nil)
 
-// CompleterAny represents the completer for CompleterAny character sequence node.
-type CompleterAny struct {
+// CompleterArgument represents the completer for CompleterArgument character sequence node.
+type CompleterArgument struct {
 	*Completer
 }
 
-// NewCompleterAny returns a new CompleterAny instance.
-func NewCompleterAny(label string) *CompleterAny {
-	return &CompleterAny{
+// NewCompleterArgument returns a new CompleterArgument instance.
+func NewCompleterArgument(label string) *CompleterArgument {
+	return &CompleterArgument{
 		NewCompleter(label),
 	}
 }
 
-// Match returns the match for CompleterAny node completer.
-func (a *CompleterAny) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	tokens := line.([]string)
-	if tokens[index] == CR.GetLabel() {
-		return index, false
-	}
+// Match returns the match for CompleterArgument node completer.
+func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
+	//tokens := line.([]string)
+	//ctx.SetLastArgument(content.(*Argument))
 	return index + 1, true
 }
 
-var _ ICompleter = (*CompleterAny)(nil)
+var _ ICompleter = (*CompleterArgument)(nil)
 
 // CompleterCustom represents the completer for CompleterCustom node.
 type CompleterCustom struct {
