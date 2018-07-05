@@ -21,10 +21,10 @@ func (pt *ParseTree) AddCommand(parent *Command, cmd *Command) error {
 		hook = parent.CmdSyntax.Graph.Next
 	}
 	cmdGraph := cmd.CmdSyntax.Graph
-	tools.Log().Printf("ParseTree:AddCommand\n\tparent: %#v\n\tcommand: %#v\n\tcmdGraph: %#v\n", parent, cmd, cmdGraph)
+	tools.Tracer("ParseTree:AddCommand\n\tparent: %#v\n\tcommand: %#v\n\tcmdGraph: %#v\n", parent, cmd, cmdGraph)
 	hook.AddChild(cmdGraph.Root)
-	//tools.Log().Printf("Hook: %#p\n", hook)
-	//tools.Log().Printf("pt.Root: %#p\n", pt.Root)
+	//tools.Tracer("Hook: %#p\n", hook)
+	//tools.Tracer("pt.Root: %#p\n", pt.Root)
 	return nil
 }
 

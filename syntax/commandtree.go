@@ -16,7 +16,7 @@ func (ct *CommandTree) searchDeep(node *graph.Node, cmd *Command) *graph.Node {
 	if cmd != nil {
 		for _, child := range node.Children {
 			childCmd := child.Content.(*Command)
-			//tools.Log().Printf("\tchild: %v\n\tcommand: %#v\n", childCmd, cmd)
+			//tools.Tracer("\tchild: %v\n\tcommand: %#v\n", childCmd, cmd)
 			if reflect.DeepEqual(childCmd, cmd) {
 				return child
 			}

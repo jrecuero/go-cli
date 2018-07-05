@@ -117,10 +117,10 @@ func (nsm *NSManager) CreateParseTree(root *graph.Node) error {
 		// At this point there is enought information to identify if command
 		// has subcommands (children), so the graphical tree can be properly
 		// built for the command.
-		//tools.Log().Println("SetupGraph")
+		//tools.Tracer("SetupGraph")
 		cmd.SetupGraph(len(node.Children) != 0)
-		//tools.Log().Printf("parseTree.Root: %p\n", nsm.parseTree.Root)
-		tools.Log().Printf("Add Command to Parse Tree:\n\tparent: %#v\n\tcmd: %#v\n", parentCmd, cmd)
+		//tools.Tracer("parseTree.Root: %p\n", nsm.parseTree.Root)
+		tools.Tracer("Add Command to Parse Tree:\n\tparent: %#v\n\tcmd: %#v\n", parentCmd, cmd)
 		nsm.parseTree.AddCommand(parentCmd, cmd)
 		if err := nsm.CreateParseTree(node); err != nil {
 			return fmt.Errorf("traverse children error: %v", err)

@@ -76,11 +76,11 @@ func createNameSpaceForTest() *syntax.NameSpace {
 //        t.Errorf("create manager: commands: set command: len")
 //    }
 //    for k, v := range nsm.GetCommands() {
-//        tools.Log().Printf("%s  %#v\n\n", k, v)
+//        tools.Tester("%s  %#v\n\n", k, v)
 //        for k2, v2 := range tools.MapCast(v) {
-//            tools.Log().Printf("%s  %#v\n\n", k2, v2)
+//            tools.Tester("%s  %#v\n\n", k2, v2)
 //            for k3, v3 := range tools.MapCast(v2) {
-//                tools.Log().Printf("%s  %#v\n\n", k3, v3)
+//                tools.Tester("%s  %#v\n\n", k3, v3)
 //            }
 //        }
 //    }
@@ -94,18 +94,27 @@ func TestNSManager_Setup(t *testing.T) {
 	if err == nil {
 		t.Errorf("NSManager setup error: %v", err)
 	}
-	tools.Log().Println("Display Command Tree")
+	tools.Tester("Display Command Tree")
 	for _, c := range nsm.GetCommandTree().Root.Children {
-		tools.Log().Printf("%#v\n", c)
+		tools.Tester("%#v\n", c)
 	}
 	//fmt.Println(nsm.GetCommandTree().ToMermaid())
-	tools.Log().Println("Display Parse Tree")
+	tools.Tester("Display Parse Tree")
 	for _, c := range nsm.GetParseTree().Root.Children {
-		tools.Log().Printf("%#v\n", c)
+		tools.Tester("%#v\n", c)
 	}
 	//fmt.Println(nsm.GetParseTree().ToMermaid())
 
-	m := syntax.NewMatcher(syntax.NewContext(), nsm.GetParseTree().Graph)
+	ctx := syntax.NewContext()
+	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line := []string{"set", "1.0", "speed"}
 	fmt.Println(m.MatchCommandLine(line))
+	fmt.Println(ctx.GetLastCommand())
+	//for _, cmd := range ctx.GetCommandBox() {
+	//    fmt.Printf("%#v\n", cmd)
+	//}
+	fmt.Println()
+	for _, token := range ctx.Matched {
+		fmt.Printf("%#v %s\n\n", token.Node.GetContent(), token.Value)
+	}
 }

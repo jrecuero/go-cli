@@ -17,7 +17,7 @@ func TestParseTree_NewParseTree(t *testing.T) {
 
 // TestParseTree_AddCommand ensures ParseTree works properly.
 func TestParseTree_AddCommand(t *testing.T) {
-	tools.Log().Printf("TestParseTree:%s\n", "AddCommand")
+	tools.Tester("TestParseTree:%s\n", "AddCommand")
 	commands := []*syntax.Command{
 		syntax.NewCommand(nil, "set", "Set test command", nil, nil).SetupGraph(false),
 		syntax.NewCommand(nil, "get", "Get test command", nil, nil).SetupGraph(false),
@@ -30,13 +30,13 @@ func TestParseTree_AddCommand(t *testing.T) {
 	}
 	for i, node := range pt.Root.Children {
 		cn := syntax.NodeToContentNode(node)
-		tools.Log().Printf("pt.Root.Children %d : %#v\n", i, cn)
-		tools.Log().Printf("pt.Root.Children.Content %d : %#v\n", i, cn.GetContent())
+		tools.Tester("pt.Root.Children %d : %#v\n", i, cn)
+		tools.Tester("pt.Root.Children.Content %d : %#v\n", i, cn.GetContent())
 		if len(cn.Children) != 0 {
 			for _, child := range cn.Children {
 				cnChild := syntax.NodeToContentNode(child)
-				tools.Log().Printf("cn.Children %#v\n", cnChild)
-				tools.Log().Printf("cn.Children.Content : %#v\n", cnChild.GetContent())
+				tools.Tester("cn.Children %#v\n", cnChild)
+				tools.Tester("cn.Children.Content : %#v\n", cnChild.GetContent())
 			}
 		}
 	}

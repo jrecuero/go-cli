@@ -90,11 +90,11 @@ func TestCommandTree_AddTo_WithChildren(t *testing.T) {
 		cn = ct.SearchFlatToContentNode(c)
 		got := cn.Content.(*syntax.Command)
 
-		tools.Log().Printf("\n")
-		tools.Log().Printf("%#v\n", cn)
-		tools.Log().Printf("%#v\n", got)
-		tools.Log().Printf("%#v\n", got.Content)
-		tools.Log().Printf("%#v\n", got.CmdSyntax)
+		tools.Tester("\n")
+		tools.Tester("%#v\n", cn)
+		tools.Tester("%#v\n", got)
+		tools.Tester("%#v\n", got.Content)
+		tools.Tester("%#v\n", got.CmdSyntax)
 
 		if !reflect.DeepEqual(c, got) {
 			t.Errorf("add to with children error:\n\texp: %#v\n\tgot: %#v\n", c, got)
@@ -103,7 +103,7 @@ func TestCommandTree_AddTo_WithChildren(t *testing.T) {
 }
 
 //func SetEnter(ctx *syntax.Context, arguments interface{}) error {
-//    tools.Log().Printf(">>>>> Set Command Enter\n")
+//    tools.Tester(">>>>> Set Command Enter\n")
 //    return nil
 //}
 
@@ -154,7 +154,7 @@ func TestCommandTree_AddTo_WithCallback(t *testing.T) {
 	for _, c := range commands {
 		cn = ct.SearchFlatToContentNode(c)
 		got := cn.Content.(*syntax.Command)
-		tools.Log().Printf("%#v\n", got)
+		tools.Tester("%#v\n", got)
 		got.Enter(nil, nil)
 		got.Exit(nil)
 		if !reflect.DeepEqual(c, got) {
@@ -229,8 +229,8 @@ func TestCommandTree_SearchFlat(t *testing.T) {
 		t.Errorf("add to command tree error: nil")
 	}
 	cn = ct.SearchFlatToContentNode(deep)
-	tools.Log().Printf("%#v\n", cn)
-	tools.Log().Printf("%#v\n", cn.Content)
+	tools.Tester("%#v\n", cn)
+	tools.Tester("%#v\n", cn.Content)
 	got := cn.Content.(*syntax.Command)
 	if !reflect.DeepEqual(deep, got) {
 		t.Errorf("search deep error:\n\texp: %#v\n\tgot: %#v\n", deep, got)

@@ -67,6 +67,7 @@ func NewCompleterCommand(label string) *CompleterCommand {
 func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
 	if tokens[index] == content.GetLabel() {
+		ctx.SetLastCommand(content.(*Command))
 		return index + 1, true
 	}
 	return index, false

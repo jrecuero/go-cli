@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"sync"
 )
 
@@ -15,7 +18,7 @@ var mutex sync.Mutex
 func Log() *log.Logger {
 	if logger == nil {
 		if f, err := os.OpenFile("go-cli.log", os.O_RDWR|os.O_CREATE, 0666); err == nil {
-			logger = log.New(f, "GOCLI: ", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+			logger = log.New(f, "GOCLI: ", log.Ldate|log.Ltime|log.Lmicroseconds)
 		} else {
 			panic("log file could not be opened")
 		}
@@ -24,22 +27,46 @@ func Log() *log.Logger {
 	return logger
 }
 
-func inlog(format string, params ...interface{}) {
+func inlog(mod string, format string, params ...interface{}) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	Log().Printf(format, params...)
+	pc, filename, line, ok := runtime.Caller(2)
+	details := runtime.FuncForPC(pc)
+	if ok && details != nil {
+		methodname := filepath.Base(details.Name())
+		index := strings.LastIndex(methodname, ".")
+		funcname := methodname[index+1:]
+		ifname := strings.LastIndex(filename, "/")
+		fname := filename[ifname+1:]
+		Log().Printf(fmt.Sprintf("[%s] %s:%d %s() ||| %s", mod, fname, line, funcname, format), params...)
+	} else {
+		Log().Printf(fmt.Sprintf("[%s] ||| %s", mod, format), params...)
+	}
+}
+
+// Error logs the trace..
+func Error(format string, params ...interface{}) {
+	inlog("ERROR", format, params...)
+}
+
+// Warning logs the trace..
+func Warning(format string, params ...interface{}) {
+	inlog("WARNING", format, params...)
+}
+
+// Info logs the trace..
+func Info(format string, params ...interface{}) {
+	inlog("INFO", format, params...)
 }
 
 // Tracer logs the trace..
 func Tracer(format string, params ...interface{}) {
-	//Log().Printf(fmt.Sprintf("[TRACER]:%s", format), params...)
-	inlog(fmt.Sprintf("[TRACER]:%s", format), params...)
+	inlog("TRACER", format, params...)
 }
 
 // Tester logs the test log..
 func Tester(format string, params ...interface{}) {
-	//Log().Printf(fmt.Sprintf("[TESTER]:%s", format), params...)
-	inlog(fmt.Sprintf("[TESTER]:%s", format), params...)
+	inlog("TERSTER", format, params...)
 }
 
 // LogJSON configures the JSON log file.

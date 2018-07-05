@@ -37,7 +37,7 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 
 // MatchCommandLine matches the given command line with the graph.
 func (m *Matcher) MatchCommandLine(line interface{}) bool {
-	tools.Log().Printf("MatchCommandLine, line: %v\n", line)
+	tools.Tracer("line: %v\n", line)
 	tokens := line.([]string)
 	tokens = append(tokens, GetCR().GetLabel())
 	index, result := m.MatchWithGraph(tokens)
@@ -77,7 +77,7 @@ func (m *Matcher) traverseAndMatchGraph(node *graph.Node, tokens []string, index
 func (m *Matcher) MatchWithGraph(tokens []string) (int, bool) {
 	var index int
 	var ok bool
-	tools.Log().Printf("MatchWithGraph, tokens: %v\n", tokens)
+	tools.Tracer("tokens: %v\n", tokens)
 	traverse := m.G.Root
 	for traverse != nil && len(traverse.Children) != 0 {
 		if traverse, index, ok = m.traverseAndMatchGraph(traverse, tokens, index); !ok {
