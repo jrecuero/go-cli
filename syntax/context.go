@@ -8,14 +8,14 @@ import (
 // has been matched.
 type Token struct {
 	Node  *ContentNode
-	Value string
+	Value interface{}
 }
 
 // ArgValue represents the structure used to store the argument values being
 // marched.
 type ArgValue struct {
 	Arg   *Argument
-	Value string
+	Value interface{}
 }
 
 // CommandBox represents the struture for any command with arguments matched.
@@ -25,10 +25,10 @@ type CommandBox struct {
 }
 
 // NewToken creates a new Token instance.
-func NewToken(cn *ContentNode, v string) *Token {
+func NewToken(cn *ContentNode, value interface{}) *Token {
 	return &Token{
 		Node:  cn,
-		Value: v,
+		Value: value,
 	}
 }
 
@@ -51,7 +51,7 @@ func (ctx *Context) SetLastCommand(cmd *Command) {
 }
 
 // SetLastArgument sets the last argument.
-func (ctx *Context) SetLastArgument(arg *Argument, value string) {
+func (ctx *Context) SetLastArgument(arg *Argument, value interface{}) {
 	index := len(ctx.cmdbox) - 1
 	ctx.cmdbox[index].ArgValues = append(ctx.cmdbox[index].ArgValues, &ArgValue{Arg: arg, Value: value})
 }
@@ -77,7 +77,7 @@ func (ctx *Context) GetCmdBoxIndexForCommandLabel(label string) (int, error) {
 
 // GetArgValueForArgLabel retrieves the argument value for the given argument
 // label.
-func (ctx *Context) GetArgValueForArgLabel(cmdlabel string, arglabel string) (string, error) {
+func (ctx *Context) GetArgValueForArgLabel(cmdlabel string, arglabel string) (interface{}, error) {
 	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
 		for _, argval := range ctx.cmdbox[icmd].ArgValues {
 			if argval.Arg.GetLabel() == arglabel {
@@ -85,17 +85,17 @@ func (ctx *Context) GetArgValueForArgLabel(cmdlabel string, arglabel string) (st
 			}
 		}
 	}
-	return "", fmt.Errorf("Argument %s not found for Command %s", arglabel, cmdlabel)
+	return nil, fmt.Errorf("Argument %s not found for Command %s", arglabel, cmdlabel)
 }
 
 // AddToken adds a matched token to the context.
-func (ctx *Context) AddToken(cn *ContentNode, v string) error {
-	token := NewToken(cn, v)
+func (ctx *Context) AddToken(cn *ContentNode, value interface{}) error {
+	token := NewToken(cn, value)
 	ctx.Matched = append(ctx.Matched, token)
 	if cn.GetContent().IsCommand() {
 		ctx.SetLastCommand(cn.GetContent().(*Command))
 	} else if cn.GetContent().IsArgument() {
-		ctx.SetLastArgument(cn.GetContent().(*Argument), v)
+		ctx.SetLastArgument(cn.GetContent().(*Argument), value)
 	}
 	return nil
 }
