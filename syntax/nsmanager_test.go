@@ -22,7 +22,7 @@ func createNameSpaceForTest() *syntax.NameSpace {
 			syntax.NewArgument("version", "Version number", nil, "string", ""),
 		}, nil)
 	getCmd := syntax.NewCommand(nil, "get", "Get test help", nil, nil)
-	//setBaudrateCmd :=syntax.NewCommand(setCmd, "baudrate", "Set Baudrate test help", nil, nil),
+	setBoolCmd := syntax.NewCommand(setCmd, "bool", "Set Bool test help", nil, nil)
 	setBaudrateCmd := syntax.NewCommand(setCmd, "baudrate [speed | parity]?", "Set baudrate help",
 		[]*syntax.Argument{
 			syntax.NewArgument("speed", "Baudrate speed", nil, "string", ""),
@@ -45,6 +45,7 @@ func createNameSpaceForTest() *syntax.NameSpace {
 		syntax.NewCommand(nil, "config", "Config test help", nil, nil),
 		setBaudrateCmd,
 		setSpeedCmd,
+		setBoolCmd,
 		syntax.NewCommand(getCmd, "baudrate", "Get Baudrate test help", nil, nil),
 		//syntax.NewCommand(getCmd, "speed", "Get Speed test help", nil, nil),
 		getSpeedCmd,
@@ -90,8 +91,7 @@ func createNameSpaceForTest() *syntax.NameSpace {
 func TestNSManager_Setup(t *testing.T) {
 	ns := createNameSpaceForTest()
 	nsm := syntax.NewNSManager(ns)
-	err := nsm.Setup()
-	if err == nil {
+	if err := nsm.Setup(); err == nil {
 		t.Errorf("NSManager setup error: %v", err)
 	}
 	tools.Tester("Display Command Tree")
@@ -107,8 +107,9 @@ func TestNSManager_Setup(t *testing.T) {
 
 	ctx := syntax.NewContext()
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
-	line := []string{"set", "1.0", "speed", "device", "home"}
-	fmt.Println(m.MatchCommandLine(line))
+	//line := []string{"set", "1.0", "speed", "device", "home"}
+	line := "set 1.0 speed device home"
+	fmt.Println(m.Match(line))
 	fmt.Println(ctx.GetLastCommand())
 	fmt.Println("-----------------------------------------")
 	for _, token := range ctx.Matched {
@@ -125,4 +126,23 @@ func TestNSManager_Setup(t *testing.T) {
 	v, _ = ctx.GetArgValueForArgLabel("device", "name")
 	fmt.Printf("device name is %#v\n", v)
 	fmt.Println("-----------------------------------------")
+}
+
+// TestNSManager_Complete ensures the namespace handler struct works properly.
+func TestNSManager_Complete(t *testing.T) {
+	ns := createNameSpaceForTest()
+	nsm := syntax.NewNSManager(ns)
+	if err := nsm.Setup(); err == nil {
+		t.Errorf("NSManager setup error: %v", err)
+	}
+	ctx := syntax.NewContext()
+	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
+	//line := []string{"set", "1.0", "b"}
+	line := "set 1.0 "
+	fmt.Println(m.Complete(line))
+	for i, token := range ctx.Matched {
+		fmt.Printf("%d %#v\n", i, token)
+	}
+	cn := ctx.Matched[1].Node
+	fmt.Printf("%#v children: %#v\n", cn.GetContent().GetLabel(), cn.Children)
 }

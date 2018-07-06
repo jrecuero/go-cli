@@ -27,6 +27,11 @@ type Node struct {
 	Content       interface{}
 }
 
+// IsContent checks if a Node contains data content information or not.
+func (n *Node) IsContent() bool {
+	return !(n.IsRoot || n.IsSink || n.IsStart || n.IsEnd || n.IsLoop || n.IsJoint || n.IsNext)
+}
+
 // AddChild adds a new child node.
 func (n *Node) AddChild(child *Node) bool {
 	tools.Log().Printf("AddChild:\n\tn: %#v\n\tchild: %#v\n", n, child)

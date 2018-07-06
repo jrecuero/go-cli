@@ -121,3 +121,21 @@ func SearchPatternInMap(table map[string]interface{}, pattern string) ([]interfa
 	sequence := strings.Split(pattern, " ")
 	return SearchSequenceInMap(table, sequence)
 }
+
+// PString returns a pointer to the string.
+func PString(st string) *string {
+	return &st
+}
+
+// String returns the string value contained in a pointer to string.
+func String(pst *string) string {
+	if pst != nil {
+		return *pst
+	}
+	return ""
+}
+
+// LastChar returns the last character in a string,
+func LastChar(st string) string {
+	return string(st[len(st)-1])
+}

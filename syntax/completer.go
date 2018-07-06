@@ -1,5 +1,9 @@
 package syntax
 
+import (
+	"strings"
+)
+
 const _joint = ""
 const _rooty = "ROOT"
 const _sink = "SINK"
@@ -41,12 +45,24 @@ func (c *Completer) Query(ctx *Context, content IContent, line interface{}, inde
 
 // Complete returns the complete match for any node completer.
 func (c *Completer) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	return nil, false
+	return nil, true
 }
 
 // Match returns the match for a node completer.
 func (c *Completer) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	return -1, false
+}
+
+// completeLabel returns the complete match for any node completer.
+func (c *Completer) completeLabel(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
+	tokens := line.([]string)
+	ilast := len(tokens) - 1
+	if tokens[ilast] == "" {
+		return content.GetLabel(), true
+	} else if strings.HasPrefix(content.GetLabel(), tokens[ilast]) {
+		return content.GetLabel(), true
+	}
+	return nil, false
 }
 
 var _ ICompleter = (*Completer)(nil)
@@ -71,6 +87,11 @@ func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface
 		return index + 1, true
 	}
 	return index, false
+}
+
+// Complete returns the complete match for any node completer.
+func (cc *CompleterCommand) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
+	return cc.completeLabel(ctx, content, line, index)
 }
 
 var _ ICompleter = (*CompleterCommand)(nil)
@@ -117,6 +138,11 @@ func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interfac
 	return index + 1, true
 }
 
+// Complete returns the complete match for any node completer.
+func (ca *CompleterArgument) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
+	return ca.completeLabel(ctx, content, line, index)
+}
+
 var _ ICompleter = (*CompleterArgument)(nil)
 
 // CompleterCustom represents the completer for CompleterCustom node.
@@ -158,7 +184,7 @@ func NewCompleterJoint(label string) *CompleterJoint {
 }
 
 // Match returns the match for any joint node completer.
-func (j *CompleterJoint) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
+func (cj *CompleterJoint) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	//tools.Tracer("CompleterJoint:Match:content: %#v\n", content.GetLabel())
 	if content == nil || !content.IsMatchable() {
 		return index, true
@@ -169,6 +195,14 @@ func (j *CompleterJoint) Match(ctx *Context, content IContent, line interface{},
 	}
 	return index, false
 }
+
+//// Complete returns the complete match for any node completer.
+//func (cj *CompleterJoint) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
+//    if cj.label == _sink {
+//        return content.GetLabel(), true
+//    }
+//    return nil, true
+//}
 
 var _ ICompleter = (*CompleterJoint)(nil)
 
@@ -187,7 +221,32 @@ func NewCompleterLoop() *CompleterJoint {
 	return NewCompleterJoint(_loop)
 }
 
+// CompleterSink represents the completer for any joint node.
+type CompleterSink struct {
+	*Completer
+}
+
+// Match returns the match for any joint node completer.
+func (cs *CompleterSink) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
+	tokens := line.([]string)
+	if tokens[index] == content.GetLabel() {
+		return index + 1, true
+	}
+	return index, false
+}
+
+// Complete returns the complete match for any node completer.
+func (cs *CompleterSink) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
+	tokens := line.([]string)
+	if tokens[len(tokens)-1] == "" {
+		return content.GetLabel(), true
+	}
+	return nil, false
+}
+
 // NewCompleterSink returns a new sinkn completer instance.
-func NewCompleterSink() *CompleterJoint {
-	return NewCompleterJoint(_sink)
+func NewCompleterSink() *CompleterSink {
+	return &CompleterSink{
+		NewCompleter(_sink),
+	}
 }

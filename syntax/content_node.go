@@ -52,10 +52,38 @@ func (cn *ContentNode) Query(ctx interface{}, line interface{}, index int) (inte
 
 // Complete returns the complete match for content node.
 func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (interface{}, bool) {
+	//tokens := line.([]string)
 	content := cn.GetContent()
 	if completer := content.GetCompleter(); completer != nil {
 		context := ctx.(*Context)
-		return completer.Complete(context, content, line, index)
+		//if completeResult, ok := completer.Complete(context, content, line, index); ok && completeResult != nil {
+		//    return completeResult, true
+		//} else if ok && completeResult == nil {
+		result := []interface{}{}
+		if cn.IsContent() || cn.IsSink {
+			if ret, ok := cn.GetContent().GetCompleter().Complete(context, cn.GetContent(), line, 0); ok {
+				result = append(result, ret)
+			}
+			//lastToken := tokens[len(tokens)-1]
+			//if lastToken == "" {
+			//    result = append(result, cn.GetContent().GetLabel())
+			//} else if strings.HasPrefix(cn.GetContent().GetLabel(), lastToken) {
+			//    result = append(result, cn.GetContent().GetLabel())
+			//}
+		} else {
+			for _, childNode := range cn.Children {
+				childCN := NodeToContentNode(childNode)
+				//childContent := childCN.GetContent()
+				//complet, _ := childContent.GetCompleter().Complete(context, childContent, line, 0)
+				complet, _ := childCN.Complete(context, line, 0)
+				for _, c := range complet.([]interface{}) {
+					result = append(result, c)
+				}
+			}
+		}
+		return result, true
+		//}
+		//return nil, false
 	}
 	return content.GetLabel(), true
 }
