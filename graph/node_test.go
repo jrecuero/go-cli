@@ -198,7 +198,7 @@ func TestNode_ToMermaid(t *testing.T) {
 		t.Errorf("add child operation failed")
 	}
 	output := n.ToMermaidChildren()
-	exp := "main-69((main)) --> child-1-70((child-1))\nmain-69((main)) --> child-2-71((child-2))\n"
+	exp := "main-69[main] --> child-1-70[child-1]\nmain-69[main] --> child-2-71[child-2]\n"
 	if !reflect.DeepEqual(output, exp) {
 		t.Errorf("node mermaid mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", exp, output)
 	}

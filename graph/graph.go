@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/jrecuero/go-cli/tools"
 )
 
 const _mermaid = "MERMAID"
@@ -188,16 +190,16 @@ func (g *Graph) Explore() {
 	parents := []*Node{}
 	var index int
 	for {
-		fmt.Printf(fmt.Sprintf("\n\nNode Information: %s\n", traverse.ToContent()))
-		fmt.Printf(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
+		tools.Tracer(fmt.Sprintf("\n\nNode Information: %s\n", traverse.ToContent()))
+		tools.Tracer(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
 		if len(traverse.Children) > 0 {
 			for i, child := range traverse.Children {
-				//fmt.Printf("\t> %d %s\n", i, child.Label)
-				fmt.Printf("\t> %d %s\n", i, child.ToContent())
+				//tools.Tracer("\t> %d %s\n", i, child.Label)
+				tools.Tracer("\t> %d %s\n", i, child.ToContent())
 			}
-			fmt.Printf("\n[0-%d] Select children", len(traverse.Children)-1)
+			tools.Tracer("\n[0-%d] Select children", len(traverse.Children)-1)
 		}
-		fmt.Printf("\n[-] Select Parent\n[x] Exit\nSelect: ")
+		tools.Tracer("\n[-] Select Parent\n[x] Exit\nSelect: ")
 		text, _ := reader.ReadString('\n')
 		text = strings.TrimSpace(text)
 		if text == "x" {
@@ -205,12 +207,12 @@ func (g *Graph) Explore() {
 		} else if text == "-" {
 			traverse = parents[len(parents)-1]
 			parents = parents[:len(parents)-1]
-			fmt.Printf("Parent selected %s\n", traverse.Label)
+			tools.Tracer("Parent selected %s\n", traverse.Label)
 		} else {
 			index, _ = strconv.Atoi(text)
 			parents = append(parents, traverse)
 			traverse = traverse.Children[index]
-			fmt.Printf("Children selected %d - %s\n", index, traverse.Label)
+			tools.Tracer("Children selected %d - %s\n", index, traverse.Label)
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package syntax_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
@@ -98,34 +97,34 @@ func TestNSManager_Setup(t *testing.T) {
 	for _, c := range nsm.GetCommandTree().Root.Children {
 		tools.Tester("%#v\n", c)
 	}
-	//fmt.Println(nsm.GetCommandTree().ToMermaid())
+	//tools.Tester(nsm.GetCommandTree().ToMermaid())
 	tools.Tester("Display Parse Tree")
 	for _, c := range nsm.GetParseTree().Root.Children {
 		tools.Tester("%#v\n", c)
 	}
-	//fmt.Println(nsm.GetParseTree().ToMermaid())
+	//tools.Tester(nsm.GetParseTree().ToMermaid())
 
 	ctx := syntax.NewContext()
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	//line := []string{"set", "1.0", "speed", "device", "home"}
 	line := "set 1.0 speed device home"
-	fmt.Println(m.Match(line))
-	fmt.Println(ctx.GetLastCommand())
-	fmt.Println("-----------------------------------------")
+	m.Match(line)
+	tools.Tester("%#v\n", ctx.GetLastCommand())
+	tools.Tester("-----------------------------------------")
 	for _, token := range ctx.Matched {
 		c := token.Node.GetContent()
-		fmt.Printf("%v %v %#v %s\n", c.IsCommand(), c.IsArgument(), c.GetLabel(), token.Value)
+		tools.Tester("%v %v %#v %s\n", c.IsCommand(), c.IsArgument(), c.GetLabel(), token.Value)
 	}
-	fmt.Println("-----------------------------------------")
+	tools.Tester("-----------------------------------------")
 	for i, cbox := range ctx.GetCommandBox() {
-		fmt.Printf("%d %#v\n", i, cbox)
+		tools.Tester("%d %#v\n", i, cbox)
 	}
-	fmt.Println("-----------------------------------------")
+	tools.Tester("-----------------------------------------")
 	v, _ := ctx.GetArgValueForArgLabel("set", "version")
-	fmt.Printf("set version is %#v\n", v)
+	tools.Tester("set version is %#v\n", v)
 	v, _ = ctx.GetArgValueForArgLabel("device", "name")
-	fmt.Printf("device name is %#v\n", v)
-	fmt.Println("-----------------------------------------")
+	tools.Tester("device name is %#v\n", v)
+	tools.Tester("-----------------------------------------")
 }
 
 // TestNSManager_Complete ensures the namespace handler struct works properly.
@@ -139,16 +138,18 @@ func TestNSManager_Complete(t *testing.T) {
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	//line := []string{"set", "1.0", "b"}
 	line := "set 1.0 baudrate "
-	fmt.Printf("line: %#v\n", line)
-	fmt.Println(m.Complete(line))
+	tools.Tester("line: %#v\n", line)
+	result, _ := m.Complete(line)
+	tools.Tester("%#v\n", result)
 	//for i, token := range ctx.Matched {
-	//    fmt.Printf("%d %#v\n", i, token)
+	//    tools.Tester("%d %#v\n", i, token)
 	//}
 	//cn := ctx.Matched[1].Node
-	//fmt.Printf("%#v children: %#v\n", cn.GetContent().GetLabel(), cn.Children)
+	//tools.Tester("%#v children: %#v\n", cn.GetContent().GetLabel(), cn.Children)
 	line = "set "
-	fmt.Printf("line: %#v\n", line)
-	fmt.Println(m.Complete(line))
+	tools.Tester("line: %#v\n", line)
+	result, _ = m.Complete(line)
+	tools.Tester("%#v\n", result)
 }
 
 // TestNSManager_Help ensures the namespace handler struct works properly.
@@ -163,14 +164,14 @@ func TestNSManager_Help(t *testing.T) {
 	//line := []string{"set", "1.0", "b"}
 	line := "set 1.0 baudrate "
 	helps, _ := m.Help(line)
-	fmt.Printf("line: %#v\n", line)
+	tools.Tester("line: %#v\n", line)
 	for _, h := range helps.([]interface{}) {
-		fmt.Printf("%#v\n", h.(string))
+		tools.Tester("%#v\n", h.(string))
 	}
 	line = "set "
 	helps, _ = m.Help(line)
-	fmt.Printf("line: %#v\n", line)
+	tools.Tester("line: %#v\n", line)
 	for _, h := range helps.([]interface{}) {
-		fmt.Printf("%#v\n", h.(string))
+		tools.Tester("%#v\n", h.(string))
 	}
 }
