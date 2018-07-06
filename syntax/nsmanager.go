@@ -22,17 +22,6 @@ type NSManager struct {
 	commands  []*Command   // Contains all commands that can be used for the NameSpace Manager.
 }
 
-// NewNSManager creates a new NSManager instance.
-func NewNSManager(namespace *NameSpace) *NSManager {
-	if namespace == nil {
-		return &NSManager{}
-	}
-	return &NSManager{
-		nsname: namespace.Name,
-		ns:     namespace,
-	}
-}
-
 // GetName returns the NameSpace Manager name.
 func (nsm *NSManager) GetName() string {
 	return nsm.nsname
@@ -127,4 +116,24 @@ func (nsm *NSManager) CreateParseTree(root *graph.Node) error {
 		}
 	}
 	return nil
+}
+
+// NewNSManager creates a new NSManager instance.
+func NewNSManager(namespace *NameSpace) *NSManager {
+	if namespace == nil {
+		return &NSManager{}
+	}
+	return &NSManager{
+		nsname: namespace.Name,
+		ns:     namespace,
+	}
+}
+
+// CreateNSManager creates and setups a new NSManager.
+func CreateNSManager(namespace *NameSpace) (*NSManager, error) {
+	nsm := NewNSManager(namespace)
+	if nsm.Setup() == nil {
+		return nil, fmt.Errorf("Error Create NSManager")
+	}
+	return nsm, nil
 }

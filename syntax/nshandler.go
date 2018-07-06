@@ -2,39 +2,46 @@ package syntax
 
 import (
 	"errors"
+	"fmt"
 )
 
 // NSActive represents the active namespace.
 type NSActive struct {
 	Name    string
 	NS      *NameSpace
-	Mgr     *NSManager
+	NSMgr   *NSManager
 	enabled bool
 }
 
-// NewNSActive creates a new NSActive instance.
-func NewNSActive(name string, ns *NameSpace) *NSActive {
-	a := &NSActive{}
-	a.Activate(name, ns, NewNSManager(ns))
-	return a
-}
-
 // Activate activates a namespace
-func (a *NSActive) Activate(name string, ns *NameSpace, mgr *NSManager) error {
-	a.Name = name
-	a.NS = ns
-	a.Mgr = mgr
-	a.enabled = true
+func (nsa *NSActive) Activate(nsaname string, ns *NameSpace, nsmgr *NSManager) error {
+	nsa.Name = nsaname
+	nsa.NS = ns
+	nsa.NSMgr = nsmgr
+	nsa.enabled = true
 	return nil
 }
 
 // Deactivate deactivates a namespace
-func (a *NSActive) Deactivate() error {
-	a.Name = ""
-	a.NS = nil
-	a.Mgr = nil
-	a.enabled = false
+func (nsa *NSActive) Deactivate() error {
+	nsa.Name = ""
+	nsa.NS = nil
+	nsa.NSMgr = nil
+	nsa.enabled = false
 	return nil
+}
+
+// NewNSActive creates a new NSActive instance.
+func NewNSActive(nsaname string, ns *NameSpace) (*NSActive, error) {
+	var err error
+	nsa := &NSActive{}
+	if nsm, err := CreateNSManager(ns); err == nil {
+		if err = nsa.Activate(nsaname, ns, nsm); err != nil {
+			return nil, err
+		}
+		return nsa, nil
+	}
+	return nil, err
 }
 
 // NSHandler represents the namespace handler.
@@ -47,129 +54,149 @@ type NSHandler struct {
 	stack      []*NSActive
 }
 
-// NewNSHandler creates a new NSHandler instance.
-func NewNSHandler() *NSHandler {
-	h := &NSHandler{}
-	h.namespaces = make(map[string]*NameSpace)
-	return h
-}
-
 // GetNameSpaces returns all namespaces created in the handler.
-func (h *NSHandler) GetNameSpaces() map[string]*NameSpace {
-	return h.namespaces
+func (nsh *NSHandler) GetNameSpaces() map[string]*NameSpace {
+	return nsh.namespaces
 }
 
 // GetActive returns the active namespace.
-func (h *NSHandler) GetActive() *NSActive {
-	return h.active
+func (nsh *NSHandler) GetActive() *NSActive {
+	return nsh.active
 }
 
 // GetStack returns the namespace stack.
-func (h *NSHandler) GetStack() []*NSActive {
-	return h.stack
+func (nsh *NSHandler) GetStack() []*NSActive {
+	return nsh.stack
 }
 
 // FindNameSpace looks for a namespace for the given name.
-func (h *NSHandler) FindNameSpace(name string) (*NameSpace, error) {
-	ns, ok := h.namespaces[name]
-	if ok {
+func (nsh *NSHandler) FindNameSpace(nsname string) (*NameSpace, error) {
+	if ns, ok := nsh.namespaces[nsname]; ok {
 		return ns, nil
 	}
-	return nil, errors.New("not found")
+	return nil, fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // CreateNameSpace creates a new namespace.
-func (h *NSHandler) CreateNameSpace(name string) (*NameSpace, error) {
-	ns, ok := h.namespaces[name]
-	if ok {
-		return nil, errors.New("found")
+func (nsh *NSHandler) CreateNameSpace(nsname string) (*NameSpace, error) {
+	if ns, ok := nsh.namespaces[nsname]; !ok {
+		ns = NewNameSpace(nsname)
+		nsh.namespaces[nsname] = ns
+		return ns, nil
 	}
-	ns = &NameSpace{
-		Name: name,
-	}
-	h.namespaces[name] = ns
-	return ns, nil
+	return nil, fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // DeleteNameSpace deletes a namespace.
-func (h *NSHandler) DeleteNameSpace(name string) (*NameSpace, error) {
-	ns, ok := h.namespaces[name]
-	if ok {
-		delete(h.namespaces, name)
+func (nsh *NSHandler) DeleteNameSpace(nsname string) (*NameSpace, error) {
+	if ns, ok := nsh.namespaces[nsname]; ok {
+		delete(nsh.namespaces, nsname)
 		return ns, nil
 	}
-	return nil, errors.New("not found")
+	return nil, fmt.Errorf("NameSpace %#v not found", nsname)
+}
+
+// RegisterCommandsToNameSpace registers a list of commands to the given namespace.
+func (nsh *NSHandler) RegisterCommandsToNameSpace(nsname string, commands []*Command) error {
+	if ns, ok := nsh.namespaces[nsname]; ok {
+		for _, cmd := range commands {
+			if err := ns.Add(cmd); err != nil {
+				return fmt.Errorf("Register command %#v in NameSpace %#v failed with %#v", cmd.GetLabel(), nsname, err)
+			}
+		}
+		return nil
+	}
+	return fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // RegisterCommandToNameSpace registers a command to the given namespace.
-func (h *NSHandler) RegisterCommandToNameSpace(name string, c *Command) error {
-	ns, ok := h.namespaces[name]
-	if ok {
+func (nsh *NSHandler) RegisterCommandToNameSpace(nsname string, c *Command) error {
+	if ns, ok := nsh.namespaces[nsname]; ok {
 		return ns.Add(c)
 	}
-	return errors.New("not found")
+	return fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // UnregisterCommandFromNameSpace unregisters a command from the given
 // namespace.
-func (h *NSHandler) UnregisterCommandFromNameSpace(name string, c *Command) error {
-	ns, ok := h.namespaces[name]
-	if ok {
+func (nsh *NSHandler) UnregisterCommandFromNameSpace(nsname string, c *Command) error {
+	if ns, ok := nsh.namespaces[nsname]; ok {
 		return ns.DeleteForCommand(c)
 	}
-	return errors.New("Not found")
+	return fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // ActivateNameSpace activates namespace for the given name.
-func (h *NSHandler) ActivateNameSpace(name string) (*NameSpace, error) {
-	ns, ok := h.namespaces[name]
-	if ok {
-		h.active = NewNSActive(name, ns)
-		return ns, nil
+func (nsh *NSHandler) ActivateNameSpace(nsname string) (*NameSpace, error) {
+	if ns, ok := nsh.namespaces[nsname]; ok {
+		var err error
+		if nsh.active, err = NewNSActive(nsname, ns); err == nil {
+			return ns, nil
+		}
+		return nil, err
 	}
-	return nil, errors.New("Not found")
+	return nil, fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // DeactivateNameSpace deactivates namespace for the given name.
-func (h *NSHandler) DeactivateNameSpace(name string) (*NameSpace, error) {
-	ns, ok := h.namespaces[name]
-	if ok {
-		h.active.Deactivate()
-		h.active = nil
+func (nsh *NSHandler) DeactivateNameSpace(nsname string) (*NameSpace, error) {
+	if ns, ok := nsh.namespaces[nsname]; ok {
+		nsh.active.Deactivate()
+		nsh.active = nil
 		return ns, nil
 	}
-	return nil, errors.New("Not found")
+	return nil, fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // SwitchToNameSpace switches the active namespace and store the all one.
-func (h *NSHandler) SwitchToNameSpace(name string) (*NameSpace, *NameSpace, error) {
+func (nsh *NSHandler) SwitchToNameSpace(nsname string) (*NameSpace, *NameSpace, error) {
 	var oldActive *NSActive
-	if h.active != nil {
-		oldActive = h.active
+	if nsh.active != nil {
+		oldActive = nsh.active
 	}
-	ns, ok := h.ActivateNameSpace(name)
-	if ok == nil {
-		h.stack = append(h.stack, oldActive)
+	if ns, ok := nsh.ActivateNameSpace(nsname); ok == nil {
+		nsh.stack = append(nsh.stack, oldActive)
 		return oldActive.NS, ns, nil
 	}
-	return nil, nil, errors.New("not found")
+	return nil, nil, fmt.Errorf("NameSpace %#v not found", nsname)
 }
 
 // SwitchBackToNameSpace switches back to the latest namespace.
-func (h *NSHandler) SwitchBackToNameSpace() (*NameSpace, *NameSpace, error) {
-	stackLen := len(h.stack)
+func (nsh *NSHandler) SwitchBackToNameSpace() (*NameSpace, *NameSpace, error) {
+	stackLen := len(nsh.stack)
 	if stackLen == 0 {
 		return nil, nil, errors.New("empty stack")
 	}
 	// lastActive contains the last active namespace, that will be the next
 	// active namespace now.
-	lastActive := h.stack[stackLen-1]
+	lastActive := nsh.stack[stackLen-1]
 	// active contains the actual actual namesapace, that will be removed.
-	active := h.active
-	ns, ok := h.ActivateNameSpace(lastActive.Name)
-	if ok == nil && ns == lastActive.NS {
-		h.stack = h.stack[:stackLen-1]
+	active := nsh.active
+	if ns, ok := nsh.ActivateNameSpace(lastActive.Name); ok == nil && ns == lastActive.NS {
+		nsh.stack = nsh.stack[:stackLen-1]
 		return active.NS, lastActive.NS, nil
 	}
-	return nil, nil, errors.New("not found")
+	return nil, nil, fmt.Errorf("NameSpace %#v not found", lastActive.Name)
+}
+
+// NewNSHandler creates a new NSHandler instance.
+func NewNSHandler() *NSHandler {
+	nsh := &NSHandler{}
+	nsh.namespaces = make(map[string]*NameSpace)
+	return nsh
+}
+
+// CreateNSHandler creates a new NSHandler with a new namespace.
+func CreateNSHandler(nsname string, commands []*Command) (*NSHandler, error) {
+	nsh := NewNSHandler()
+	if _, err := nsh.CreateNameSpace(nsname); err != nil {
+		return nil, err
+	}
+	if err := nsh.RegisterCommandsToNameSpace(nsname, commands); err != nil {
+		return nil, err
+	}
+	if _, err := nsh.ActivateNameSpace(nsname); err != nil {
+		return nil, err
+	}
+	return nsh, nil
 }
