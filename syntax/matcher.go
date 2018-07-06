@@ -1,7 +1,6 @@
 package syntax
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/jrecuero/go-cli/graph"
@@ -27,11 +26,6 @@ func NewMatcher(ctx *Context, g *graph.Graph) *Matcher {
 func (m *Matcher) Match(line interface{}) (interface{}, bool) {
 	slice := strings.Fields(line.(string))
 	return nil, m.matchCommandLine(slice)
-}
-
-// Help returns the help for a node if it is matched.
-func (m *Matcher) Help(line interface{}) (interface{}, bool) {
-	return nil, true
 }
 
 // matchCommandLine matches the given command line with the graph.
@@ -101,29 +95,41 @@ func (m *Matcher) Complete(in interface{}) (interface{}, bool) {
 	m.matchWithGraph(tokens)
 	ilastCN := len(m.Ctx.Matched) - 1
 	lastCN := m.Ctx.Matched[ilastCN].Node
-	//result := []interface{}{}
-	//ilast := len(tokens) - 1
-	//if tokens[ilast] == "" {
-	//result, _ := lastCN.Complete(m.Ctx, tokens, 0)
 	result := []interface{}{}
 	for _, childNode := range lastCN.Children {
 		childCN := NodeToContentNode(childNode)
-		//childContent := childCN.GetContent()
-		//complet, _ := childContent.GetCompleter().Complete(m.Ctx, childContent, tokens, 0)
-		//result = append(result, complet)
+		tools.Tracer("childCN: %#v\n", childCN.GetContent().GetLabel())
 		complet, _ := childCN.Complete(m.Ctx, tokens, 0)
 		for _, c := range complet.([]interface{}) {
 			result = append(result, c)
 		}
 	}
-	fmt.Printf("line: %#v\n", line)
-	fmt.Printf("tokens: %#v\n", tokens)
-	fmt.Printf("complete result (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
+	tools.Tracer("line: %#v\n", line)
+	tools.Tracer("tokens: %#v\n", tokens)
+	tools.Tracer("complete result (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
 	return result, true
-	//} else {
-	//    result, _ := lastCN.GetContent().GetCompleter().Complete(m.Ctx, lastCN.GetContent(), tokens, 0)
-	//    fmt.Printf("complete result: %#v\n", result)
-	//    return result, true
-	//}
-	//return nil, false
+}
+
+// Help returns the help for a node if it is matched.
+func (m *Matcher) Help(in interface{}) (interface{}, bool) {
+	line := in.(string)
+	tokens := strings.Fields(line)
+	if tools.LastChar(line) == " " {
+		tokens = append(tokens, "")
+	}
+	m.matchWithGraph(tokens)
+	ilastCN := len(m.Ctx.Matched) - 1
+	lastCN := m.Ctx.Matched[ilastCN].Node
+	result := []interface{}{}
+	for _, childNode := range lastCN.Children {
+		childCN := NodeToContentNode(childNode)
+		help, _ := childCN.Help(m.Ctx, tokens, 0)
+		for _, c := range help.([]interface{}) {
+			result = append(result, c)
+		}
+	}
+	tools.Tracer("line: %#v\n", line)
+	tools.Tracer("tokens: %#v\n", tokens)
+	tools.Tracer("complete result (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
+	return result, true
 }

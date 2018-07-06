@@ -138,11 +138,39 @@ func TestNSManager_Complete(t *testing.T) {
 	ctx := syntax.NewContext()
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	//line := []string{"set", "1.0", "b"}
-	line := "set 1.0 "
+	line := "set 1.0 baudrate "
+	fmt.Printf("line: %#v\n", line)
 	fmt.Println(m.Complete(line))
-	for i, token := range ctx.Matched {
-		fmt.Printf("%d %#v\n", i, token)
+	//for i, token := range ctx.Matched {
+	//    fmt.Printf("%d %#v\n", i, token)
+	//}
+	//cn := ctx.Matched[1].Node
+	//fmt.Printf("%#v children: %#v\n", cn.GetContent().GetLabel(), cn.Children)
+	line = "set "
+	fmt.Printf("line: %#v\n", line)
+	fmt.Println(m.Complete(line))
+}
+
+// TestNSManager_Help ensures the namespace handler struct works properly.
+func TestNSManager_Help(t *testing.T) {
+	ns := createNameSpaceForTest()
+	nsm := syntax.NewNSManager(ns)
+	if err := nsm.Setup(); err == nil {
+		t.Errorf("NSManager setup error: %v", err)
 	}
-	cn := ctx.Matched[1].Node
-	fmt.Printf("%#v children: %#v\n", cn.GetContent().GetLabel(), cn.Children)
+	ctx := syntax.NewContext()
+	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
+	//line := []string{"set", "1.0", "b"}
+	line := "set 1.0 baudrate "
+	helps, _ := m.Help(line)
+	fmt.Printf("line: %#v\n", line)
+	for _, h := range helps.([]interface{}) {
+		fmt.Printf("%#v\n", h.(string))
+	}
+	line = "set "
+	helps, _ = m.Help(line)
+	fmt.Printf("line: %#v\n", line)
+	for _, h := range helps.([]interface{}) {
+		fmt.Printf("%#v\n", h.(string))
+	}
 }
