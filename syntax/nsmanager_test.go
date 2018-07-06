@@ -106,25 +106,26 @@ func TestNSManager_Setup(t *testing.T) {
 
 	ctx := syntax.NewContext()
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
-	//line := []string{"set", "1.0", "speed", "device", "home"}
 	line := "set 1.0 speed device home"
-	m.Match(line)
-	tools.Tester("%#v\n", ctx.GetLastCommand())
-	tools.Tester("-----------------------------------------")
-	for _, token := range ctx.Matched {
-		c := token.Node.GetContent()
-		tools.Tester("%v %v %#v %s\n", c.IsCommand(), c.IsArgument(), c.GetLabel(), token.Value)
+	if _, ok := m.Match(line); !ok {
+		t.Errorf("match return %#v for line: %s", ok, line)
 	}
-	tools.Tester("-----------------------------------------")
-	for i, cbox := range ctx.GetCommandBox() {
-		tools.Tester("%d %#v\n", i, cbox)
-	}
-	tools.Tester("-----------------------------------------")
-	v, _ := ctx.GetArgValueForArgLabel("set", "version")
-	tools.Tester("set version is %#v\n", v)
-	v, _ = ctx.GetArgValueForArgLabel("device", "name")
-	tools.Tester("device name is %#v\n", v)
-	tools.Tester("-----------------------------------------")
+	//tools.Tester("%#v\n", ctx.GetLastCommand())
+	//tools.Tester("-----------------------------------------")
+	//for _, token := range ctx.Matched {
+	//    c := token.Node.GetContent()
+	//    tools.Tester("%v %v %#v %s\n", c.IsCommand(), c.IsArgument(), c.GetLabel(), token.Value)
+	//}
+	//tools.Tester("-----------------------------------------")
+	//for i, cbox := range ctx.GetCommandBox() {
+	//    tools.Tester("%d %#v\n", i, cbox)
+	//}
+	//tools.Tester("-----------------------------------------")
+	//v, _ := ctx.GetArgValueForArgLabel("set", "version")
+	//tools.Tester("set version is %#v\n", v)
+	//v, _ = ctx.GetArgValueForArgLabel("device", "name")
+	//tools.Tester("device name is %#v\n", v)
+	//tools.Tester("-----------------------------------------")
 }
 
 // TestNSManager_Complete ensures the namespace handler struct works properly.
@@ -137,19 +138,25 @@ func TestNSManager_Complete(t *testing.T) {
 	ctx := syntax.NewContext()
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	//line := []string{"set", "1.0", "b"}
-	line := "set 1.0 baudrate "
+	line := "set 1.0 b"
 	tools.Tester("line: %#v\n", line)
 	result, _ := m.Complete(line)
 	tools.Tester("%#v\n", result)
+	if len(result.([]interface{})) != 2 || result.([]interface{})[0] != "baudrate" || result.([]interface{})[1] != "bool" {
+		t.Errorf("complete didn't match: %#v line: %s", result, line)
+	}
 	//for i, token := range ctx.Matched {
 	//    tools.Tester("%d %#v\n", i, token)
 	//}
 	//cn := ctx.Matched[1].Node
 	//tools.Tester("%#v children: %#v\n", cn.GetContent().GetLabel(), cn.Children)
-	line = "set "
+	line = "set 1.0 speed "
 	tools.Tester("line: %#v\n", line)
 	result, _ = m.Complete(line)
 	tools.Tester("%#v\n", result)
+	if len(result.([]interface{})) != 2 || result.([]interface{})[0] != "<<<_CR_>>>" || result.([]interface{})[1] != "device" {
+		t.Errorf("complete didn't match: %#v line: %s", result, line)
+	}
 }
 
 // TestNSManager_Help ensures the namespace handler struct works properly.
@@ -168,10 +175,16 @@ func TestNSManager_Help(t *testing.T) {
 	for _, h := range helps.([]interface{}) {
 		tools.Tester("%#v\n", h.(string))
 	}
+	if len(helps.([]interface{})) != 3 {
+		t.Errorf("help didn't match: %#v line: %s", helps, line)
+	}
 	line = "set "
 	helps, _ = m.Help(line)
 	tools.Tester("line: %#v\n", line)
 	for _, h := range helps.([]interface{}) {
 		tools.Tester("%#v\n", h.(string))
+	}
+	if len(helps.([]interface{})) != 1 {
+		t.Errorf("help didn't match: %#v line: %s", helps, line)
 	}
 }
