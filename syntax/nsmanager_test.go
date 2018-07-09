@@ -1,6 +1,7 @@
 package syntax_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
@@ -38,6 +39,10 @@ func createNameSpaceForTest() *syntax.NameSpace {
 			syntax.NewArgument("name", "Device name", nil, "string", ""),
 			syntax.NewArgument("value", "Speed value", nil, "string", ""),
 		}, nil)
+	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		fmt.Println("executint enter")
+		return nil
+	}
 	commands := []*syntax.Command{
 		setCmd,
 		getCmd,
@@ -186,5 +191,34 @@ func TestNSManager_Help(t *testing.T) {
 	}
 	if len(helps.([]interface{})) != 1 {
 		t.Errorf("help didn't match: %#v line: %s", helps, line)
+	}
+}
+
+// TestNSManager_Execute_Enter ensures the namespace handler struct works properly.
+func TestNSManager_Execute_Enter(t *testing.T) {
+	ns := createNameSpaceForTest()
+	nsm := syntax.NewNSManager(ns)
+	if err := nsm.Setup(); err == nil {
+		t.Errorf("NSManager setup error: %v", err)
+	}
+	tools.Tester("Display Command Tree")
+	for _, c := range nsm.GetCommandTree().Root.Children {
+		tools.Tester("%#v\n", c)
+	}
+	//tools.Tester(nsm.GetCommandTree().ToMermaid())
+	tools.Tester("Display Parse Tree")
+	for _, c := range nsm.GetParseTree().Root.Children {
+		tools.Tester("%#v\n", c)
+	}
+	//tools.Tester(nsm.GetParseTree().ToMermaid())
+
+	ctx := syntax.NewContext()
+	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
+	line := "set 1.0 speed device home"
+	if _, ok := m.Match(line); !ok {
+		t.Errorf("match return %#v for line: %s", ok, line)
+	} else {
+		lastCommand := ctx.GetLastCommand()
+		lastCommand.Enter(ctx, nil)
 	}
 }

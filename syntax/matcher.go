@@ -1,6 +1,7 @@
 package syntax
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jrecuero/go-cli/graph"
@@ -83,6 +84,17 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 		m.Ctx.AddToken(NodeToContentNode(traverse), tokens[index-1])
 	}
 	return index, true
+}
+
+// Execute executes the command for the given command line.
+func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
+	if _, ok := m.Match(line); !ok {
+		fmt.Errorf("match return %#v for line: %s", ok, line)
+		return nil, false
+	}
+	command := m.Ctx.GetLastCommand()
+	command.Enter(m.Ctx, nil)
+	return nil, true
 }
 
 // Complete returns possible complete string for command line being entered.

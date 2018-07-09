@@ -1,6 +1,7 @@
 package syntax_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
@@ -12,6 +13,11 @@ func setup(nsname string) (*syntax.NSHandler, *syntax.NSManager, *syntax.NameSpa
 		[]*syntax.Argument{
 			syntax.NewArgument("version", "Version number", nil, "string", ""),
 		}, nil)
+	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		version, _ := ctx.GetArgValueForArgLabel("", "version")
+		fmt.Println("executing enter with version:", version)
+		return nil
+	}
 	getCmd := syntax.NewCommand(nil, "get", "Get test help", nil, nil)
 	setBoolCmd := syntax.NewCommand(setCmd, "bool", "Set Bool test help", nil, nil)
 	setBaudrateCmd := syntax.NewCommand(setCmd, "baudrate [speed | parity]?", "Set baudrate help",
@@ -196,4 +202,26 @@ func TestNSHandler_Setup(t *testing.T) {
 	if _, ok := m.Match(line); !ok {
 		t.Errorf("match return %#v for line: %s", ok, line)
 	}
+}
+
+// TestNSHandler_Execute_Enter ensures switching namespaces works fine.
+func TestNSHandler_Execute_Enter(t *testing.T) {
+	nsh, nsm, ns := setup("test")
+	tools.Tester("Handler  : %#v\n", nsh)
+	tools.Tester("Manager  : %#v\n", nsm)
+	tools.Tester("NameSpace: %#v\n", ns)
+	ctx := syntax.NewContext()
+	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
+	line := "set 1.0 speed device home"
+	if _, ok := m.Match(line); !ok {
+		t.Errorf("match return %#v for line: %s", ok, line)
+	}
+	//line = "set 1.0"
+	//if _, ok := m.Match(line); !ok {
+	//    t.Errorf("match return %#v for line: %s", ok, line)
+	//} else {
+	//    lastCommand := ctx.GetLastCommand()
+	//    lastCommand.Enter(ctx, nil)
+	//}
+	m.Execute("set 1.0")
 }
