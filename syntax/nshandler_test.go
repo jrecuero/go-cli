@@ -14,8 +14,12 @@ func setup(nsname string) (*syntax.NSHandler, *syntax.NSManager, *syntax.NameSpa
 			syntax.NewArgument("version", "Version number", nil, "string", ""),
 		}, nil)
 	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-		version, _ := ctx.GetArgValueForArgLabel("", "version")
+		version, _ := ctx.GetArgValueForArgLabel(nil, "version")
 		fmt.Println("executing enter with version:", version)
+		args, _ := ctx.GetArgValuesForCommandLabel(nil)
+		fmt.Println("argumets:", args)
+		params := arguments.(map[string]interface{})
+		fmt.Println("version:", params["version"])
 		return nil
 	}
 	getCmd := syntax.NewCommand(nil, "get", "Get test help", nil, nil)

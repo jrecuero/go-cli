@@ -92,8 +92,13 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 		fmt.Errorf("match return %#v for line: %s", ok, line)
 		return nil, false
 	}
+	args, err := m.Ctx.GetArgValuesForCommandLabel(nil)
+	if err != nil {
+		fmt.Errorf("line: %#v arguments not found: %#v", line, err)
+		return nil, false
+	}
 	command := m.Ctx.GetLastCommand()
-	command.Enter(m.Ctx, nil)
+	command.Enter(m.Ctx, args)
 	return nil, true
 }
 

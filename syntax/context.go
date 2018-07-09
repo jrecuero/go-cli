@@ -2,6 +2,8 @@ package syntax
 
 import (
 	"fmt"
+
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // Token represents the structure that stores information with any token that
@@ -63,21 +65,21 @@ func (ctx *Context) GetCommandBox() []*CommandBox {
 
 // GetCmdBoxIndexForCommandLabel retrieves the index in the cmdbox field for the
 // given command label.
-func (ctx *Context) GetCmdBoxIndexForCommandLabel(label string) (int, error) {
-	if label == "" {
+func (ctx *Context) GetCmdBoxIndexForCommandLabel(label *string) (int, error) {
+	if label == nil {
 		return len(ctx.cmdbox) - 1, nil
 	}
 	for i, cbox := range ctx.cmdbox {
-		if cbox.Cmd.GetLabel() == label {
+		if cbox.Cmd.GetLabel() == tools.String(label) {
 			return i, nil
 		}
 	}
-	return -1, fmt.Errorf("Command with label %s not found", label)
+	return -1, fmt.Errorf("Command with label %s not found", tools.String(label))
 }
 
 // GetArgValueForArgLabel retrieves the argument value for the given argument
 // label.
-func (ctx *Context) GetArgValueForArgLabel(cmdlabel string, arglabel string) (interface{}, error) {
+func (ctx *Context) GetArgValueForArgLabel(cmdlabel *string, arglabel string) (interface{}, error) {
 	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
 		for _, argval := range ctx.cmdbox[icmd].ArgValues {
 			if argval.Arg.GetLabel() == arglabel {
@@ -85,7 +87,20 @@ func (ctx *Context) GetArgValueForArgLabel(cmdlabel string, arglabel string) (in
 			}
 		}
 	}
-	return nil, fmt.Errorf("Argument %s not found for Command %s", arglabel, cmdlabel)
+	return nil, fmt.Errorf("Argument %s not found for Command %s", arglabel, tools.String(cmdlabel))
+}
+
+// GetArgValuesForCommandLabel retrieves all arguments for the given command
+// label.
+func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, error) {
+	result := make(map[string]interface{})
+	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
+		for _, argval := range ctx.cmdbox[icmd].ArgValues {
+			result[argval.Arg.GetLabel()] = argval.Value
+		}
+		return result, nil
+	}
+	return nil, fmt.Errorf("Arguments not found for Command %s", tools.String(cmdlabel))
 }
 
 // AddToken adds a matched token to the context.

@@ -126,9 +126,9 @@ func TestNSManager_Setup(t *testing.T) {
 	//    tools.Tester("%d %#v\n", i, cbox)
 	//}
 	//tools.Tester("-----------------------------------------")
-	//v, _ := ctx.GetArgValueForArgLabel("set", "version")
+	//v, _ := ctx.GetArgValueForArgLabel(tools.PString("set"), "version")
 	//tools.Tester("set version is %#v\n", v)
-	//v, _ = ctx.GetArgValueForArgLabel("device", "name")
+	//v, _ = ctx.GetArgValueForArgLabel(tools.PString("device"), "name")
 	//tools.Tester("device name is %#v\n", v)
 	//tools.Tester("-----------------------------------------")
 }
