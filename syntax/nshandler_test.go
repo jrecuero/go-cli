@@ -1,7 +1,6 @@
 package syntax_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/jrecuero/go-cli/syntax"
@@ -15,11 +14,11 @@ func setup(nsname string) (*syntax.NSHandler, *syntax.NSManager, *syntax.NameSpa
 		}, nil)
 	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		version, _ := ctx.GetArgValueForArgLabel(nil, "version")
-		fmt.Println("executing enter with version:", version)
+		tools.Tester("executing enter with version:", version)
 		args, _ := ctx.GetArgValuesForCommandLabel(nil)
-		fmt.Println("argumets:", args)
+		tools.Tester("argumets:", args)
 		params := arguments.(map[string]interface{})
-		fmt.Println("version:", params["version"])
+		tools.Tester("version:", params["version"])
 		return nil
 	}
 	getCmd := syntax.NewCommand(nil, "get", "Get test help", nil, nil)
