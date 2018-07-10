@@ -30,7 +30,10 @@ func (pt *ParseTree) AddCommand(parent *Command, cmd *Command) error {
 
 // NewParseTree creates a new ParseTree instance.
 func NewParseTree() *ParseTree {
+	setupG := &graph.SetupGraph{
+		RootContent: NewContentJoint("Root", "Root content", NewCompleterJoint("root")),
+	}
 	return &ParseTree{
-		graph.NewGraph(nil),
+		graph.NewGraph(setupG),
 	}
 }

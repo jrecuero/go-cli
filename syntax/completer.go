@@ -90,6 +90,7 @@ type CompleterCommand struct {
 // Match returns the match for a command node completer.
 func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	tokens := line.([]string)
+	tools.Tracer("CompleterCommand > token: %#v , label: %#v\n", tokens[index], content.GetLabel())
 	if tokens[index] == content.GetLabel() {
 		return index + 1, true
 	}
@@ -165,7 +166,7 @@ func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interfac
 // Complete returns the complete match for any node completer.
 func (ca *CompleterArgument) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	// TODO: Query should be checked here.
-	return "", true
+	return "<<WORD>>", true
 }
 
 // Help returns the help for any node completer.

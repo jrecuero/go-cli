@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/c-bata/go-prompt"
+	"github.com/jrecuero/go-cli/prompter"
+	"github.com/jrecuero/go-cli/syntax"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
 
@@ -77,8 +79,60 @@ func runMultiSelectSurvey() {
 	survey.AskOne(prompt, &days, nil)
 }
 
+func setupCommands() []*syntax.Command {
+	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
+		[]*syntax.Argument{
+			syntax.NewArgument("version", "Version number", nil, "string", ""),
+		}, nil)
+	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		version, _ := ctx.GetArgValueForArgLabel(nil, "version")
+		fmt.Println("executing enter with version(ctx):", version)
+		params := arguments.(map[string]interface{})
+		fmt.Println("executing enter wit version(args):", params["version"])
+		return nil
+	}
+	getCmd := syntax.NewCommand(nil, "get", "Get test help", nil, nil)
+	setBoolCmd := syntax.NewCommand(setCmd, "bool", "Set Bool test help", nil, nil)
+	setBaudrateCmd := syntax.NewCommand(setCmd, "baudrate [speed | parity]?", "Set baudrate help",
+		[]*syntax.Argument{
+			syntax.NewArgument("speed", "Baudrate speed", nil, "string", ""),
+			syntax.NewArgument("parity", "Baudrate parity value", nil, "string", ""),
+		}, nil)
+	setSpeedCmd := syntax.NewCommand(setCmd, "speed", "Set Speed test help", nil, nil)
+	setSpeedDeviceCmd := syntax.NewCommand(setSpeedCmd, "device name", "Set speed device help",
+		[]*syntax.Argument{
+			syntax.NewArgument("name", "Device name", nil, "string", ""),
+		}, nil)
+	getSpeedCmd := syntax.NewCommand(getCmd, "speed [device name | value]?", "Get speed help",
+		[]*syntax.Argument{
+			syntax.NewArgument("device", "Device", nil, "string", ""),
+			syntax.NewArgument("name", "Device name", nil, "string", ""),
+			syntax.NewArgument("value", "Speed value", nil, "string", ""),
+		}, nil)
+	commands := []*syntax.Command{
+		setCmd,
+		getCmd,
+		syntax.NewCommand(nil, "config", "Config test help", nil, nil),
+		setBaudrateCmd,
+		setSpeedCmd,
+		setBoolCmd,
+		syntax.NewCommand(getCmd, "baudrate", "Get Baudrate test help", nil, nil),
+		//syntax.NewCommand(getCmd, "speed", "Get Speed test help", nil, nil),
+		getSpeedCmd,
+		setSpeedDeviceCmd,
+	}
+	return commands
+}
+
+func runPrompter() {
+	p := &prompter.Prompter{}
+	p.Setup("prompter", setupCommands())
+	p.Run()
+}
+
 func main() {
-	runGoPrompt()
+	//runGoPrompt()
 	//runInputSurvey()
 	//runMultiSelectSurvey()
+	runPrompter()
 }

@@ -68,6 +68,7 @@ func (cn *ContentNode) Query(ctx interface{}, line interface{}, index int) (inte
 func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	content := cn.GetContent()
 	if completer := content.GetCompleter(); completer != nil {
+		tools.Tracer("cn: %#v\n", content.GetLabel())
 		context := ctx.(*Context)
 		result := []interface{}{}
 		if cn.IsContent() || cn.IsSink {

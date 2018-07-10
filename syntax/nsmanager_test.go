@@ -162,6 +162,12 @@ func TestNSManager_Complete(t *testing.T) {
 	if len(result.([]interface{})) != 2 || result.([]interface{})[0] != "<<<_CR_>>>" || result.([]interface{})[1] != "device" {
 		t.Errorf("complete didn't match: %#v line: %s", result, line)
 	}
+	tools.Tester("EMPTY LINE\n")
+	line = " "
+	tools.Tester("line: %#v\n", line)
+	result, _ = m.Complete(line)
+	tools.Tester("%#v\n", result)
+	//tools.Tester("%#v\n", result)
 }
 
 // TestNSManager_Help ensures the namespace handler struct works properly.

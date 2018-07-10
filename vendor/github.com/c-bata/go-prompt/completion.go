@@ -27,12 +27,17 @@ type Suggest struct {
 	Description string
 }
 
+// WorkerFilterSuggest is the protoype for function that filters a suggest when
+// it is selected
+type WorkerFilterSuggest = func(suggest Suggest) (Suggest, bool)
+
 // CompletionManager manages which suggestion is now selected.
 type CompletionManager struct {
 	selected  int // -1 means nothing one is selected.
 	tmp       []Suggest
 	max       uint16
 	completer Completer
+	filter    WorkerFilterSuggest
 
 	verticalScroll int
 	wordSeparator  string
@@ -47,6 +52,15 @@ func (c *CompletionManager) GetSelectedSuggestion() (s Suggest, ok bool) {
 		c.selected = -1
 		return Suggest{}, false
 	}
+	if c.filter != nil {
+		if suggest, ok := c.filter(c.tmp[c.selected]); ok {
+			return suggest, true
+		}
+		return Suggest{}, false
+	}
+	//if text := c.tmp[c.selected].Text; strings.HasPrefix(text, "<<") && strings.HasSuffix(text, ">>") {
+	//    return Suggest{}, false
+	//}
 	return c.tmp[c.selected], true
 }
 
@@ -188,6 +202,7 @@ func NewCompletionManager(completer Completer, max uint16) *CompletionManager {
 		selected:  -1,
 		max:       max,
 		completer: completer,
+		filter:    nil,
 
 		verticalScroll: 0,
 	}

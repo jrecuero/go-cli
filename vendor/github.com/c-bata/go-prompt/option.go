@@ -148,6 +148,14 @@ func OptionDescriptionBGColor(x Color) Option {
 	}
 }
 
+// OptionSuggestionFilter change a completion suggestion filter.
+func OptionSuggestionFilter(worker WorkerFilterSuggest) Option {
+	return func(p *Prompt) error {
+		p.completion.filter = worker
+		return nil
+	}
+}
+
 // OptionSelectedDescriptionTextColor to change a text color of description which is selected inside suggestions drop down box.
 func OptionSelectedDescriptionTextColor(x Color) Option {
 	return func(p *Prompt) error {
