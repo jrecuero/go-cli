@@ -1,0 +1,29 @@
+hash: 2845cc36b0e7f793dd1a422e1ccf3bf8685f2f6ed7e7453d771d5fa726456d0c
+updated: 2018-07-09T18:31:07.413582-07:00
+imports:
+- name: github.com/c-bata/go-prompt
+  version: c52492ff1b386e5c0ba5271b5eaad165fab09eca
+- name: github.com/mattn/go-colorable
+  version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
+- name: github.com/mattn/go-isatty
+  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/mattn/go-runewidth
+  version: ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb
+- name: github.com/mattn/go-tty
+  version: 931426f7535ac39720c8909d70ece5a41a2502a6
+- name: github.com/mgutz/ansi
+  version: 9520e82c474b0a04dd04f8a40959027271bab992
+- name: github.com/pkg/term
+  version: cda20d4ac917ad418d86e151eff439648b06185b
+  subpackages:
+  - termios
+- name: golang.org/x/sys
+  version: 1b2967e3c290b7c545b3db0deeda16e9be4f98a2
+  subpackages:
+  - unix
+- name: gopkg.in/AlecAivazis/survey.v1
+  version: 17861e192dc11fd2f5081df1932c94cce262fa1e
+  subpackages:
+  - core
+  - terminal
+testImports: []

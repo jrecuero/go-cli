@@ -1,0 +1,6 @@
+package: github.com/jrecuero/go-cli
+import:
+- package: github.com/c-bata/go-prompt
+  version: ^0.2.2
+- package: gopkg.in/AlecAivazis/survey.v1
+  version: ^1.6.1
