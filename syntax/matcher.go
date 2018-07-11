@@ -111,6 +111,7 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	return nil, true
 }
 
+// workerComplete gets all complete options for the given node.
 func (m *Matcher) workerComplete(cn *ContentNode, tokens []string) interface{} {
 	result := []interface{}{}
 	for _, childNode := range cn.Children {
@@ -125,6 +126,7 @@ func (m *Matcher) workerComplete(cn *ContentNode, tokens []string) interface{} {
 	return result
 }
 
+// workerHelp gets all help options for the given node.
 func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
 	result := []interface{}{}
 	for _, childNode := range cn.Children {
@@ -139,6 +141,7 @@ func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
 	return result
 }
 
+// workerCompleteAndHelp gets all complete and help options for the given node.
 func (m *Matcher) workerCompleteAndHelp(cn *ContentNode, tokens []string) interface{} {
 	result := []*ComplexComplete{}
 	for _, childNode := range cn.Children {
@@ -181,25 +184,7 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 		ilastCN := len(m.Ctx.Matched) - 1
 		lastCN = m.Ctx.Matched[ilastCN].Node
 	}
-	tools.Tracer("LastCN: %#v\n", lastCN.GetContent().GetLabel())
 	result := worker(lastCN, tokens)
-	//result := []*ComplexComplete{}
-	//for _, childNode := range lastCN.Children {
-	//    childCN := NodeToContentNode(childNode)
-	//    complet, _ := childCN.Complete(m.Ctx, tokens, 0)
-	//    help, _ := childCN.Help(m.Ctx, tokens, 0)
-	//    tools.Tracer("childCN: %#v complete: %#v help: %#v\n", childCN.GetContent().GetLabel(), complet, help)
-	//    limit := len(complet.([]interface{}))
-	//    if limit > len(help.([]interface{})) {
-	//        limit = len(help.([]interface{}))
-	//    }
-	//    for i := 0; i < limit; i++ {
-	//        result = append(result, &ComplexComplete{
-	//            Complete: complet.([]interface{})[i],
-	//            Help:     help.([]interface{})[i],
-	//        })
-	//    }
-	//}
 	tools.Tracer("line: %#v\n", line)
 	tools.Tracer("tokens: %#v\n", tokens)
 	tools.Tracer("results (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
@@ -209,102 +194,14 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 // Complete returns possible complete string for command line being entered.
 func (m *Matcher) Complete(in interface{}) (interface{}, bool) {
 	return m.processCompleteAndHelp(in, m.workerComplete)
-	//line := in.(string)
-	//var tokens []string
-	//var lastCN *ContentNode
-	//if line == " " || line == "" {
-	//    tokens = []string{""}
-	//    lastCN = NodeToContentNode(m.G.Root)
-	//    tools.Tracer("LastCN<root>: %#v\n", lastCN)
-	//} else {
-	//    tokens = strings.Fields(line)
-	//    if tools.LastChar(line) == " " {
-	//        tokens = append(tokens, "")
-	//    }
-	//    m.matchWithGraph(tokens)
-	//    ilastCN := len(m.Ctx.Matched) - 1
-	//    lastCN = m.Ctx.Matched[ilastCN].Node
-	//    tools.Tracer("LastCN: %#v\n", lastCN.GetContent().GetLabel())
-	//}
-	//result := []interface{}{}
-	//for _, childNode := range lastCN.Children {
-	//    childCN := NodeToContentNode(childNode)
-	//    tools.Tracer("childCN: %#v\n", childCN.GetContent().GetLabel())
-	//    complet, _ := childCN.Complete(m.Ctx, tokens, 0)
-	//    for _, c := range complet.([]interface{}) {
-	//        result = append(result, c)
-	//    }
-	//}
-	//tools.Tracer("line: %#v\n", line)
-	//tools.Tracer("tokens: %#v\n", tokens)
-	//tools.Tracer("complete result (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
-	//return result, true
 }
 
 // Help returns the help for a node if it is matched.
 func (m *Matcher) Help(in interface{}) (interface{}, bool) {
 	return m.processCompleteAndHelp(in, m.workerHelp)
-	//line := in.(string)
-	//tokens := strings.Fields(line)
-	//if tools.LastChar(line) == " " {
-	//    tokens = append(tokens, "")
-	//}
-	//m.matchWithGraph(tokens)
-	//ilastCN := len(m.Ctx.Matched) - 1
-	//lastCN := m.Ctx.Matched[ilastCN].Node
-	//result := []interface{}{}
-	//for _, childNode := range lastCN.Children {
-	//    childCN := NodeToContentNode(childNode)
-	//    help, _ := childCN.Help(m.Ctx, tokens, 0)
-	//    for _, c := range help.([]interface{}) {
-	//        result = append(result, c)
-	//    }
-	//}
-	//tools.Tracer("line: %#v\n", line)
-	//tools.Tracer("tokens: %#v\n", tokens)
-	//tools.Tracer("complete result (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
-	//return result, true
 }
 
 // CompleteAndHelp returns possible complete string for command line being entered.
 func (m *Matcher) CompleteAndHelp(in interface{}) (interface{}, bool) {
 	return m.processCompleteAndHelp(in, m.workerCompleteAndHelp)
-	//line := in.(string)
-	//var tokens []string
-	//var lastCN *ContentNode
-	//tokens = strings.Fields(line)
-	//if tools.LastChar(line) == " " {
-	//    tokens = append(tokens, "")
-	//}
-	//m.matchWithGraph(tokens)
-	//if len(m.Ctx.Matched) == 0 {
-	//    // There is not match, this happens when it is being entered the first
-	//    // command or the command line is empty.
-	//    lastCN = NodeToContentNode(m.G.Root)
-	//} else {
-	//    ilastCN := len(m.Ctx.Matched) - 1
-	//    lastCN = m.Ctx.Matched[ilastCN].Node
-	//}
-	//tools.Tracer("LastCN: %#v\n", lastCN.GetContent().GetLabel())
-	//result := []*ComplexComplete{}
-	//for _, childNode := range lastCN.Children {
-	//    childCN := NodeToContentNode(childNode)
-	//    complet, _ := childCN.Complete(m.Ctx, tokens, 0)
-	//    help, _ := childCN.Help(m.Ctx, tokens, 0)
-	//    tools.Tracer("childCN: %#v complete: %#v help: %#v\n", childCN.GetContent().GetLabel(), complet, help)
-	//    limit := len(complet.([]interface{}))
-	//    if limit > len(help.([]interface{})) {
-	//        limit = len(help.([]interface{}))
-	//    }
-	//    for i := 0; i < limit; i++ {
-	//        result = append(result, &ComplexComplete{
-	//            Complete: complet.([]interface{})[i],
-	//            Help:     help.([]interface{})[i],
-	//        })
-	//    }
-	//}
-	//tools.Tracer("line: %#v\n", line)
-	//tools.Tracer("tokens: %#v\n", tokens)
-	//tools.Tracer("complete result (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
-	//return result, true
 }
