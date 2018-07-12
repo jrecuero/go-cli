@@ -35,7 +35,10 @@ func NewMatcher(ctx *Context, g *graph.Graph) *Matcher {
 // Match matches if a node is matched for a token.
 func (m *Matcher) Match(line interface{}) (interface{}, bool) {
 	slice := strings.Fields(line.(string))
-	return nil, m.matchCommandLine(slice)
+	m.Ctx.SetProcess(tools.PString(MATCH))
+	result := m.matchCommandLine(slice)
+	m.Ctx.SetProcess(nil)
+	return nil, result
 }
 
 // matchCommandLine matches the given command line with the graph.
@@ -97,6 +100,7 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 
 // Execute executes the command for the given command line.
 func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
+	m.Ctx.SetProcess(tools.PString(EXECUTE))
 	if _, ok := m.Match(line); !ok {
 		fmt.Errorf("match return %#v for line: %s", ok, line)
 		return nil, false
@@ -108,6 +112,7 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	}
 	command := m.Ctx.GetLastCommand()
 	command.Enter(m.Ctx, args)
+	m.Ctx.SetProcess(nil)
 	return nil, true
 }
 
@@ -193,15 +198,24 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 
 // Complete returns possible complete string for command line being entered.
 func (m *Matcher) Complete(in interface{}) (interface{}, bool) {
-	return m.processCompleteAndHelp(in, m.workerComplete)
+	m.Ctx.SetProcess(tools.PString(COMPLETE))
+	result, ok := m.processCompleteAndHelp(in, m.workerComplete)
+	m.Ctx.SetProcess(nil)
+	return result, ok
 }
 
 // Help returns the help for a node if it is matched.
 func (m *Matcher) Help(in interface{}) (interface{}, bool) {
-	return m.processCompleteAndHelp(in, m.workerHelp)
+	m.Ctx.SetProcess(tools.PString(HELP))
+	result, ok := m.processCompleteAndHelp(in, m.workerHelp)
+	m.Ctx.SetProcess(nil)
+	return result, ok
 }
 
 // CompleteAndHelp returns possible complete string for command line being entered.
 func (m *Matcher) CompleteAndHelp(in interface{}) (interface{}, bool) {
-	return m.processCompleteAndHelp(in, m.workerCompleteAndHelp)
+	m.Ctx.SetProcess(tools.PString(COMPLETE))
+	result, ok := m.processCompleteAndHelp(in, m.workerCompleteAndHelp)
+	m.Ctx.SetProcess(nil)
+	return result, ok
 }

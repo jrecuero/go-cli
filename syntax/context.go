@@ -6,6 +6,23 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
+const (
+	// MATCH identifies match process.
+	MATCH = "match"
+
+	// COMPLETE identifies complete process.
+	COMPLETE = "complete"
+
+	// HELP identifies help process.
+	HELP = "help"
+
+	// QUERY identifies query process.
+	QUERY = "query"
+
+	// EXECUTE identifies execute process.
+	EXECUTE = "execute"
+)
+
 // Token represents the structure that stores information with any token that
 // has been matched.
 type Token struct {
@@ -39,6 +56,22 @@ type Context struct {
 	Matched []*Token
 	lastcmd *Command
 	cmdbox  []*CommandBox
+	process *string
+}
+
+// SetProcess sets the context process running.
+func (ctx *Context) SetProcess(process *string) bool {
+	proc := tools.String(process)
+	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE {
+		ctx.process = process
+		return true
+	}
+	return false
+}
+
+// GetProcess retrieves the context process runnning.
+func (ctx *Context) GetProcess() string {
+	return tools.String(ctx.process)
 }
 
 // GetLastCommand retrieves the lastcmd field.

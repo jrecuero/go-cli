@@ -45,11 +45,21 @@ func (pr *Prompter) completer(d prompt.Document) []prompt.Suggest {
 	}
 	result, _ := m.CompleteAndHelp(line)
 	var s []prompt.Suggest
+	var varArgs []prompt.Suggest
 	for _, r := range result.([]*syntax.ComplexComplete) {
-		//tools.Tracer("%#v\n", r)
-		s = append(s, prompt.Suggest{Text: r.Complete.(string), Description: r.Help.(string)})
+		//tools.Tracer("result: %#v\n", r)
+		completeStr := r.Complete.(string)
+		newSuggest := prompt.Suggest{Text: completeStr, Description: r.Help.(string)}
+		if strings.HasPrefix(completeStr, "<<") && strings.HasSuffix(completeStr, ">>") {
+			varArgs = append(varArgs, newSuggest)
+		}
+		s = append(s, newSuggest)
 	}
-	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+	suggests := prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+	if len(suggests) == 0 {
+		suggests = varArgs
+	}
+	return suggests
 }
 
 func (pr *Prompter) changeLivePrefix() (string, bool) {

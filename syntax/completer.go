@@ -160,6 +160,15 @@ func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interfac
 	if tokens[index] == "" {
 		return index, false
 	}
+	// When complete or help process, it should not match if it is still
+	// entering the argument.
+	proc := ctx.GetProcess()
+	if proc == COMPLETE || proc == HELP {
+		toklen := len(tokens)
+		if index == (toklen - 1) {
+			return index, false
+		}
+	}
 	return index + 1, true
 }
 
@@ -171,7 +180,8 @@ func (ca *CompleterArgument) Complete(ctx *Context, content IContent, line inter
 
 // Help returns the help for any node completer.
 func (ca *CompleterArgument) Help(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	return ca.helpLabel(ctx, content, line, index)
+	//tokens := line.([]string)
+	return content.GetHelp(), true
 }
 
 // NewCompleterArgument returns a new CompleterArgument instance.

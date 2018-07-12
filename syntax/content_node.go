@@ -49,6 +49,7 @@ func (cn *ContentNode) Help(ctx interface{}, line interface{}, index int) (inter
 				}
 			}
 		}
+		tools.Tracer("result is %#v\n", result)
 		return result, true
 	}
 	return content.GetLabel(), true
