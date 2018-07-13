@@ -7,6 +7,7 @@ import (
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/jrecuero/go-cli/syntax"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // Prompter represents the CLI propmpt.
@@ -25,6 +26,7 @@ var livePrefixState struct {
 func (pr *Prompter) executor(in string) {
 	//if in == "exit" || in == "quit" {
 	if in == "quit" {
+		tools.CloseLog()
 		os.Exit(0)
 	}
 	fmt.Println("Your input: " + in)

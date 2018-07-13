@@ -1,6 +1,7 @@
 package syntax
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jrecuero/go-cli/tools"
@@ -119,7 +120,11 @@ func (ctx *Context) GetArgValueForArgLabel(cmdlabel *string, arglabel string) (i
 				// TODO: Any argument type processing should be done at this
 				// point.
 				//return argval.Value, nil
-				return argval.Arg.Cast(argval.Value.(string))
+				v, err := argval.Arg.Cast(argval.Value.(string))
+				if err != nil {
+					return nil, tools.ERROR(err, false, "%#v\n", err)
+				}
+				return v, nil
 			}
 		}
 	}
@@ -138,12 +143,12 @@ func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, 
 			if r, err := argval.Arg.Cast(argval.Value.(string)); err == nil {
 				result[argval.Arg.GetLabel()] = r
 			} else {
-				return nil, fmt.Errorf("Argument casting failed %#v", err)
+				return nil, tools.ERROR(err, false, "Argument casting failed %#v", err)
 			}
 		}
 		return result, nil
 	}
-	return nil, fmt.Errorf("Arguments not found for Command %s", tools.String(cmdlabel))
+	return nil, tools.ERROR(errors.New("arguments not found"), false, "Arguments not found for Command %s", tools.String(cmdlabel))
 }
 
 // AddToken adds a matched token to the context.

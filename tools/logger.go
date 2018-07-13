@@ -13,18 +13,24 @@ import (
 var logger *log.Logger
 var loggerJSON *os.File
 var mutex sync.Mutex
+var logfile *os.File
 
 // Log configures the log file.
 func Log() *log.Logger {
 	if logger == nil {
-		if f, err := os.OpenFile("go-cli.log", os.O_RDWR|os.O_CREATE, 0666); err == nil {
-			logger = log.New(f, "GOCLI: ", log.Ldate|log.Ltime|log.Lmicroseconds)
+		if logfile, err := os.OpenFile("go-cli.log", os.O_RDWR|os.O_CREATE, 0666); err == nil {
+			logger = log.New(logfile, "GOCLI: ", log.Ldate|log.Ltime|log.Lmicroseconds)
 		} else {
 			panic("log file could not be opened")
 		}
 		logger.Println("***** LOGGER HAS BEEN INITIALIZED *****")
 	}
 	return logger
+}
+
+// CloseLog the logfile.
+func CloseLog() {
+	logfile.Close()
 }
 
 func inlog(mod string, format string, params ...interface{}) {
@@ -34,11 +40,11 @@ func inlog(mod string, format string, params ...interface{}) {
 	details := runtime.FuncForPC(pc)
 	if ok && details != nil {
 		methodname := filepath.Base(details.Name())
-		index := strings.LastIndex(methodname, ".")
-		funcname := methodname[index+1:]
+		//index := strings.LastIndex(methodname, ".")
+		//funcname := methodname[index+1:]
 		ifname := strings.LastIndex(filename, "/")
 		fname := filename[ifname+1:]
-		Log().Printf(fmt.Sprintf("[%s] %s:%d %s() ||| %s", mod, fname, line, funcname, format), params...)
+		Log().Printf(fmt.Sprintf("[%s] %s:%d %s() ||| %s", mod, fname, line, methodname, format), params...)
 	} else {
 		Log().Printf(fmt.Sprintf("[%s] ||| %s", mod, format), params...)
 	}
@@ -64,6 +70,11 @@ func Tracer(format string, params ...interface{}) {
 	inlog("TRACER", format, params...)
 }
 
+// Debug logs the trace..
+func Debug(format string, params ...interface{}) {
+	inlog("DEBUG", format, params...)
+}
+
 // Tester logs the test log..
 func Tester(format string, params ...interface{}) {
 	inlog("TERSTER", format, params...)
@@ -79,4 +90,18 @@ func LogJSON() *os.File {
 		logger.Println("***** LOGGER-JSON HAS BEEN INITIALIZED *****")
 	}
 	return loggerJSON
+}
+
+// ToDisplay sends the formated string to the prompt display.
+func ToDisplay(format string, params ...interface{}) {
+	fmt.Printf(format, params...)
+}
+
+// ERROR sends the formated string to the prompt display.
+func ERROR(err error, todisp bool, format string, params ...interface{}) error {
+	Error(format, params...)
+	if todisp {
+		ToDisplay(format, params...)
+	}
+	return err
 }

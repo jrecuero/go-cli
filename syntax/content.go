@@ -35,6 +35,11 @@ func (c *Content) GetCompleter() ICompleter {
 	return c.completer
 }
 
+// Validate returns user command completer.
+func (c *Content) Validate(val interface{}) (bool, error) {
+	return true, nil
+}
+
 // ToString returns the string with the content information.
 func (c *Content) ToString() string {
 	return c.label

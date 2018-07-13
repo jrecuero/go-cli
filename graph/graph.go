@@ -190,16 +190,16 @@ func (g *Graph) Explore() {
 	parents := []*Node{}
 	var index int
 	for {
-		tools.Tracer(fmt.Sprintf("\n\nNode Information: %s\n", traverse.ToContent()))
-		tools.Tracer(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
+		tools.ToDisplay(fmt.Sprintf("\n\nNode Information: %s\n", traverse.ToContent()))
+		tools.ToDisplay(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
 		if len(traverse.Children) > 0 {
 			for i, child := range traverse.Children {
-				//tools.Tracer("\t> %d %s\n", i, child.Label)
-				tools.Tracer("\t> %d %s\n", i, child.ToContent())
+				//tools.ToDisplay("\t> %d %s\n", i, child.Label)
+				tools.ToDisplay("\t> %d %s\n", i, child.ToContent())
 			}
-			tools.Tracer("\n[0-%d] Select children", len(traverse.Children)-1)
+			tools.ToDisplay("\n[0-%d] Select children", len(traverse.Children)-1)
 		}
-		tools.Tracer("\n[-] Select Parent\n[x] Exit\nSelect: ")
+		tools.ToDisplay("\n[-] Select Parent\n[x] Exit\nSelect: ")
 		text, _ := reader.ReadString('\n')
 		text = strings.TrimSpace(text)
 		if text == "x" {
@@ -207,12 +207,12 @@ func (g *Graph) Explore() {
 		} else if text == "-" {
 			traverse = parents[len(parents)-1]
 			parents = parents[:len(parents)-1]
-			tools.Tracer("Parent selected %s\n", traverse.Label)
+			tools.ToDisplay("Parent selected %s\n", traverse.Label)
 		} else {
 			index, _ = strconv.Atoi(text)
 			parents = append(parents, traverse)
 			traverse = traverse.Children[index]
-			tools.Tracer("Children selected %d - %s\n", index, traverse.Label)
+			tools.ToDisplay("Children selected %d - %s\n", index, traverse.Label)
 		}
 	}
 }

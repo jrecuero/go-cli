@@ -62,7 +62,7 @@ func runSimpleMatcher() {
 	fmt.Printf("%s", cs.Graph.ToString())
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	line := []string{"SELECT", "name", "age"}
-	m.MatchCommandLine(line)
+	m.Match(line)
 }
 
 func runComplexMatcher() {
@@ -74,7 +74,7 @@ func runComplexMatcher() {
 	//line := []string{"SELECT", "name", "id"}
 	//line := []string{"SELECT", "name"}
 	line := []string{"SELECT", "name", "caca"}
-	fmt.Println(m.MatchCommandLine(line))
+	fmt.Println(m.Match(line))
 }
 
 //func cmdHello(context interface{}, arguments interface{}) bool {
@@ -158,7 +158,7 @@ func runManagerCmd() {
 	fmt.Printf("%#v\n", m)
 	//line := []string{"user", "name", "age"}
 	line := []string{"manager", "name"}
-	m.MatchCommandLine(line)
+	m.Match(line)
 }
 
 func runNewUserCmd() {
@@ -169,7 +169,7 @@ func runNewUserCmd() {
 	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
 	fmt.Printf("%#v\n", m)
 	line := []string{"user", "josecarlos", "-age", "51"}
-	m.MatchCommandLine(line)
+	m.Match(line)
 	//fmt.Printf("%s", cs.Graph.ToMermaid())
 	for _, token := range m.Ctx.Matched {
 		fmt.Printf("[%s] %s : %s \n", token.Node.GetContent().GetStrType(), token.Node.Label, token.Value)

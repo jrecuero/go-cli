@@ -8,10 +8,13 @@ import (
 // CastingCall represents the function for casting the argument type.
 type CastingCall func(val string) (interface{}, error)
 
+// ValidateCall represents the function for validating the argument value.
+type ValidateCall func(val interface{}) (bool, error)
+
 // CastInt performs a string to int casting.
 func CastInt(val string) (interface{}, error) {
-	result, _ := strconv.Atoi(val)
-	return result, nil
+	result, err := strconv.Atoi(val)
+	return result, err
 }
 
 // CastString performs a string to string casting.
@@ -27,9 +30,10 @@ var castingMap = map[string]CastingCall{
 // Argument represents any CLI argument information.
 type Argument struct {
 	*Content
-	Type    string
-	Casting CastingCall
-	Default interface{}
+	Type      string
+	Caster    CastingCall
+	Validator ValidateCall
+	Default   interface{}
 }
 
 // Setup initializes all argument fields.
@@ -37,10 +41,10 @@ func (a *Argument) Setup() *Argument {
 	if a.completer == nil {
 		a.completer = NewCompleterArgument(a.GetLabel())
 	}
-	if a.Casting == nil {
+	if a.Caster == nil {
 		castingCall, ok := castingMap[a.Type]
 		if ok {
-			a.Casting = castingCall
+			a.Caster = castingCall
 		} else {
 			panic(fmt.Sprintf("argument type %#v does not have casting call", a.Type))
 		}
@@ -55,10 +59,18 @@ func (a *Argument) GetType() string {
 
 // Cast returns the casting for the argument type.
 func (a *Argument) Cast(val string) (interface{}, error) {
-	if a.Casting != nil {
-		return a.Casting(val)
+	if a.Caster != nil {
+		return a.Caster(val)
 	}
-	return nil, fmt.Errorf("casting call not found for type %#v", a.Type)
+	return val, nil
+}
+
+// Validate checks in the argument value is a valid one.
+func (a *Argument) Validate(val interface{}) (bool, error) {
+	if a.Validator != nil {
+		return a.Validator(val)
+	}
+	return true, nil
 }
 
 // CreateKeywordFromSelf creates a new Argument instance that contains the
@@ -95,10 +107,11 @@ func GetValueFromArguments(field string, arguments interface{}) interface{} {
 // NewArgument creates a new Argument instance.
 func NewArgument(label string, help string, completer ICompleter, atype string, adefault interface{}, casting CastingCall) *Argument {
 	argo := &Argument{
-		Content: NewContent(label, help, completer).(*Content),
-		Type:    atype,
-		Default: adefault,
-		Casting: casting,
+		Content:   NewContent(label, help, completer).(*Content),
+		Type:      atype,
+		Default:   adefault,
+		Caster:    casting,
+		Validator: nil,
 	}
 	argo.Setup()
 	return argo

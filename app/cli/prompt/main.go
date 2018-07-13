@@ -90,7 +90,10 @@ func setupCommands() []*syntax.Command {
 			syntax.NewArgument("version", "Version number", nil, "int", 0, nil),
 		}, nil)
 	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-		version, _ := ctx.GetArgValueForArgLabel(nil, "version")
+		version, err := ctx.GetArgValueForArgLabel(nil, "version")
+		if err != nil {
+			fmt.Println("Error: %#v\n", err)
+		}
 		fmt.Println("executing enter with version(ctx):", version)
 		params := arguments.(map[string]interface{})
 		fmt.Println("executing enter wit version(args):", params["version"])

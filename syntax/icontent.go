@@ -7,6 +7,7 @@ type IContent interface {
 	GetDefault() interface{}
 	GetHelp() string
 	GetCompleter() ICompleter
+	Validate(val interface{}) (bool, error)
 	ToString() string
 	IsCommand() bool
 	IsMode() bool
