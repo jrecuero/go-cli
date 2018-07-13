@@ -23,7 +23,8 @@ var livePrefixState struct {
 
 // executor executes any command entered in the command line.
 func (pr *Prompter) executor(in string) {
-	if in == "exit" || in == "quit" {
+	//if in == "exit" || in == "quit" {
+	if in == "quit" {
 		os.Exit(0)
 	}
 	fmt.Println("Your input: " + in)

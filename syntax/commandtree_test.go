@@ -71,7 +71,7 @@ func TestCommandTree_AddTo_WithChildren(t *testing.T) {
 		"baudrate",
 		"Set baudrate test command",
 		[]*syntax.Argument{
-			syntax.NewArgument("speedv", "Speed value", nil, "int", 0),
+			syntax.NewArgument("speedv", "Speed value", nil, "int", 0, nil),
 		},
 		nil).SetupGraph(false)
 	setupCmd := syntax.NewCommand(nil, "setup", "Setup test command", nil, nil).SetupGraph(false)

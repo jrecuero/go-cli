@@ -10,7 +10,7 @@ import (
 func setup(nsname string) (*syntax.NSHandler, *syntax.NSManager, *syntax.NameSpace) {
 	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
 		[]*syntax.Argument{
-			syntax.NewArgument("version", "Version number", nil, "string", ""),
+			syntax.NewArgument("version", "Version number", nil, "string", "", nil),
 		}, nil)
 	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		version, _ := ctx.GetArgValueForArgLabel(nil, "version")
@@ -25,19 +25,19 @@ func setup(nsname string) (*syntax.NSHandler, *syntax.NSManager, *syntax.NameSpa
 	setBoolCmd := syntax.NewCommand(setCmd, "bool", "Set Bool test help", nil, nil)
 	setBaudrateCmd := syntax.NewCommand(setCmd, "baudrate [speed | parity]?", "Set baudrate help",
 		[]*syntax.Argument{
-			syntax.NewArgument("speed", "Baudrate speed", nil, "string", ""),
-			syntax.NewArgument("parity", "Baudrate parity value", nil, "string", ""),
+			syntax.NewArgument("speed", "Baudrate speed", nil, "string", "", nil),
+			syntax.NewArgument("parity", "Baudrate parity value", nil, "string", "", nil),
 		}, nil)
 	setSpeedCmd := syntax.NewCommand(setCmd, "speed", "Set Speed test help", nil, nil)
 	setSpeedDeviceCmd := syntax.NewCommand(setSpeedCmd, "device name", "Set speed device help",
 		[]*syntax.Argument{
-			syntax.NewArgument("name", "Device name", nil, "string", ""),
+			syntax.NewArgument("name", "Device name", nil, "string", "", nil),
 		}, nil)
 	getSpeedCmd := syntax.NewCommand(getCmd, "speed [device name | value]?", "Get speed help",
 		[]*syntax.Argument{
-			syntax.NewArgument("device", "Device", nil, "string", ""),
-			syntax.NewArgument("name", "Device name", nil, "string", ""),
-			syntax.NewArgument("value", "Speed value", nil, "string", ""),
+			syntax.NewArgument("device", "Device", nil, "string", "", nil),
+			syntax.NewArgument("name", "Device name", nil, "string", "", nil),
+			syntax.NewArgument("value", "Speed value", nil, "string", "", nil),
 		}, nil)
 	commands := []*syntax.Command{
 		setCmd,

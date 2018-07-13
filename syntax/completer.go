@@ -1,6 +1,7 @@
 package syntax
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jrecuero/go-cli/tools"
@@ -175,7 +176,8 @@ func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interfac
 // Complete returns the complete match for any node completer.
 func (ca *CompleterArgument) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	// TODO: Query should be checked here.
-	return "<<WORD>>", true
+	//return "<<WORD>>", true
+	return fmt.Sprintf("<<%s>>", content.GetType()), true
 }
 
 // Help returns the help for any node completer.

@@ -116,7 +116,10 @@ func (ctx *Context) GetArgValueForArgLabel(cmdlabel *string, arglabel string) (i
 	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
 		for _, argval := range ctx.cmdbox[icmd].ArgValues {
 			if argval.Arg.GetLabel() == arglabel {
-				return argval.Value, nil
+				// TODO: Any argument type processing should be done at this
+				// point.
+				//return argval.Value, nil
+				return argval.Arg.Cast(argval.Value.(string))
 			}
 		}
 	}
@@ -129,7 +132,14 @@ func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, 
 	result := make(map[string]interface{})
 	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
 		for _, argval := range ctx.cmdbox[icmd].ArgValues {
-			result[argval.Arg.GetLabel()] = argval.Value
+			// TODO: Any argument type processing should be done at this
+			// point.
+			//result[argval.Arg.GetLabel()] = argval.Value
+			if r, err := argval.Arg.Cast(argval.Value.(string)); err == nil {
+				result[argval.Arg.GetLabel()] = r
+			} else {
+				return nil, fmt.Errorf("Argument casting failed %#v", err)
+			}
 		}
 		return result, nil
 	}
