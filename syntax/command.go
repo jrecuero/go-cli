@@ -33,6 +33,9 @@ func (c *Command) IsMode() bool {
 
 // GetStrType returns the short string for the content type.
 func (c *Command) GetStrType() string {
+	if c.IsMode() {
+		return "M"
+	}
 	return "C"
 }
 

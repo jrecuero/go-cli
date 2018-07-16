@@ -82,11 +82,18 @@ func SetupCommands() []*syntax.Command {
 		return nil
 	}
 
+	configCmd := syntax.NewMode(nil, "config", "Config test help", nil, nil)
+	configCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		tools.ToDisplay("executing config mode\n")
+		return nil
+	}
+
+	configDescCmd := syntax.NewCommand(configCmd, "desc", "Description config test help", nil, nil)
+
 	commands := []*syntax.Command{
 		exitCmd,
 		setCmd,
 		getCmd,
-		syntax.NewCommand(nil, "config", "Config test help", nil, nil),
 		setBaudrateCmd,
 		setSpeedCmd,
 		setBoolCmd,
@@ -94,6 +101,8 @@ func SetupCommands() []*syntax.Command {
 		//syntax.NewCommand(getCmd, "speed", "Get Speed test help", nil, nil),
 		getSpeedCmd,
 		setSpeedDeviceCmd,
+		configCmd,
+		configDescCmd,
 	}
 	return commands
 }

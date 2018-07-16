@@ -88,6 +88,7 @@ func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (i
 				}
 			}
 		}
+		tools.Debug("results: %#v\n", result)
 		return result, true
 	}
 	return content.GetLabel(), true

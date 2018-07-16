@@ -15,6 +15,7 @@ type NSManager struct {
 	nsname    string       // NameSpace Manager name.
 	ns        *NameSpace   // NameSpace instance.
 	ctx       *Context     // Context instance.
+	matcher   *Matcher     // Matcher instance
 	isup      bool         // Is NSManager up or down?
 	cmdTree   *CommandTree // CommandTree instance
 	parseTree *ParseTree   // ParseTree instance
@@ -39,6 +40,11 @@ func (nsm *NSManager) GetCommands() []*Command {
 // GetContext returns the manager context.
 func (nsm *NSManager) GetContext() *Context {
 	return nsm.ctx
+}
+
+// GetMatcher returns the manager matcher.
+func (nsm *NSManager) GetMatcher() *Matcher {
+	return nsm.matcher
 }
 
 // GetCommandTree returns the manager command tree instance.
@@ -69,6 +75,8 @@ func (nsm *NSManager) Setup() *NSManager {
 	if err := nsm.CreateParseTree(nil); err != nil {
 		return nil
 	}
+	nsm.ctx = NewContext()
+	nsm.matcher = NewMatcher(nsm.ctx, nsm.parseTree.Graph)
 	return nsm
 }
 
@@ -115,6 +123,26 @@ func (nsm *NSManager) CreateParseTree(root *graph.Node) error {
 		}
 	}
 	return nil
+}
+
+// Execute executes the command for the given command line.
+func (nsm *NSManager) Execute(line interface{}) (interface{}, bool) {
+	return nsm.matcher.Execute(line)
+}
+
+// Complete returns possible complete string for command line being entered.
+func (nsm *NSManager) Complete(line interface{}) (interface{}, bool) {
+	return nsm.matcher.Complete(line)
+}
+
+// Help returns the help for a node if it is matched.
+func (nsm *NSManager) Help(line interface{}) (interface{}, bool) {
+	return nsm.matcher.Help(line)
+}
+
+// CompleteAndHelp returns possible complete string for command line being entered.
+func (nsm *NSManager) CompleteAndHelp(line interface{}) (interface{}, bool) {
+	return nsm.matcher.CompleteAndHelp(line)
 }
 
 // NewNSManager creates a new NSManager instance.

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/tools"
 )
 
@@ -57,6 +58,7 @@ type Context struct {
 	Matched []*Token
 	lastcmd *Command
 	cmdbox  []*CommandBox
+	modebox [][]*CommandBox
 	process *string
 }
 
@@ -155,7 +157,7 @@ func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, 
 func (ctx *Context) AddToken(cn *ContentNode, value interface{}) error {
 	token := NewToken(cn, value)
 	ctx.Matched = append(ctx.Matched, token)
-	if cn.GetContent().IsCommand() {
+	if cn.GetContent().IsCommand() || cn.GetContent().IsMode() {
 		ctx.SetLastCommand(cn.GetContent().(*Command))
 	} else if cn.GetContent().IsArgument() {
 		ctx.SetLastArgument(cn.GetContent().(*Argument), value)
@@ -168,6 +170,46 @@ func (ctx *Context) Clean() error {
 	ctx.Matched = nil
 	ctx.lastcmd = nil
 	ctx.cmdbox = nil
+	return nil
+}
+
+// FullClean cleans context content.
+func (ctx *Context) FullClean() error {
+	ctx.Matched = nil
+	ctx.lastcmd = nil
+	ctx.cmdbox = nil
+	ctx.modebox = nil
+	return nil
+}
+
+// PushMode adds a new mode.
+func (ctx *Context) PushMode() error {
+	ctx.modebox = append(ctx.modebox, ctx.cmdbox)
+	return nil
+}
+
+// PopMode returns the last mode
+func (ctx *Context) PopMode() []*CommandBox {
+	boxLen := len(ctx.modebox)
+	if boxLen == 0 {
+		return nil
+	}
+	result := ctx.modebox[boxLen-1]
+	ctx.modebox = ctx.modebox[0 : boxLen-1]
+	return result
+}
+
+// GetLastAnchor returns the last token matched before sink node.
+func (ctx *Context) GetLastAnchor() *graph.Node {
+	index := len(ctx.Matched) - 2
+	tools.Debug("last token: %#v\n", ctx.Matched[index])
+	cn := ctx.Matched[index]
+	for _, child := range cn.Node.Children {
+		if child.IsNext {
+			tools.Debug("child anchor: %#v\n", child)
+			return child
+		}
+	}
 	return nil
 }
 

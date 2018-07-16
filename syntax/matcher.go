@@ -19,17 +19,9 @@ type Worker = func(cn *ContentNode, tokens []string) interface{}
 
 // Matcher represents the matcher for a given graph.
 type Matcher struct {
-	Ctx *Context
-	G   *graph.Graph
-}
-
-// NewMatcher creates a new Matcher instance.
-func NewMatcher(ctx *Context, g *graph.Graph) *Matcher {
-	m := &Matcher{
-		Ctx: ctx,
-		G:   g,
-	}
-	return m
+	Ctx     *Context
+	Grapher *graph.Graph
+	Rooter  *graph.Node
 }
 
 // Match matches if a node is matched for a token.
@@ -88,7 +80,8 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 	var index int
 	var ok bool
 	tools.Tracer("tokens: %v\n", tokens)
-	traverse := m.G.Root
+	//traverse := m.Grapher.Root
+	traverse := m.Rooter
 	for traverse != nil && len(traverse.Children) != 0 {
 		if traverse, index, ok = m.traverseAndMatchGraph(traverse, tokens, index); !ok {
 			return index, false
@@ -115,6 +108,11 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	command := m.Ctx.GetLastCommand()
 	command.Enter(m.Ctx, args)
 	m.Ctx.SetProcess(nil)
+	if m.Ctx.GetLastCommand().IsMode() {
+		lastAnchor := m.Ctx.GetLastAnchor()
+		m.Rooter = lastAnchor
+	}
+	m.Ctx.Clean()
 	return nil, true
 }
 
@@ -151,6 +149,7 @@ func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
 // workerCompleteAndHelp gets all complete and help options for the given node.
 func (m *Matcher) workerCompleteAndHelp(cn *ContentNode, tokens []string) interface{} {
 	result := []*ComplexComplete{}
+	tools.Debug("cn: %#v\n", cn.GetContent().GetLabel())
 	for _, childNode := range cn.Children {
 		childCN := NodeToContentNode(childNode)
 		completeIf, _ := childCN.Complete(m.Ctx, tokens, 0)
@@ -186,7 +185,8 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 	if len(m.Ctx.Matched) == 0 {
 		// There is not match, this happens when it is being entered the first
 		// command or the command line is empty.
-		lastCN = NodeToContentNode(m.G.Root)
+		//lastCN = NodeToContentNode(m.Grapher.Root)
+		lastCN = NodeToContentNode(m.Rooter)
 	} else {
 		ilastCN := len(m.Ctx.Matched) - 1
 		lastCN = m.Ctx.Matched[ilastCN].Node
@@ -223,4 +223,14 @@ func (m *Matcher) CompleteAndHelp(in interface{}) (interface{}, bool) {
 	result, ok := m.processCompleteAndHelp(in, m.workerCompleteAndHelp)
 	m.Ctx.SetProcess(nil)
 	return result, ok
+}
+
+// NewMatcher creates a new Matcher instance.
+func NewMatcher(ctx *Context, grapher *graph.Graph) *Matcher {
+	m := &Matcher{
+		Ctx:     ctx,
+		Grapher: grapher,
+		Rooter:  grapher.Root,
+	}
+	return m
 }

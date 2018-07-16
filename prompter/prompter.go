@@ -30,9 +30,11 @@ func (pr *Prompter) executor(in string) {
 		os.Exit(0)
 	}
 	fmt.Println("Your input: " + in)
-	ctx := syntax.NewContext()
-	m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
-	if _, ok := m.Execute(in); !ok {
+	//ctx := syntax.NewContext()
+	//m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
+	//if _, ok := m.Execute(in); !ok {
+	tools.Info("Running command line %#v\n", in)
+	if _, ok := pr.NSM.Execute(in); !ok {
 		fmt.Errorf("execute return %#v for line: %s", ok, in)
 		return
 	}
@@ -40,13 +42,15 @@ func (pr *Prompter) executor(in string) {
 
 // completer completes any token being entered in the command line.
 func (pr *Prompter) completer(d prompt.Document) []prompt.Suggest {
-	ctx := syntax.NewContext()
-	m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
+	//ctx := syntax.NewContext()
+	//m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
 	line := d.TextBeforeCursor()
 	if line == "" {
 		line = " "
 	}
-	result, _ := m.CompleteAndHelp(line)
+	tools.Info("Complete command line %#v\n", line)
+	//result, _ := m.CompleteAndHelp(line)
+	result, _ := pr.NSM.CompleteAndHelp(line)
 	var s []prompt.Suggest
 	var varArgs []prompt.Suggest
 	for _, r := range result.([]*syntax.ComplexComplete) {
