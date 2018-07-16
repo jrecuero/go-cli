@@ -17,11 +17,18 @@ type Command struct {
 	ToNameSpace    string
 	Parent         *Command
 	HasChildren    bool
+	ismode         bool
+	Prompt         interface{}
 }
 
 // IsCommand returns if content is a command.
 func (c *Command) IsCommand() bool {
-	return true
+	return c.ismode == false
+}
+
+// IsMode returns if content is a mode.
+func (c *Command) IsMode() bool {
+	return c.ismode
 }
 
 // GetStrType returns the short string for the content type.
@@ -92,6 +99,23 @@ func NewCommand(parent *Command, syntax string, help string, arguments []*Argume
 		Syntax:    syntax,
 		Arguments: arguments,
 		Parent:    parent,
+	}
+	command.Setup()
+	return command
+}
+
+// NewMode creates a new command instance.
+func NewMode(parent *Command, syntax string, help string, arguments []*Argument, callbacks *Callback) *Command {
+	if callbacks == nil {
+		callbacks = NewCallback(nil, nil, nil, nil)
+	}
+	command := &Command{
+		Callback:  callbacks,
+		Content:   NewContent(strings.Split(syntax, " ")[0], help, nil).(*Content),
+		Syntax:    syntax,
+		Arguments: arguments,
+		Parent:    parent,
+		ismode:    true,
 	}
 	command.Setup()
 	return command
