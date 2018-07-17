@@ -18,6 +18,7 @@ type Command struct {
 	Parent         *Command
 	HasChildren    bool
 	ismode         bool
+	IsBuiltIn      bool
 	Prompt         interface{}
 }
 
@@ -83,6 +84,7 @@ func (c *Command) Setup() *Command {
 
 // SetupGraph creates the command syntax graph.
 func (c *Command) SetupGraph(children bool) *Command {
+	//tools.Debug("setup graph %#v\n", c.GetLabel())
 	c.HasChildren = children
 	c.CmdSyntax.CreateGraph(c)
 	c.label = c.CmdSyntax.Parsed.Command

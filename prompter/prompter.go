@@ -38,6 +38,8 @@ func (pr *Prompter) executor(in string) {
 		fmt.Errorf("execute return %#v for line: %s", ok, in)
 		return
 	}
+	//tools.ToDisplay(pr.NSM.GetCommandTree().ToMermaid())
+	//tools.ToDisplay(pr.NSM.GetParseTree().ToMermaid())
 }
 
 // completer completes any token being entered in the command line.

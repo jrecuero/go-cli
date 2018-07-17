@@ -80,9 +80,9 @@ func runMultiSelectSurvey() {
 }
 
 func runPrompter() {
-	p := &prompter.Prompter{}
-	p.Setup("prompter", commands.SetupCommands())
-	p.Run()
+	pr := &prompter.Prompter{}
+	pr.Setup("prompter", commands.SetupCommands())
+	pr.Run()
 }
 
 func main() {

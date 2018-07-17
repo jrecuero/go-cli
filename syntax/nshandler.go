@@ -192,7 +192,12 @@ func CreateNSHandler(nsname string, commands []*Command) (*NSHandler, error) {
 	if _, err := nsh.CreateNameSpace(nsname); err != nil {
 		return nil, err
 	}
-	if err := nsh.RegisterCommandsToNameSpace(nsname, commands); err != nil {
+	// Add builtins commands
+	commandsToProcess := []*Command{NewExitCommand()}
+	for _, cmd := range commands {
+		commandsToProcess = append(commandsToProcess, cmd)
+	}
+	if err := nsh.RegisterCommandsToNameSpace(nsname, commandsToProcess); err != nil {
 		return nil, err
 	}
 	if _, err := nsh.ActivateNameSpace(nsname); err != nil {

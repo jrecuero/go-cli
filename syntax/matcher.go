@@ -107,11 +107,15 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	}
 	command := m.Ctx.GetLastCommand()
 	command.Enter(m.Ctx, args)
-	m.Ctx.SetProcess(nil)
-	if m.Ctx.GetLastCommand().IsMode() {
+	if m.Ctx.GetProcess() == POPMODE {
+		modeBox := m.Ctx.PopMode()
+		m.Rooter = modeBox.Anchor
+	} else if m.Ctx.GetLastCommand().IsMode() {
+		m.Ctx.PushMode(m.Rooter)
 		lastAnchor := m.Ctx.GetLastAnchor()
 		m.Rooter = lastAnchor
 	}
+	m.Ctx.SetProcess(nil)
 	m.Ctx.Clean()
 	return nil, true
 }

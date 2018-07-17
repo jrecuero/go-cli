@@ -23,6 +23,9 @@ const (
 
 	// EXECUTE identifies execute process.
 	EXECUTE = "execute"
+
+	// POPMODE identify popup node process.
+	POPMODE = "popmode"
 )
 
 // Token represents the structure that stores information with any token that
@@ -45,6 +48,13 @@ type CommandBox struct {
 	ArgValues []*ArgValue
 }
 
+// ModeBox represents the structure for any mode.
+type ModeBox struct {
+	Anchor *graph.Node
+	Mode   *Command
+	CmdBox []*CommandBox
+}
+
 // NewToken creates a new Token instance.
 func NewToken(cn *ContentNode, value interface{}) *Token {
 	return &Token{
@@ -58,14 +68,14 @@ type Context struct {
 	Matched []*Token
 	lastcmd *Command
 	cmdbox  []*CommandBox
-	modebox [][]*CommandBox
+	Modes   []*ModeBox
 	process *string
 }
 
 // SetProcess sets the context process running.
 func (ctx *Context) SetProcess(process *string) bool {
 	proc := tools.String(process)
-	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE {
+	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE || proc == POPMODE {
 		ctx.process = process
 		return true
 	}
@@ -178,24 +188,29 @@ func (ctx *Context) FullClean() error {
 	ctx.Matched = nil
 	ctx.lastcmd = nil
 	ctx.cmdbox = nil
-	ctx.modebox = nil
+	ctx.Modes = nil
 	return nil
 }
 
 // PushMode adds a new mode.
-func (ctx *Context) PushMode() error {
-	ctx.modebox = append(ctx.modebox, ctx.cmdbox)
+func (ctx *Context) PushMode(anchor *graph.Node) error {
+	modeBox := &ModeBox{
+		Anchor: anchor,
+		Mode:   ctx.lastcmd,
+		CmdBox: ctx.cmdbox,
+	}
+	ctx.Modes = append(ctx.Modes, modeBox)
 	return nil
 }
 
 // PopMode returns the last mode
-func (ctx *Context) PopMode() []*CommandBox {
-	boxLen := len(ctx.modebox)
+func (ctx *Context) PopMode() *ModeBox {
+	boxLen := len(ctx.Modes)
 	if boxLen == 0 {
 		return nil
 	}
-	result := ctx.modebox[boxLen-1]
-	ctx.modebox = ctx.modebox[0 : boxLen-1]
+	result := ctx.Modes[boxLen-1]
+	ctx.Modes = ctx.Modes[0 : boxLen-1]
 	return result
 }
 

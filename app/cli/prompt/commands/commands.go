@@ -1,19 +1,17 @@
 package commands
 
 import (
-	"os"
-
 	"github.com/jrecuero/go-cli/syntax"
 	"github.com/jrecuero/go-cli/tools"
 )
 
 // SetupCommands configures all command to run.
 func SetupCommands() []*syntax.Command {
-	exitCmd := syntax.NewCommand(nil, "exit", "Exit application", nil, nil)
-	exitCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-		os.Exit(0)
-		return nil
-	}
+	//exitCmd := syntax.NewCommand(nil, "exit", "Exit application", nil, nil)
+	//exitCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+	//    os.Exit(0)
+	//    return nil
+	//}
 
 	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
 		[]*syntax.Argument{
@@ -91,7 +89,7 @@ func SetupCommands() []*syntax.Command {
 	configDescCmd := syntax.NewCommand(configCmd, "desc", "Description config test help", nil, nil)
 
 	commands := []*syntax.Command{
-		exitCmd,
+		//syntax.ExitCommand,
 		setCmd,
 		getCmd,
 		setBaudrateCmd,
