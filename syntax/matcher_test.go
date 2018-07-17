@@ -3,17 +3,18 @@ package syntax_test
 import (
 	"testing"
 
+	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/syntax"
 	"github.com/jrecuero/go-cli/tools"
 )
 
 // TestMatcher_NewMatcher ensures the matcher structure works properly.
 func TestMatcher_NewMatcher(t *testing.T) {
-	m := syntax.NewMatcher(nil, nil)
+	m := syntax.NewMatcher(nil, graph.NewGraph(nil))
 	if m.Ctx != nil {
 		t.Errorf("Context <Matcher> failed")
 	}
-	if m.G != nil {
+	if m.Grapher == nil {
 		t.Errorf("Graph <Matcher> failed")
 	}
 }
