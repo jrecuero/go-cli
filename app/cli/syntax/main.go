@@ -60,7 +60,7 @@ func runSimpleMatcher() {
 	cs := syntax.NewCommandSyntax("SELECT name age")
 	cs.CreateGraph(nil)
 	fmt.Printf("%s", cs.Graph.ToString())
-	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	m := syntax.NewMatcher(syntax.NewContext(nil), cs.Graph)
 	line := []string{"SELECT", "name", "age"}
 	m.Match(line)
 }
@@ -69,7 +69,7 @@ func runComplexMatcher() {
 	cs := syntax.NewCommandSyntax("SELECT name [ age  | id ]?")
 	cs.CreateGraph(nil)
 	fmt.Printf("%s", cs.Graph.ToString())
-	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	m := syntax.NewMatcher(syntax.NewContext(nil), cs.Graph)
 	//line := []string{"SELECT", "name", "age"}
 	//line := []string{"SELECT", "name", "id"}
 	//line := []string{"SELECT", "name"}
@@ -154,7 +154,7 @@ func runManagerCmd() {
 	cs := command.CmdSyntax
 	//fmt.Printf("%s", cs.Graph.ToString())
 	//fmt.Printf("%s", cs.Graph.ToMermaid())
-	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	m := syntax.NewMatcher(syntax.NewContext(nil), cs.Graph)
 	fmt.Printf("%#v\n", m)
 	//line := []string{"user", "name", "age"}
 	line := []string{"manager", "name"}
@@ -166,7 +166,7 @@ func runNewUserCmd() {
 	command.Setup()
 	cs := command.CmdSyntax
 	//fmt.Printf("%s", cs.Graph.ToString())
-	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	m := syntax.NewMatcher(syntax.NewContext(nil), cs.Graph)
 	fmt.Printf("%#v\n", m)
 	line := []string{"user", "josecarlos", "-age", "51"}
 	m.Match(line)

@@ -199,7 +199,7 @@ func TestNSHandler_Setup(t *testing.T) {
 	tools.Tester("Handler  : %#v\n", nsh)
 	tools.Tester("Manager  : %#v\n", nsm)
 	tools.Tester("NameSpace: %#v\n", ns)
-	ctx := syntax.NewContext()
+	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line := "set 1.0 speed device home"
 	if _, ok := m.Match(line); !ok {
@@ -213,7 +213,7 @@ func TestNSHandler_Execute_Enter(t *testing.T) {
 	tools.Tester("Handler  : %#v\n", nsh)
 	tools.Tester("Manager  : %#v\n", nsm)
 	tools.Tester("NameSpace: %#v\n", ns)
-	ctx := syntax.NewContext()
+	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line := "set 1.0 speed device home"
 	if _, ok := m.Match(line); !ok {

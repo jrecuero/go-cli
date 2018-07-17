@@ -7,10 +7,10 @@ import (
 
 // NSActive represents the active namespace.
 type NSActive struct {
-	Name    string
-	NS      *NameSpace
-	NSMgr   *NSManager
-	enabled bool
+	Name    string     // active namespace name.
+	NS      *NameSpace // active namespace instance.
+	NSMgr   *NSManager // acitve namespace manager
+	enabled bool       // is active namespace enabled?
 }
 
 // Activate activates a namespace
@@ -49,9 +49,9 @@ func NewNSActive(nsaname string, ns *NameSpace) (*NSActive, error) {
 // active one or other namespace, switch between them and control how to switch
 // back to the previous namespace properly.
 type NSHandler struct {
-	active     *NSActive
-	namespaces map[string]*NameSpace
-	stack      []*NSActive
+	active     *NSActive             // active namespace instance.
+	namespaces map[string]*NameSpace // map with all available namespaces..
+	stack      []*NSActive           // stack with used acitve namespaces.
 }
 
 // GetNameSpaces returns all namespaces created in the handler.

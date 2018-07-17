@@ -32,7 +32,7 @@ func TestMatcher_Matcher(t *testing.T) {
 	command.Setup()
 	cs := command.CmdSyntax
 	tools.Tester("%s", cs.Graph.ToString())
-	m := syntax.NewMatcher(syntax.NewContext(), cs.Graph)
+	m := syntax.NewMatcher(syntax.NewContext(nil), cs.Graph)
 	//line := []string{"SELECT", "name", "age"}
 	line := "SELECT name age"
 	m.Match(line)

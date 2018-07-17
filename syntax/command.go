@@ -7,19 +7,17 @@ import (
 
 // Command represents any CLI command internally in the system.
 type Command struct {
-	*Callback
-	*Content
-	Syntax         string
-	CmdSyntax      *CommandSyntax
-	Arguments      []*Argument
-	FullCmd        string
-	NameSpaceNames []string
-	ToNameSpace    string
-	Parent         *Command
-	HasChildren    bool
-	ismode         bool
-	IsBuiltIn      bool
-	Prompt         interface{}
+	*Callback                     // command callbacks (enter/exit/...)
+	*Content                      // command content
+	Syntax         string         // command syntas as a string.
+	CmdSyntax      *CommandSyntax //command syntax instance.
+	Arguments      []*Argument    // command arguments.
+	NameSpaceNames []string       // command namespaces.
+	Parent         *Command       //command parent
+	HasChildren    bool           // has the command children Ccommands)?
+	IsBuiltIn      bool           // is the command a built-on command?
+	Prompt         interface{}    // mode prompt (only for modes)
+	ismode         bool           // is the command a mode?
 }
 
 // IsCommand returns if content is a command.
@@ -70,12 +68,13 @@ func (cmd *Command) DeleteNameSpaceName(nsName string) error {
 // Setup initializes all command fields.
 func (cmd *Command) Setup() *Command {
 	cmd.CmdSyntax = NewCommandSyntax(cmd.Syntax)
-	//cmd.CmdSyntax.CreateGraph(cmd)
-	//cmd.label = cmd.CmdSyntax.Parsed.Command
+	// Graph can not be setup at this point, it requires the command tree in
+	// order to identify possible command children.
+	// cmd.CmdSyntax.CreateGraph(cmd)
+	// cmd.label = cmd.CmdSyntax.Parsed.Command
 	if cmd.completer == nil {
 		cmd.completer = NewCompleterCommand(cmd.GetLabel())
 	}
-	cmd.FullCmd = cmd.GetLabel()
 	for _, argument := range cmd.Arguments {
 		argument.Setup()
 	}

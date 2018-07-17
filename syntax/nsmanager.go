@@ -20,7 +20,6 @@ type NSManager struct {
 	cmdTree   *CommandTree // CommandTree instance
 	parseTree *ParseTree   // ParseTree instance
 	commands  []*Command   // Contains all commands that can be used for the NameSpace Manager.
-	builtins  map[string]*ContentNode
 }
 
 // GetName returns the NameSpace Manager name.
@@ -76,7 +75,7 @@ func (nsm *NSManager) Setup() *NSManager {
 	if err := nsm.CreateParseTree(nil); err != nil {
 		return nil
 	}
-	nsm.ctx = NewContext()
+	nsm.ctx = NewContext(nil)
 	nsm.matcher = NewMatcher(nsm.ctx, nsm.parseTree.Graph)
 	return nsm
 }
@@ -92,16 +91,9 @@ func (nsm *NSManager) CreateCommandTree() error {
 	for _, cmd := range nsm.commands {
 		// Look for the command parent in the command tree.
 		parent := nsm.cmdTree.SearchFlat(cmd.Parent)
-		//nsm.cmdTree.AddTo(parent, cmd)
 		cmdNode := nsm.cmdTree.AddTo(parent, cmd)
-		//if cmd.IsBuiltIn {
-		//    nsm.builtins[cmd.GetLabel()] = cmdNode
-		//}
 		if cmd.IsMode() {
 			// Add all builtins commands
-			//for _, cn := range nsm.builtins {
-			//    nsm.cmdTree.AddTo(ContentNodeToNode(cmdNode), cn.GetContent().(*Command))
-			//}
 			nsm.cmdTree.AddTo(ContentNodeToNode(cmdNode), NewExitCommand())
 		}
 	}
@@ -163,9 +155,8 @@ func NewNSManager(namespace *NameSpace) *NSManager {
 		return &NSManager{}
 	}
 	return &NSManager{
-		nsname:   namespace.Name,
-		ns:       namespace,
-		builtins: make(map[string]*ContentNode),
+		nsname: namespace.Name,
+		ns:     namespace,
 	}
 }
 

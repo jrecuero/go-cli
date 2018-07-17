@@ -10,17 +10,24 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
-// Prompter represents the CLI propmpt.
-type Prompter struct {
-	NSH *syntax.NSHandler
-	NSM *syntax.NSManager
-	NS  *syntax.NameSpace
+// LivePrefixState represent the prompt.
+type LivePrefixState struct {
+	LivePrefix string
+	IsEnable   bool
 }
 
-var livePrefixState struct {
-	livePrefix string
-	isEnable   bool
+// Prompter represents the CLI propmpt.
+type Prompter struct {
+	NSH         *syntax.NSHandler
+	NSM         *syntax.NSManager
+	NS          *syntax.NameSpace
+	PrefixState *LivePrefixState
 }
+
+//var livePrefixState struct {
+//    livePrefix string
+//    isEnable   bool
+//}
 
 // executor executes any command entered in the command line.
 func (pr *Prompter) executor(in string) {
@@ -30,7 +37,7 @@ func (pr *Prompter) executor(in string) {
 		os.Exit(0)
 	}
 	fmt.Println("Your input: " + in)
-	//ctx := syntax.NewContext()
+	//ctx := syntax.NewContext(nil)
 	//m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
 	//if _, ok := m.Execute(in); !ok {
 	tools.Info("Running command line %#v\n", in)
@@ -40,11 +47,13 @@ func (pr *Prompter) executor(in string) {
 	}
 	//tools.ToDisplay(pr.NSM.GetCommandTree().ToMermaid())
 	//tools.ToDisplay(pr.NSM.GetParseTree().ToMermaid())
+	pr.PrefixState.LivePrefix = pr.NSM.GetContext().GetPrompt()
+	pr.PrefixState.IsEnable = true
 }
 
 // completer completes any token being entered in the command line.
 func (pr *Prompter) completer(d prompt.Document) []prompt.Suggest {
-	//ctx := syntax.NewContext()
+	//ctx := syntax.NewContext(nil)
 	//m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
 	line := d.TextBeforeCursor()
 	if line == "" {
@@ -72,7 +81,7 @@ func (pr *Prompter) completer(d prompt.Document) []prompt.Suggest {
 }
 
 func (pr *Prompter) changeLivePrefix() (string, bool) {
-	return livePrefixState.livePrefix, livePrefixState.isEnable
+	return pr.PrefixState.LivePrefix, pr.PrefixState.IsEnable
 }
 
 // Setup initializes the prompter with the given commands.
@@ -81,6 +90,10 @@ func (pr *Prompter) Setup(nsname string, commands []*syntax.Command) error {
 		pr.NSH = nsh
 		pr.NSM = nsh.GetActive().NSMgr
 		pr.NS = nsh.GetActive().NS
+		pr.PrefixState = &LivePrefixState{
+			LivePrefix: syntax.DEFAULTPROMPT,
+			IsEnable:   true,
+		}
 		return nil
 	}
 	return fmt.Errorf("Prompter setup error")
@@ -92,7 +105,7 @@ func (pr *Prompter) Run() {
 	p := prompt.New(
 		pr.executor,
 		pr.completer,
-		prompt.OptionPrefix(">>> "),
+		prompt.OptionPrefix(syntax.DEFAULTPROMPT),
 		prompt.OptionLivePrefix(pr.changeLivePrefix),
 		prompt.OptionTitle("go-cli"),
 		prompt.OptionHistory([]string{}),
@@ -108,4 +121,9 @@ func (pr *Prompter) Run() {
 		}),
 	)
 	p.Run()
+}
+
+// NewPrompter creates a new Prompter instance.
+func NewPrompter() *Prompter {
+	return &Prompter{}
 }

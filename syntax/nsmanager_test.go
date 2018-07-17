@@ -109,7 +109,7 @@ func TestNSManager_Setup(t *testing.T) {
 	}
 	//tools.Tester(nsm.GetParseTree().ToMermaid())
 
-	ctx := syntax.NewContext()
+	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line := "set 1.0 speed device home"
 	if _, ok := m.Match(line); !ok {
@@ -140,7 +140,7 @@ func TestNSManager_Complete(t *testing.T) {
 	if err := nsm.Setup(); err == nil {
 		t.Errorf("NSManager setup error: %v", err)
 	}
-	ctx := syntax.NewContext()
+	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	//line := []string{"set", "1.0", "b"}
 	line := "set 1.0 b"
@@ -177,7 +177,7 @@ func TestNSManager_Help(t *testing.T) {
 	if err := nsm.Setup(); err == nil {
 		t.Errorf("NSManager setup error: %v", err)
 	}
-	ctx := syntax.NewContext()
+	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	//line := []string{"set", "1.0", "b"}
 	line := "set 1.0 baudrate "
@@ -218,7 +218,7 @@ func TestNSManager_Execute_Enter(t *testing.T) {
 	}
 	//tools.Tester(nsm.GetParseTree().ToMermaid())
 
-	ctx := syntax.NewContext()
+	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line := "set 1.0 speed device home"
 	if _, ok := m.Match(line); !ok {

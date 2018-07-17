@@ -7,12 +7,6 @@ import (
 
 // SetupCommands configures all command to run.
 func SetupCommands() []*syntax.Command {
-	//exitCmd := syntax.NewCommand(nil, "exit", "Exit application", nil, nil)
-	//exitCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-	//    os.Exit(0)
-	//    return nil
-	//}
-
 	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
 		[]*syntax.Argument{
 			syntax.NewArgument("version", "Version number", nil, "int", 0, nil),
@@ -67,6 +61,12 @@ func SetupCommands() []*syntax.Command {
 		return nil
 	}
 
+	getBaudrateCmd := syntax.NewCommand(getCmd, "baudrate", "Get Baudrate test help", nil, nil)
+	getBaudrateCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		tools.ToDisplay("get baudrate command\n")
+		return nil
+	}
+
 	getSpeedCmd := syntax.NewCommand(getCmd, "speed [device name | value]?", "Get speed help",
 		[]*syntax.Argument{
 			syntax.NewArgument("device", "Device", nil, "string", "", nil),
@@ -85,18 +85,17 @@ func SetupCommands() []*syntax.Command {
 		tools.ToDisplay("executing config mode\n")
 		return nil
 	}
+	configCmd.Prompt = "config>>> "
 
 	configDescCmd := syntax.NewCommand(configCmd, "desc", "Description config test help", nil, nil)
 
 	commands := []*syntax.Command{
-		//syntax.ExitCommand,
 		setCmd,
 		getCmd,
 		setBaudrateCmd,
 		setSpeedCmd,
 		setBoolCmd,
-		syntax.NewCommand(getCmd, "baudrate", "Get Baudrate test help", nil, nil),
-		//syntax.NewCommand(getCmd, "speed", "Get Speed test help", nil, nil),
+		getBaudrateCmd,
 		getSpeedCmd,
 		setSpeedDeviceCmd,
 		configCmd,

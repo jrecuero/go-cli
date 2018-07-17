@@ -10,8 +10,8 @@ import (
 
 // ComplexComplete represents complete and help together.
 type ComplexComplete struct {
-	Complete interface{}
-	Help     interface{}
+	Complete interface{} // token complete value.
+	Help     interface{} // token help value.
 }
 
 // Worker represent the function for any complete or help worker.
@@ -19,9 +19,9 @@ type Worker = func(cn *ContentNode, tokens []string) interface{}
 
 // Matcher represents the matcher for a given graph.
 type Matcher struct {
-	Ctx     *Context
-	Grapher *graph.Graph
-	Rooter  *graph.Node
+	Ctx     *Context     // context instance.
+	Grapher *graph.Graph // parsing tree graph instance.
+	Rooter  *graph.Node  // parsing tree root for any handling.
 }
 
 // Match matches if a node is matched for a token.
@@ -80,7 +80,6 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 	var index int
 	var ok bool
 	tools.Tracer("tokens: %v\n", tokens)
-	//traverse := m.Grapher.Root
 	traverse := m.Rooter
 	for traverse != nil && len(traverse.Children) != 0 {
 		if traverse, index, ok = m.traverseAndMatchGraph(traverse, tokens, index); !ok {
@@ -189,7 +188,6 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 	if len(m.Ctx.Matched) == 0 {
 		// There is not match, this happens when it is being entered the first
 		// command or the command line is empty.
-		//lastCN = NodeToContentNode(m.Grapher.Root)
 		lastCN = NodeToContentNode(m.Rooter)
 	} else {
 		ilastCN := len(m.Ctx.Matched) - 1

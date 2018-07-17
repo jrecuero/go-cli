@@ -29,11 +29,11 @@ var castingMap = map[string]CastingCall{
 
 // Argument represents any CLI argument information.
 type Argument struct {
-	*Content
-	Type      string
-	Caster    CastingCall
-	Validator ValidateCall
-	Default   interface{}
+	*Content               // argument content
+	Type      string       // identifies the type of argument.
+	Caster    CastingCall  // caster method to obtein proper argument value.
+	Validator ValidateCall // validator method that validates argument value.
+	Default   interface{}  // default argument value
 }
 
 // Setup initializes all argument fields.

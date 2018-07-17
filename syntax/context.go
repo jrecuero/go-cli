@@ -24,52 +24,95 @@ const (
 	// EXECUTE identifies execute process.
 	EXECUTE = "execute"
 
-	// POPMODE identify popup node process.
+	// POPMODE identifies popup node process.
 	POPMODE = "popmode"
+
+	// DEFAULTPROMPT identifies default prompt.
+	DEFAULTPROMPT = ">>> "
 )
+
+// Cache represnets the context cache.
+type Cache struct {
+	data map[string]interface{} // data storage for the cache.
+}
+
+// Add enters a new data in the context cache.
+func (cache *Cache) Add(key string, data interface{}) error {
+	cache.data[key] = data
+	return nil
+}
+
+// Get returns the data for an entry in the context cache.
+func (cache *Cache) Get(key string) (interface{}, error) {
+	if data, ok := cache.data[key]; ok {
+		return data, nil
+	}
+	return nil, tools.ERROR(errors.New("not found"), false, "not found")
+}
+
+// GetAll returns all cache data.
+func (cache *Cache) GetAll() (map[string]interface{}, error) {
+	return cache.data, nil
+}
+
+// Clean removes all entries from the cache.
+func (cache *Cache) Clean() error {
+	cache.data = make(map[string]interface{})
+	return nil
+}
+
+// NewCache creates a new Cache instance.
+func NewCache() *Cache {
+	return &Cache{
+		data: make(map[string]interface{}),
+	}
+}
 
 // Token represents the structure that stores information with any token that
 // has been matched.
 type Token struct {
-	Node  *ContentNode
-	Value interface{}
+	Node  *ContentNode // content node matched.
+	Value interface{}  // value for the matched content node.
 }
 
 // ArgValue represents the structure used to store the argument values being
 // marched.
 type ArgValue struct {
-	Arg   *Argument
-	Value interface{}
+	Arg   *Argument   // argument matched.
+	Value interface{} // value for the matched argument.
 }
 
 // CommandBox represents the struture for any command with arguments matched.
 type CommandBox struct {
-	Cmd       *Command
-	ArgValues []*ArgValue
+	Cmd       *Command    // command matched.
+	ArgValues []*ArgValue // arguments for the matched command.
 }
 
 // ModeBox represents the structure for any mode.
 type ModeBox struct {
-	Anchor *graph.Node
-	Mode   *Command
-	CmdBox []*CommandBox
+	Prompt string        // context mode prompt.
+	Anchor *graph.Node   // last root used to anchor matcher functionality.
+	Mode   *Command      // last mode being matched.
+	CmdBox []*CommandBox // arrays with all previous commands matched.
 }
 
 // NewToken creates a new Token instance.
 func NewToken(cn *ContentNode, value interface{}) *Token {
 	return &Token{
-		Node:  cn,
-		Value: value,
+		Node:  cn,    // Content node matched.
+		Value: value, // Value entered in the comamnd line for the token.
 	}
 }
 
 // Context represents the structure that stores information about any match.
 type Context struct {
-	Matched []*Token
-	lastcmd *Command
-	cmdbox  []*CommandBox
-	Modes   []*ModeBox
-	process *string
+	Matched []*Token      // array with all tokens matched in command line.
+	Modes   []*ModeBox    // array with all modes entered in command line.
+	Cache   *Cache        // context cache to be used by command methods.
+	prompt  string        // mode prompt for the running mode.
+	lastcmd *Command      // last command found in the matched tokens.
+	cmdbox  []*CommandBox // array with all command matched.
+	process *string       // status process running the context.
 }
 
 // SetProcess sets the context process running.
@@ -129,9 +172,6 @@ func (ctx *Context) GetArgValueForArgLabel(cmdlabel *string, arglabel string) (i
 	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
 		for _, argval := range ctx.cmdbox[icmd].ArgValues {
 			if argval.Arg.GetLabel() == arglabel {
-				// TODO: Any argument type processing should be done at this
-				// point.
-				//return argval.Value, nil
 				v, err := argval.Arg.Cast(argval.Value.(string))
 				if err != nil {
 					return nil, tools.ERROR(err, false, "%#v\n", err)
@@ -149,9 +189,6 @@ func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, 
 	result := make(map[string]interface{})
 	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
 		for _, argval := range ctx.cmdbox[icmd].ArgValues {
-			// TODO: Any argument type processing should be done at this
-			// point.
-			//result[argval.Arg.GetLabel()] = argval.Value
 			if r, err := argval.Arg.Cast(argval.Value.(string)); err == nil {
 				result[argval.Arg.GetLabel()] = r
 			} else {
@@ -183,23 +220,41 @@ func (ctx *Context) Clean() error {
 	return nil
 }
 
-// FullClean cleans context content.
-func (ctx *Context) FullClean() error {
+// CleanAll cleans context content.
+func (ctx *Context) CleanAll() error {
 	ctx.Matched = nil
 	ctx.lastcmd = nil
 	ctx.cmdbox = nil
 	ctx.Modes = nil
+	ctx.Cache.Clean()
+	ctx.SetPrompt(nil)
 	return nil
+}
+
+// GetPrompt returns context prompt
+func (ctx *Context) GetPrompt() string {
+	return ctx.prompt
+}
+
+// SetPrompt sets the value for the context prompt.
+func (ctx *Context) SetPrompt(newPrompt *string) {
+	if newPrompt == nil {
+		ctx.prompt = DEFAULTPROMPT
+	} else {
+		ctx.prompt = tools.String(newPrompt)
+	}
 }
 
 // PushMode adds a new mode.
 func (ctx *Context) PushMode(anchor *graph.Node) error {
 	modeBox := &ModeBox{
+		Prompt: ctx.GetPrompt(),
 		Anchor: anchor,
 		Mode:   ctx.lastcmd,
 		CmdBox: ctx.cmdbox,
 	}
 	ctx.Modes = append(ctx.Modes, modeBox)
+	ctx.SetPrompt(tools.PString(ctx.lastcmd.Prompt.(string)))
 	return nil
 }
 
@@ -211,6 +266,7 @@ func (ctx *Context) PopMode() *ModeBox {
 	}
 	result := ctx.Modes[boxLen-1]
 	ctx.Modes = ctx.Modes[0 : boxLen-1]
+	ctx.SetPrompt(tools.PString(result.Prompt))
 	return result
 }
 
@@ -229,7 +285,10 @@ func (ctx *Context) GetLastAnchor() *graph.Node {
 }
 
 // NewContext creates a new Context instance.
-func NewContext() *Context {
-	ctx := &Context{}
+func NewContext(prefix *string) *Context {
+	ctx := &Context{
+		Cache: NewCache(),
+	}
+	ctx.SetPrompt(prefix)
 	return ctx
 }

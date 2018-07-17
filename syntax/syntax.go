@@ -9,9 +9,9 @@ import (
 
 // CommandSyntax represents the command syntax.
 type CommandSyntax struct {
-	Syntax string
-	Parsed *parser.Syntax
-	Graph  *graph.Graph
+	Syntax string         // command syntax as a string.
+	Parsed *parser.Syntax // command parsed instance.
+	Graph  *graph.Graph   // command parsing tree graph instance.
 }
 
 // mapTokenToBlock maps the parser token with required graph block to be created.
@@ -26,8 +26,7 @@ var mapTokenToBlock = map[parser.Token]graph.BlockType{
 func NewCommandSyntax(st string) *CommandSyntax {
 	ps, _ := parser.NewParser(strings.NewReader(st)).Parse()
 	setupG := &graph.SetupGraph{
-		RootContent: NewContentJoint("Root", "Root content", NewCompleterJoint("root")),
-		//SinkContent:  NewContentJoint("Sink", "Sink content", NewCompleterSink()),
+		RootContent:  NewContentJoint("Root", "Root content", NewCompleterJoint("root")),
 		SinkContent:  GetCR(),
 		JointContent: NewContentJoint("Joint", "Joint content", NewCompleterJoint("joint")),
 		StartContent: NewContentJoint("Start", "Start content", NewCompleterStart()),
@@ -92,13 +91,11 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 		switch tok {
 		case parser.IDENT:
 			label := cs.Parsed.Arguments[i]
-			//var newContent IContent
 			newContent, _ := c.LookForArgument(label)
 			newNode := NewContentNode(label, newContent)
 			// Check if we are in a block, and use AddNodeToBlock in that case.
 			if insideBlock == true {
 				//cs.addNodeToBlockToGraph(newNode)
-				//keyContent := newContent.(*Argument).CreateKeywordFromSelf()
 				keyContent := newContent.CreateKeywordFromSelf()
 				keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
 				if !inpath {

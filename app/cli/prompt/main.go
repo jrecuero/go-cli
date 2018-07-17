@@ -7,6 +7,7 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/jrecuero/go-cli/app/cli/prompt/commands"
 	"github.com/jrecuero/go-cli/prompter"
+	"github.com/jrecuero/go-cli/syntax"
 	"github.com/jrecuero/go-cli/tools"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
@@ -50,7 +51,7 @@ func runGoPrompt() {
 	p := prompt.New(
 		executor,
 		completer,
-		prompt.OptionPrefix(">>> "),
+		prompt.OptionPrefix(syntax.DEFAULTPROMPT),
 		prompt.OptionLivePrefix(changeLivePrefix),
 		prompt.OptionTitle("cli-prompt"),
 		prompt.OptionHistory([]string{}),
@@ -80,7 +81,8 @@ func runMultiSelectSurvey() {
 }
 
 func runPrompter() {
-	pr := &prompter.Prompter{}
+	//pr := &prompter.Prompter{}
+	pr := prompter.NewPrompter()
 	pr.Setup("prompter", commands.SetupCommands())
 	pr.Run()
 }
