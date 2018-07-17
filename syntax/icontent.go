@@ -15,4 +15,5 @@ type IContent interface {
 	IsJoint() bool
 	IsMatchable() bool
 	GetStrType() string
+	SetCompleter(ICompleter) bool
 }

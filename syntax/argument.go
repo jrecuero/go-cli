@@ -37,60 +37,60 @@ type Argument struct {
 }
 
 // Setup initializes all argument fields.
-func (a *Argument) Setup() *Argument {
-	if a.completer == nil {
-		a.completer = NewCompleterArgument(a.GetLabel())
+func (arg *Argument) Setup() *Argument {
+	if arg.completer == nil {
+		arg.completer = NewCompleterArgument(arg.GetLabel())
 	}
-	if a.Caster == nil {
-		castingCall, ok := castingMap[a.Type]
+	if arg.Caster == nil {
+		castingCall, ok := castingMap[arg.Type]
 		if ok {
-			a.Caster = castingCall
+			arg.Caster = castingCall
 		} else {
-			panic(fmt.Sprintf("argument type %#v does not have casting call", a.Type))
+			panic(fmt.Sprintf("argument type %#v does not have casting call", arg.Type))
 		}
 	}
-	return a
+	return arg
 }
 
 // GetType returns content type.
-func (a *Argument) GetType() string {
-	return a.Type
+func (arg *Argument) GetType() string {
+	return arg.Type
 }
 
 // Cast returns the casting for the argument type.
-func (a *Argument) Cast(val string) (interface{}, error) {
-	if a.Caster != nil {
-		return a.Caster(val)
+func (arg *Argument) Cast(val string) (interface{}, error) {
+	if arg.Caster != nil {
+		return arg.Caster(val)
 	}
 	return val, nil
 }
 
 // Validate checks in the argument value is a valid one.
-func (a *Argument) Validate(val interface{}) (bool, error) {
-	if a.Validator != nil {
-		return a.Validator(val)
+func (arg *Argument) Validate(val interface{}) (bool, error) {
+	if arg.Validator != nil {
+		return arg.Validator(val)
 	}
 	return true, nil
 }
 
 // CreateKeywordFromSelf creates a new Argument instance that contains the
 // argument in keyword format
-func (a *Argument) CreateKeywordFromSelf() *Argument {
-	label := fmt.Sprintf("-%s", a.label)
+func (arg *Argument) CreateKeywordFromSelf() *Argument {
+	label := fmt.Sprintf("-%s", arg.label)
 	return &Argument{
-		Content: NewContent(label, a.help, NewCompleterIdent(label)).(*Content),
+		Content: NewContent(label, arg.help, NewCompleterIdent(label)).(*Content),
 		Type:    "string",
 		Default: label,
 	}
 }
 
 // IsArgument returns if content is an argument..
-func (a *Argument) IsArgument() bool {
+func (arg *Argument) IsArgument() bool {
 	return true
 }
 
 // GetStrType returns the short string for the content type.
-func (a *Argument) GetStrType() string {
+func (arg *Argument) GetStrType() string {
 	return "A"
 }
 

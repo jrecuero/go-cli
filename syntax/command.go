@@ -23,26 +23,26 @@ type Command struct {
 }
 
 // IsCommand returns if content is a command.
-func (c *Command) IsCommand() bool {
-	return c.ismode == false
+func (cmd *Command) IsCommand() bool {
+	return cmd.ismode == false
 }
 
 // IsMode returns if content is a mode.
-func (c *Command) IsMode() bool {
-	return c.ismode
+func (cmd *Command) IsMode() bool {
+	return cmd.ismode
 }
 
 // GetStrType returns the short string for the content type.
-func (c *Command) GetStrType() string {
-	if c.IsMode() {
+func (cmd *Command) GetStrType() string {
+	if cmd.IsMode() {
 		return "M"
 	}
 	return "C"
 }
 
 // LookForArgument searches for an argument in a Command with the given label.
-func (c *Command) LookForArgument(label string) (*Argument, error) {
-	for _, argo := range c.Arguments {
+func (cmd *Command) LookForArgument(label string) (*Argument, error) {
+	for _, argo := range cmd.Arguments {
 		if argo.GetLabel() == label {
 			return argo, nil
 		}
@@ -51,16 +51,16 @@ func (c *Command) LookForArgument(label string) (*Argument, error) {
 }
 
 // AddNameSpaceName adds a new namespace.
-func (c *Command) AddNameSpaceName(nsName string) error {
-	c.NameSpaceNames = append(c.NameSpaceNames, nsName)
+func (cmd *Command) AddNameSpaceName(nsName string) error {
+	cmd.NameSpaceNames = append(cmd.NameSpaceNames, nsName)
 	return nil
 }
 
 // DeleteNameSpaceName deletes a namespace.
-func (c *Command) DeleteNameSpaceName(nsName string) error {
-	for i, nameSpaceNames := range c.NameSpaceNames {
+func (cmd *Command) DeleteNameSpaceName(nsName string) error {
+	for i, nameSpaceNames := range cmd.NameSpaceNames {
 		if nameSpaceNames == nsName {
-			c.NameSpaceNames = append(c.NameSpaceNames[:i], c.NameSpaceNames[i+1:]...)
+			cmd.NameSpaceNames = append(cmd.NameSpaceNames[:i], cmd.NameSpaceNames[i+1:]...)
 			return nil
 		}
 	}
@@ -68,27 +68,27 @@ func (c *Command) DeleteNameSpaceName(nsName string) error {
 }
 
 // Setup initializes all command fields.
-func (c *Command) Setup() *Command {
-	c.CmdSyntax = NewCommandSyntax(c.Syntax)
-	//c.CmdSyntax.CreateGraph(c)
-	//c.label = c.CmdSyntax.Parsed.Command
-	if c.completer == nil {
-		c.completer = NewCompleterCommand(c.GetLabel())
+func (cmd *Command) Setup() *Command {
+	cmd.CmdSyntax = NewCommandSyntax(cmd.Syntax)
+	//cmd.CmdSyntax.CreateGraph(cmd)
+	//cmd.label = cmd.CmdSyntax.Parsed.Command
+	if cmd.completer == nil {
+		cmd.completer = NewCompleterCommand(cmd.GetLabel())
 	}
-	c.FullCmd = c.GetLabel()
-	for _, argument := range c.Arguments {
+	cmd.FullCmd = cmd.GetLabel()
+	for _, argument := range cmd.Arguments {
 		argument.Setup()
 	}
-	return c
+	return cmd
 }
 
 // SetupGraph creates the command syntax graph.
-func (c *Command) SetupGraph(children bool) *Command {
-	//tools.Debug("setup graph %#v\n", c.GetLabel())
-	c.HasChildren = children
-	c.CmdSyntax.CreateGraph(c)
-	c.label = c.CmdSyntax.Parsed.Command
-	return c
+func (cmd *Command) SetupGraph(children bool) *Command {
+	//tools.Debug("setup graph %#v\n", cmd.GetLabel())
+	cmd.HasChildren = children
+	cmd.CmdSyntax.CreateGraph(cmd)
+	cmd.label = cmd.CmdSyntax.Parsed.Command
+	return cmd
 }
 
 var _ IContent = (*Command)(nil)

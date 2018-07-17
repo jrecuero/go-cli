@@ -75,6 +75,12 @@ func (c *Content) GetStrType() string {
 	return "X"
 }
 
+// SetCompleter sets a new completer for the content.
+func (c *Content) SetCompleter(completer ICompleter) bool {
+	c.completer = completer
+	return true
+}
+
 // NewContent returns a new Content instance.
 func NewContent(label string, help string, completer ICompleter) IContent {
 	return &Content{
