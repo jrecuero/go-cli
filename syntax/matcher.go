@@ -96,7 +96,7 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	tools.Tracer("executing line %#v\n", line)
 	m.Ctx.GetProcess().Set(EXECUTE)
 	if _, ok := m.Match(line); !ok {
-		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %s", ok, line)
+		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %#v\n", ok, line)
 		return nil, false
 	}
 	args, err := m.Ctx.GetArgValuesForCommandLabel(nil)
@@ -184,7 +184,11 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 	if tools.LastChar(line) == " " {
 		tokens = append(tokens, "")
 	}
-	m.matchWithGraph(tokens)
+	index, _ := m.matchWithGraph(tokens)
+	if index < (len(tokens) - 1) {
+		tools.Debug("not-a-proper-match tokens: %#v index: %d len: %d\n", tokens, index, len(tokens))
+		return []*ComplexComplete{}, false
+	}
 	if len(m.Ctx.Matched) == 0 {
 		// There is not match, this happens when it is being entered the first
 		// command or the command line is empty.
@@ -194,9 +198,7 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 		lastCN = m.Ctx.Matched[ilastCN].Node
 	}
 	result := worker(lastCN, tokens)
-	tools.Debug("line: %#v\n", line)
-	tools.Debug("tokens: %#v\n", tokens)
-	tools.Debug("results (%#v): %#v\n", lastCN.GetContent().GetLabel(), result)
+	tools.Debug("line: %#v tokens: %#v results (%#v): %#v\n", line, tokens, lastCN.GetContent().GetLabel(), result)
 	return result, true
 }
 

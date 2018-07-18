@@ -24,22 +24,13 @@ type Prompter struct {
 	PrefixState *LivePrefixState
 }
 
-//var livePrefixState struct {
-//    livePrefix string
-//    isEnable   bool
-//}
-
 // executor executes any command entered in the command line.
 func (pr *Prompter) executor(in string) {
-	//if in == "exit" || in == "quit" {
 	if in == "quit" {
 		tools.CloseLog()
 		os.Exit(0)
 	}
 	fmt.Println("Your input: " + in)
-	//ctx := syntax.NewContext(nil)
-	//m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
-	//if _, ok := m.Execute(in); !ok {
 	tools.Info("Running command line %#v\n", in)
 	if _, ok := pr.NSM.Execute(in); !ok {
 		fmt.Errorf("execute return %#v for line: %s", ok, in)
@@ -53,14 +44,11 @@ func (pr *Prompter) executor(in string) {
 
 // completer completes any token being entered in the command line.
 func (pr *Prompter) completer(d prompt.Document) []prompt.Suggest {
-	//ctx := syntax.NewContext(nil)
-	//m := syntax.NewMatcher(ctx, pr.NSM.GetParseTree().Graph)
 	line := d.TextBeforeCursor()
 	if line == "" {
 		line = " "
 	}
 	tools.Info("Complete command line %#v\n", line)
-	//result, _ := m.CompleteAndHelp(line)
 	result, _ := pr.NSM.CompleteAndHelp(line)
 	var s []prompt.Suggest
 	var varArgs []prompt.Suggest
