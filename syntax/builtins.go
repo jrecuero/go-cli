@@ -40,7 +40,7 @@ func NewExitCommand() *Command {
 			os.Exit(0)
 			return nil
 		}
-		ctx.SetProcess(tools.PString(POPMODE))
+		ctx.GetProcess().Append(POPMODE)
 		return nil
 	}
 	exitCmd.IsBuiltIn = true

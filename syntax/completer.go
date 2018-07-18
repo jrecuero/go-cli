@@ -168,8 +168,7 @@ func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interfac
 	}
 	// When complete or help process, it should not match if it is still
 	// entering the argument.
-	proc := ctx.GetProcess()
-	if proc == COMPLETE || proc == HELP {
+	if ok, _ := ctx.GetProcess().Check(COMPLETE, HELP); ok {
 		toklen := len(tokens)
 		if index == (toklen - 1) {
 			return index, false

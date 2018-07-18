@@ -28,9 +28,9 @@ type Matcher struct {
 func (m *Matcher) Match(line interface{}) (interface{}, bool) {
 	tools.Tracer("line: %v\n", line)
 	slice := strings.Fields(line.(string))
-	m.Ctx.SetProcess(tools.PString(MATCH))
+	m.Ctx.GetProcess().Set(MATCH)
 	result := m.matchCommandLine(slice)
-	m.Ctx.SetProcess(nil)
+	m.Ctx.GetProcess().Clean()
 	return nil, result
 }
 
@@ -94,7 +94,7 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 // Execute executes the command for the given command line.
 func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	tools.Tracer("executing line %#v\n", line)
-	m.Ctx.SetProcess(tools.PString(EXECUTE))
+	m.Ctx.GetProcess().Set(EXECUTE)
 	if _, ok := m.Match(line); !ok {
 		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %s", ok, line)
 		return nil, false
@@ -106,7 +106,7 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	}
 	command := m.Ctx.GetLastCommand()
 	command.Enter(m.Ctx, args)
-	if m.Ctx.GetProcess() == POPMODE {
+	if ok, _ := m.Ctx.GetProcess().Check(POPMODE); ok {
 		modeBox := m.Ctx.PopMode()
 		m.Rooter = modeBox.Anchor
 	} else if m.Ctx.GetLastCommand().IsMode() {
@@ -114,7 +114,7 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 		lastAnchor := m.Ctx.GetLastAnchor()
 		m.Rooter = lastAnchor
 	}
-	m.Ctx.SetProcess(nil)
+	m.Ctx.GetProcess().Clean()
 	m.Ctx.Clean()
 	return nil, true
 }
@@ -203,27 +203,27 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 // Complete returns possible complete string for command line being entered.
 func (m *Matcher) Complete(in interface{}) (interface{}, bool) {
 	tools.Tracer("line: %v\n", in)
-	m.Ctx.SetProcess(tools.PString(COMPLETE))
+	m.Ctx.GetProcess().Set(COMPLETE)
 	result, ok := m.processCompleteAndHelp(in, m.workerComplete)
-	m.Ctx.SetProcess(nil)
+	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
 
 // Help returns the help for a node if it is matched.
 func (m *Matcher) Help(in interface{}) (interface{}, bool) {
 	tools.Tracer("line: %v\n", in)
-	m.Ctx.SetProcess(tools.PString(HELP))
+	m.Ctx.GetProcess().Set(HELP)
 	result, ok := m.processCompleteAndHelp(in, m.workerHelp)
-	m.Ctx.SetProcess(nil)
+	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
 
 // CompleteAndHelp returns possible complete string for command line being entered.
 func (m *Matcher) CompleteAndHelp(in interface{}) (interface{}, bool) {
 	tools.Tracer("line: %v\n", in)
-	m.Ctx.SetProcess(tools.PString(COMPLETE))
+	m.Ctx.GetProcess().Set(COMPLETE)
 	result, ok := m.processCompleteAndHelp(in, m.workerCompleteAndHelp)
-	m.Ctx.SetProcess(nil)
+	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
 

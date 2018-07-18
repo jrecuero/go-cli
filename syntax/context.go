@@ -31,6 +31,59 @@ const (
 	DEFAULTPROMPT = ">>> "
 )
 
+// ContextProcess represents the process running in the context.
+type ContextProcess struct {
+	Process []string
+}
+
+// Set assigns a unique value to the context process.
+func (cp *ContextProcess) Set(proc string) error {
+	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE || proc == POPMODE {
+		cp.Clean()
+		cp.Process = append(cp.Process, proc)
+		return nil
+	}
+	return tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+}
+
+// Append adds an additional value to the context process.
+func (cp *ContextProcess) Append(proc string) error {
+	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE || proc == POPMODE {
+		cp.Process = append(cp.Process, proc)
+		return nil
+	}
+	return tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+}
+
+// Clean clears all values in the context process.
+func (cp *ContextProcess) Clean() error {
+	cp.Process = []string{}
+	return nil
+}
+
+// Check finds in the given value is in the context process.
+func (cp *ContextProcess) Check(proc ...string) (bool, error) {
+	for _, ppar := range proc {
+		if ppar == MATCH || ppar == COMPLETE || ppar == HELP || ppar == QUERY || ppar == EXECUTE || ppar == POPMODE {
+			for _, pin := range cp.Process {
+				if pin == ppar {
+					return true, nil
+				}
+			}
+		} else {
+			return false, tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+		}
+	}
+	return false, nil
+}
+
+// NewContextProcess creates a new ContextProcess instance.
+func NewContextProcess() *ContextProcess {
+	return &ContextProcess{
+		Process: []string{},
+	}
+}
+
 // Cache represnets the context cache.
 type Cache struct {
 	data map[string]interface{} // data storage for the cache.
@@ -106,28 +159,18 @@ func NewToken(cn *ContentNode, value interface{}) *Token {
 
 // Context represents the structure that stores information about any match.
 type Context struct {
-	Matched []*Token      // array with all tokens matched in command line.
-	Modes   []*ModeBox    // array with all modes entered in command line.
-	Cache   *Cache        // context cache to be used by command methods.
-	prompt  string        // mode prompt for the running mode.
-	lastcmd *Command      // last command found in the matched tokens.
-	cmdbox  []*CommandBox // array with all command matched.
-	process *string       // status process running the context.
-}
-
-// SetProcess sets the context process running.
-func (ctx *Context) SetProcess(process *string) bool {
-	proc := tools.String(process)
-	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE || proc == POPMODE {
-		ctx.process = process
-		return true
-	}
-	return false
+	Matched []*Token        // array with all tokens matched in command line.
+	Modes   []*ModeBox      // array with all modes entered in command line.
+	Cache   *Cache          // context cache to be used by command methods.
+	prompt  string          // mode prompt for the running mode.
+	lastcmd *Command        // last command found in the matched tokens.
+	cmdbox  []*CommandBox   // array with all command matched.
+	process *ContextProcess // status process running the context.
 }
 
 // GetProcess retrieves the context process runnning.
-func (ctx *Context) GetProcess() string {
-	return tools.String(ctx.process)
+func (ctx *Context) GetProcess() *ContextProcess {
+	return ctx.process
 }
 
 // GetLastCommand retrieves the lastcmd field.
@@ -287,7 +330,8 @@ func (ctx *Context) GetLastAnchor() *graph.Node {
 // NewContext creates a new Context instance.
 func NewContext(prefix *string) *Context {
 	ctx := &Context{
-		Cache: NewCache(),
+		Cache:   NewCache(),
+		process: NewContextProcess(),
 	}
 	ctx.SetPrompt(prefix)
 	return ctx
