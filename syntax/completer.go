@@ -100,6 +100,10 @@ func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface
 // Complete returns the complete match for any node completer.
 func (cc *CompleterCommand) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	tokens := line.([]string)
+	if content.(*Command).IsBuiltIn && len(tokens) > 1 {
+		return nil, false
+	}
 	return cc.completeLabel(ctx, content, line, index)
 }
 

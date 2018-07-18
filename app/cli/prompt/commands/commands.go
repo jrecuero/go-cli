@@ -88,6 +88,10 @@ func SetupCommands() []*syntax.Command {
 	configCmd.Prompt = "config>>> "
 
 	configDescCmd := syntax.NewCommand(configCmd, "desc", "Description config test help", nil, nil)
+	configDescCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		tools.ToDisplay("config description\n")
+		return nil
+	}
 
 	commands := []*syntax.Command{
 		setCmd,
