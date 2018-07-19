@@ -44,11 +44,14 @@ func (pr *Prompter) executor(in string) {
 
 // completer completes any token being entered in the command line.
 func (pr *Prompter) completer(d prompt.Document) []prompt.Suggest {
+	//tools.Tracer("document: %#v\n", d)
+	if d.IsReset {
+		return []prompt.Suggest{}
+	}
 	line := d.TextBeforeCursor()
 	if line == "" {
 		line = " "
 	}
-	tools.Info("Complete command line %#v\n", line)
 	result, _ := pr.NSM.CompleteAndHelp(line)
 	var s []prompt.Suggest
 	var varArgs []prompt.Suggest

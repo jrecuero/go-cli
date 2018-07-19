@@ -2,7 +2,6 @@ package syntax
 
 import (
 	"github.com/jrecuero/go-cli/graph"
-	"github.com/jrecuero/go-cli/tools"
 )
 
 // ContentNode represents any node which content is IContent.
@@ -18,7 +17,7 @@ func (cn *ContentNode) GetContent() IContent {
 // Match returns the match for content node.
 func (cn *ContentNode) Match(ctx interface{}, line interface{}, index int) (int, bool) {
 	content := cn.GetContent()
-	tools.Tracer("%s %v %d %#v\n", content.GetLabel(), line, index, content.GetCompleter())
+	//tools.Tracer("%s %v %d %#v\n", content.GetLabel(), line, index, content.GetCompleter())
 	if completer := content.GetCompleter(); completer != nil {
 		context := ctx.(*Context)
 		return completer.Match(context, content, line, index)
@@ -33,7 +32,7 @@ func (cn *ContentNode) Match(ctx interface{}, line interface{}, index int) (int,
 // Help returns the help for content node.
 func (cn *ContentNode) Help(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	content := cn.GetContent()
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	if completer := content.GetCompleter(); completer != nil {
 		context := ctx.(*Context)
 		result := []interface{}{}
@@ -50,7 +49,7 @@ func (cn *ContentNode) Help(ctx interface{}, line interface{}, index int) (inter
 				}
 			}
 		}
-		tools.Debug("result is %#v\n", result)
+		//tools.Debug("result is %#v\n", result)
 		return result, true
 	}
 	return content.GetLabel(), true
@@ -59,7 +58,7 @@ func (cn *ContentNode) Help(ctx interface{}, line interface{}, index int) (inter
 // Query returns the query for content node.
 func (cn *ContentNode) Query(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	content := cn.GetContent()
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	if completer := content.GetCompleter(); completer != nil {
 		context := ctx.(*Context)
 		return completer.Query(context, content, line, index)
@@ -70,9 +69,9 @@ func (cn *ContentNode) Query(ctx interface{}, line interface{}, index int) (inte
 // Complete returns the complete match for content node.
 func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	content := cn.GetContent()
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	if completer := content.GetCompleter(); completer != nil {
-		tools.Debug("cn: %#v\n", content.GetLabel())
+		//tools.Debug("cn: %#v\n", content.GetLabel())
 		context := ctx.(*Context)
 		result := []interface{}{}
 		if cn.IsContent() || cn.IsSink {
@@ -88,7 +87,7 @@ func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (i
 				}
 			}
 		}
-		tools.Debug("results: %#v\n", result)
+		//tools.Debug("results: %#v\n", result)
 		return result, true
 	}
 	return content.GetLabel(), true
@@ -97,7 +96,7 @@ func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (i
 // Validate checks if the content is value for the given line.
 func (cn *ContentNode) Validate(ctx interface{}, line interface{}, index int) bool {
 	content := cn.GetContent()
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	if completer := content.GetCompleter(); completer != nil {
 		context := ctx.(*Context)
 		return completer.Validate(context, content, line, index)

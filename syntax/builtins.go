@@ -3,8 +3,6 @@ package syntax
 import (
 	"os"
 	"strings"
-
-	"github.com/jrecuero/go-cli/tools"
 )
 
 func init() {
@@ -16,7 +14,7 @@ type completerExit struct {
 
 // Help returns the help for any node completer.
 func (ce *completerExit) Help(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	helpSlice := strings.Split(content.GetHelp(), "|")
 	var i int
 	if len(ctx.Modes) == 0 {

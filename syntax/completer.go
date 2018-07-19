@@ -89,7 +89,7 @@ type CompleterCommand struct {
 
 // Match returns the match for a command node completer.
 func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if tokens[index] == content.GetLabel() {
 		return index + 1, true
@@ -99,7 +99,7 @@ func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface
 
 // Complete returns the complete match for any node completer.
 func (cc *CompleterCommand) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if content.(*Command).IsBuiltIn && len(tokens) > 1 {
 		return nil, false
@@ -109,7 +109,7 @@ func (cc *CompleterCommand) Complete(ctx *Context, content IContent, line interf
 
 // Help returns the help for any node completer.
 func (cc *CompleterCommand) Help(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	return cc.helpLabel(ctx, content, line, index)
 }
 
@@ -129,7 +129,7 @@ type CompleterIdent struct {
 
 // Match returns the match for any ident node completer.
 func (ci *CompleterIdent) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if tokens[index] == ci.GetLabel() {
 		return index + 1, true
@@ -139,13 +139,13 @@ func (ci *CompleterIdent) Match(ctx *Context, content IContent, line interface{}
 
 // Complete returns the complete match for any node completer.
 func (ci *CompleterIdent) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	return ci.completeLabel(ctx, content, line, index)
 }
 
 // Help returns the help for any node completer.
 func (ci *CompleterIdent) Help(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	return ci.helpLabel(ctx, content, line, index)
 }
 
@@ -165,7 +165,7 @@ type CompleterArgument struct {
 
 // Match returns the match for CompleterArgument node completer.
 func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if tokens[index] == "" {
 		return index, false
@@ -189,14 +189,14 @@ func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interfac
 func (ca *CompleterArgument) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	// TODO: Query should be checked here.
 	//return "<<WORD>>", true
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	return fmt.Sprintf("<<%s>>", content.GetType()), true
 }
 
 // Help returns the help for any node completer.
 func (ca *CompleterArgument) Help(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	//tokens := line.([]string)
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	return content.GetHelp(), true
 }
 
@@ -216,7 +216,7 @@ type CompleterCustom struct {
 
 // Match returns the match for CompleterCustom node completer.
 func (c *CompleterCustom) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if tokens[index] == content.GetLabel() {
 		return index + 1, true
@@ -240,7 +240,7 @@ type CompleterJoint struct {
 
 // Match returns the match for any joint node completer.
 func (cj *CompleterJoint) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	if content == nil || !content.IsMatchable() {
 		return index, true
 	}
@@ -285,7 +285,7 @@ type CompleterSink struct {
 
 // Match returns the match for any joint node completer.
 func (cs *CompleterSink) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if tokens[index] == content.GetLabel() {
 		return index + 1, true
@@ -295,7 +295,7 @@ func (cs *CompleterSink) Match(ctx *Context, content IContent, line interface{},
 
 // Complete returns the complete match for any node completer.
 func (cs *CompleterSink) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if tokens[len(tokens)-1] == "" {
 		return content.GetLabel(), true
@@ -305,7 +305,7 @@ func (cs *CompleterSink) Complete(ctx *Context, content IContent, line interface
 
 // Help returns the help match for any node completer.
 func (cs *CompleterSink) Help(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
 	if tokens[len(tokens)-1] == "" {
 		return content.GetHelp(), true

@@ -73,7 +73,9 @@ func (c *CompletionManager) GetSuggestions() []Suggest {
 func (c *CompletionManager) Reset() {
 	c.selected = -1
 	c.verticalScroll = 0
-	c.Update(*NewDocument())
+	d := *NewDocument()
+	d.IsReset = true
+	c.Update(d)
 	return
 }
 

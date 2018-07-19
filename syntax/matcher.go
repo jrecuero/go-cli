@@ -26,7 +26,7 @@ type Matcher struct {
 
 // Match matches if a node is matched for a token.
 func (m *Matcher) Match(line interface{}) (interface{}, bool) {
-	tools.Tracer("line: %v\n", line)
+	//tools.Tracer("line: %v\n", line)
 	slice := strings.Fields(line.(string))
 	m.Ctx.GetProcess().Set(MATCH)
 	result := m.matchCommandLine(slice)
@@ -36,7 +36,7 @@ func (m *Matcher) Match(line interface{}) (interface{}, bool) {
 
 // matchCommandLine matches the given command line with the graph.
 func (m *Matcher) matchCommandLine(line interface{}) bool {
-	tools.Tracer("line: %v\n", line)
+	//tools.Tracer("line: %v\n", line)
 	tokens := line.([]string)
 	tokens = append(tokens, GetCR().GetLabel())
 	index, result := m.matchWithGraph(tokens)
@@ -57,9 +57,9 @@ func (m *Matcher) traverseAndMatchGraph(node *graph.Node, tokens []string, index
 	}
 	for _, n := range node.Children {
 		cn := NodeToContentNode(n)
-		tools.Debug("node check for matching: %d %s => %#v\n", index, tokens[index], cn.GetContent().GetLabel())
+		//tools.Debug("node check for matching: %d %s => %#v\n", index, tokens[index], cn.GetContent().GetLabel())
 		if indexMatched, ok := cn.Match(m.Ctx, tokens, index); ok {
-			tools.Debug("node matched: %d:%d %v %s => %v\n", indexMatched, index, ok, tokens[index], cn.GetContent().GetLabel())
+			//tools.Debug("node matched: %d:%d %v %s => %v\n", indexMatched, index, ok, tokens[index], cn.GetContent().GetLabel())
 			child := n
 			for indexMatched == index {
 				if child, indexMatched, ok = m.traverseAndMatchGraph(child, tokens, indexMatched); !ok {
@@ -67,7 +67,7 @@ func (m *Matcher) traverseAndMatchGraph(node *graph.Node, tokens []string, index
 				}
 			}
 			if indexMatched != index {
-				tools.Debug("confirmed matched: %d %s => %v\n", indexMatched, tokens[index], cn.GetContent().GetLabel())
+				//tools.Debug("confirmed matched: %d %s => %v\n", indexMatched, tokens[index], cn.GetContent().GetLabel())
 				return child, indexMatched, true
 			}
 		}
@@ -79,13 +79,13 @@ func (m *Matcher) traverseAndMatchGraph(node *graph.Node, tokens []string, index
 func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 	var index int
 	var ok bool
-	tools.Tracer("tokens: %v\n", tokens)
+	//tools.Tracer("tokens: %v\n", tokens)
 	traverse := m.Rooter
 	for traverse != nil && len(traverse.Children) != 0 {
 		if traverse, index, ok = m.traverseAndMatchGraph(traverse, tokens, index); !ok {
 			return index, false
 		}
-		tools.Debug("add token to context: %#v %s\n", NodeToContentNode(traverse).GetContent().GetLabel(), tokens[index-1])
+		//tools.Debug("add token to context: %#v %s\n", NodeToContentNode(traverse).GetContent().GetLabel(), tokens[index-1])
 		m.Ctx.AddToken(index-1, NodeToContentNode(traverse), tokens[index-1])
 	}
 	m.Ctx.UpdateCommandBox()
@@ -99,12 +99,12 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %#v\n", ok, line)
 		return nil, false
 	}
-	for _, t := range m.Ctx.Matched {
-		tools.Debug("matched %#v\n", t)
-	}
+	//for _, t := range m.Ctx.Matched {
+	//    tools.Debug("matched %#v\n", t)
+	//}
 	for i, token := range m.Ctx.GetCommandBox() {
 		cmd := token.Cmd
-		tools.Debug("%d command %#v run-as-no-final: %#v\n", i, cmd.GetLabel(), cmd.RunAsNoFinal)
+		//tools.Debug("%d command %#v run-as-no-final: %#v\n", i, cmd.GetLabel(), cmd.RunAsNoFinal)
 		lenCommandBox := len(m.Ctx.GetCommandBox()) - 1
 		if (i < lenCommandBox && cmd.RunAsNoFinal) || (i == lenCommandBox) {
 			if i < lenCommandBox && cmd.RunAsNoFinal {
@@ -148,7 +148,7 @@ func (m *Matcher) workerComplete(cn *ContentNode, tokens []string) interface{} {
 		childCN := NodeToContentNode(childNode)
 		completeIf, _ := childCN.Complete(m.Ctx, tokens, 0)
 		complete := completeIf.([]interface{})
-		tools.Debug("childCN: %#v complete: %#v\n", childCN.GetContent().GetLabel(), complete)
+		//tools.Debug("childCN: %#v complete: %#v\n", childCN.GetContent().GetLabel(), complete)
 		for _, c := range complete {
 			result = append(result, c)
 		}
@@ -163,7 +163,7 @@ func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
 		childCN := NodeToContentNode(childNode)
 		helpIf, _ := childCN.Help(m.Ctx, tokens, 0)
 		help := helpIf.([]interface{})
-		tools.Debug("childCN: %#v help: %#v\n", childCN.GetContent().GetLabel(), help)
+		//tools.Debug("childCN: %#v help: %#v\n", childCN.GetContent().GetLabel(), help)
 		for _, c := range help {
 			result = append(result, c)
 		}
@@ -174,14 +174,14 @@ func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
 // workerCompleteAndHelp gets all complete and help options for the given node.
 func (m *Matcher) workerCompleteAndHelp(cn *ContentNode, tokens []string) interface{} {
 	result := []*ComplexComplete{}
-	tools.Debug("cn: %#v\n", cn.GetContent().GetLabel())
+	//tools.Debug("cn: %#v\n", cn.GetContent().GetLabel())
 	for _, childNode := range cn.Children {
 		childCN := NodeToContentNode(childNode)
 		completeIf, _ := childCN.Complete(m.Ctx, tokens, 0)
 		helpIf, _ := childCN.Help(m.Ctx, tokens, 0)
 		complete := completeIf.([]interface{})
 		help := helpIf.([]interface{})
-		tools.Debug("childCN: %#v complete: %#v help: %#v\n", childCN.GetContent().GetLabel(), complete, help)
+		//tools.Debug("childCN: %#v complete: %#v help: %#v\n", childCN.GetContent().GetLabel(), complete, help)
 		limit := len(complete)
 		if limit > len(help) {
 			limit = len(help)
@@ -200,33 +200,44 @@ func (m *Matcher) workerCompleteAndHelp(cn *ContentNode, tokens []string) interf
 // command line being entered.
 func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interface{}, bool) {
 	line := in.(string)
-	var tokens []string
 	var lastCN *ContentNode
-	tokens = strings.Fields(line)
+	extendLine := false
+	tokens := strings.Fields(line)
+	m.Ctx.UpdateMatched(len(tokens))
 	if tools.LastChar(line) == " " {
 		tokens = append(tokens, "")
+		extendLine = true
 	}
 	index, _ := m.matchWithGraph(tokens)
 	if index < (len(tokens) - 1) {
 		tools.Debug("not-a-proper-match tokens: %#v index: %d len: %d\n", tokens, index, len(tokens))
 		return []*ComplexComplete{}, false
 	}
+	//tools.Debug("len(matched): %d extended: %v index: %d\n", len(m.Ctx.Matched), extendLine, index)
 	if len(m.Ctx.Matched) == 0 {
 		// There is not match, this happens when it is being entered the first
 		// command or the command line is empty.
 		lastCN = NodeToContentNode(m.Rooter)
+	} else if !extendLine && index == len(tokens) {
+		ilastCN := len(m.Ctx.Matched) - 2
+		if ilastCN < 0 {
+			lastCN = NodeToContentNode(m.Rooter)
+		} else {
+			lastCN = m.Ctx.Matched[ilastCN].Node
+		}
+
 	} else {
 		ilastCN := len(m.Ctx.Matched) - 1
 		lastCN = m.Ctx.Matched[ilastCN].Node
 	}
 	result := worker(lastCN, tokens)
-	tools.Debug("line: %#v tokens: %#v results (%#v): %#v\n", line, tokens, lastCN.GetContent().GetLabel(), result)
+	//tools.Debug("line: %#v tokens: %#v results (%#v): %#v\n", line, tokens, lastCN.GetContent().GetLabel(), result)
 	return result, true
 }
 
 // Complete returns possible complete string for command line being entered.
 func (m *Matcher) Complete(in interface{}) (interface{}, bool) {
-	tools.Tracer("line: %v\n", in)
+	//tools.Tracer("line: %v\n", in)
 	m.Ctx.GetProcess().Set(COMPLETE)
 	result, ok := m.processCompleteAndHelp(in, m.workerComplete)
 	m.Ctx.GetProcess().Clean()
@@ -235,7 +246,7 @@ func (m *Matcher) Complete(in interface{}) (interface{}, bool) {
 
 // Help returns the help for a node if it is matched.
 func (m *Matcher) Help(in interface{}) (interface{}, bool) {
-	tools.Tracer("line: %v\n", in)
+	//tools.Tracer("line: %v\n", in)
 	m.Ctx.GetProcess().Set(HELP)
 	result, ok := m.processCompleteAndHelp(in, m.workerHelp)
 	m.Ctx.GetProcess().Clean()
@@ -244,7 +255,7 @@ func (m *Matcher) Help(in interface{}) (interface{}, bool) {
 
 // CompleteAndHelp returns possible complete string for command line being entered.
 func (m *Matcher) CompleteAndHelp(in interface{}) (interface{}, bool) {
-	tools.Tracer("line: %v\n", in)
+	//tools.Tracer("line: %v\n", in)
 	m.Ctx.GetProcess().Set(COMPLETE)
 	result, ok := m.processCompleteAndHelp(in, m.workerCompleteAndHelp)
 	m.Ctx.GetProcess().Clean()

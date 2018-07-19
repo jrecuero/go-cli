@@ -15,6 +15,7 @@ type Document struct {
 	// So if Document is "日本(cursor)語", cursorPosition is 2.
 	// But DisplayedCursorPosition returns 4 because '日' and '本' are double width characters.
 	cursorPosition int
+	IsReset        bool
 }
 
 // NewDocument return the new empty document.

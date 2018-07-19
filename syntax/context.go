@@ -215,6 +215,19 @@ func (ctx *Context) SetLastArgument(arg *Argument, value interface{}) {
 	ctx.cmdbox[indexCmd].ArgValues = append(ctx.cmdbox[indexCmd].ArgValues, &ArgValue{Arg: arg, Value: value})
 }
 
+// UpdateMatched updates matched attribute with number of tokens entered.
+func (ctx *Context) UpdateMatched(threshold int) {
+	//tools.Debug("threshold: %d matched: %#v\n", threshold, ctx.Matched)
+	if threshold <= len(ctx.Matched) {
+		if threshold == 0 {
+			ctx.Matched = nil
+		} else {
+			ctx.Matched = ctx.Matched[0 : threshold-1]
+		}
+	}
+	//tools.Debug("matched: %#v\n", ctx.Matched)
+}
+
 //UpdateCommandBox updates cmdbox attribute with values from Matched.
 func (ctx *Context) UpdateCommandBox() {
 	for _, tok := range ctx.Matched {
