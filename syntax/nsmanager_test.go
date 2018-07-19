@@ -189,6 +189,8 @@ func TestNSManager_Help(t *testing.T) {
 	if len(helps.([]interface{})) != 3 {
 		t.Errorf("help didn't match: %#v line: %s", helps, line)
 	}
+	ctx = syntax.NewContext(nil)
+	m = syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line = "set "
 	helps, _ = m.Help(line)
 	tools.Tester("line: %#v\n", line)

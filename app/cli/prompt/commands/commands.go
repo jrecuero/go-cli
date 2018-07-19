@@ -47,9 +47,14 @@ func SetupCommands() []*syntax.Command {
 
 	setSpeedCmd := syntax.NewCommand(setCmd, "speed", "Set Speed test help", nil, nil)
 	setSpeedCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-		tools.ToDisplay("executing set speed\n")
+		if ok, _ := ctx.GetProcess().Check(syntax.RUNASNOFINAL); ok {
+			tools.ToDisplay("executing set speed as-no-final!!!!\n")
+		} else {
+			tools.ToDisplay("executing set speed\n")
+		}
 		return nil
 	}
+	setSpeedCmd.RunAsNoFinal = true
 
 	setSpeedDeviceCmd := syntax.NewCommand(setSpeedCmd, "device name", "Set speed device help",
 		[]*syntax.Argument{

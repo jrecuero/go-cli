@@ -27,6 +27,9 @@ const (
 	// POPMODE identifies popup node process.
 	POPMODE = "popmode"
 
+	// RUNASNOFINAL identifes running a command as not the final one.
+	RUNASNOFINAL = "run-as-no-final"
+
 	// DEFAULTPROMPT identifies default prompt.
 	DEFAULTPROMPT = ">>> "
 )
@@ -38,7 +41,8 @@ type ContextProcess struct {
 
 // Set assigns a unique value to the context process.
 func (cp *ContextProcess) Set(proc string) error {
-	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE || proc == POPMODE {
+	if proc == MATCH || proc == COMPLETE || proc == HELP ||
+		proc == QUERY || proc == EXECUTE || proc == POPMODE || proc == RUNASNOFINAL {
 		cp.Clean()
 		cp.Process = append(cp.Process, proc)
 		return nil
@@ -48,7 +52,8 @@ func (cp *ContextProcess) Set(proc string) error {
 
 // Append adds an additional value to the context process.
 func (cp *ContextProcess) Append(proc string) error {
-	if proc == MATCH || proc == COMPLETE || proc == HELP || proc == QUERY || proc == EXECUTE || proc == POPMODE {
+	if proc == MATCH || proc == COMPLETE || proc == HELP ||
+		proc == QUERY || proc == EXECUTE || proc == POPMODE || proc == RUNASNOFINAL {
 		cp.Process = append(cp.Process, proc)
 		return nil
 	}
@@ -64,7 +69,8 @@ func (cp *ContextProcess) Clean() error {
 // Check finds in the given value is in the context process.
 func (cp *ContextProcess) Check(proc ...string) (bool, error) {
 	for _, ppar := range proc {
-		if ppar == MATCH || ppar == COMPLETE || ppar == HELP || ppar == QUERY || ppar == EXECUTE || ppar == POPMODE {
+		if ppar == MATCH || ppar == COMPLETE || ppar == HELP ||
+			ppar == QUERY || ppar == EXECUTE || ppar == POPMODE || ppar == RUNASNOFINAL {
 			for _, pin := range cp.Process {
 				if pin == ppar {
 					return true, nil
@@ -75,6 +81,25 @@ func (cp *ContextProcess) Check(proc ...string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+// Remove removes the given value from the context process.
+func (cp *ContextProcess) Remove(proc ...string) (bool, error) {
+	processes := []string{}
+	for _, ppar := range proc {
+		if ppar == MATCH || ppar == COMPLETE || ppar == HELP ||
+			ppar == QUERY || ppar == EXECUTE || ppar == POPMODE || ppar == RUNASNOFINAL {
+			for _, pin := range cp.Process {
+				if pin != ppar {
+					processes = append(processes, pin)
+				}
+			}
+		} else {
+			return false, tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+		}
+	}
+	cp.Process = processes
+	return true, nil
 }
 
 // NewContextProcess creates a new ContextProcess instance.
@@ -186,8 +211,20 @@ func (ctx *Context) SetLastCommand(cmd *Command) {
 
 // SetLastArgument sets the last argument.
 func (ctx *Context) SetLastArgument(arg *Argument, value interface{}) {
-	index := len(ctx.cmdbox) - 1
-	ctx.cmdbox[index].ArgValues = append(ctx.cmdbox[index].ArgValues, &ArgValue{Arg: arg, Value: value})
+	indexCmd := len(ctx.cmdbox) - 1
+	ctx.cmdbox[indexCmd].ArgValues = append(ctx.cmdbox[indexCmd].ArgValues, &ArgValue{Arg: arg, Value: value})
+}
+
+//UpdateCommandBox updates cmdbox attribute with values from Matched.
+func (ctx *Context) UpdateCommandBox() {
+	for _, tok := range ctx.Matched {
+		cn := tok.Node
+		if cn.GetContent().IsCommand() || cn.GetContent().IsMode() {
+			ctx.SetLastCommand(cn.GetContent().(*Command))
+		} else if cn.GetContent().IsArgument() {
+			ctx.SetLastArgument(cn.GetContent().(*Argument), tok.Value)
+		}
+	}
 }
 
 // GetCommandBox rettrieves the cmdbox field.
@@ -244,13 +281,12 @@ func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, 
 }
 
 // AddToken adds a matched token to the context.
-func (ctx *Context) AddToken(cn *ContentNode, value interface{}) error {
+func (ctx *Context) AddToken(index int, cn *ContentNode, value interface{}) error {
 	token := NewToken(cn, value)
-	ctx.Matched = append(ctx.Matched, token)
-	if cn.GetContent().IsCommand() || cn.GetContent().IsMode() {
-		ctx.SetLastCommand(cn.GetContent().(*Command))
-	} else if cn.GetContent().IsArgument() {
-		ctx.SetLastArgument(cn.GetContent().(*Argument), value)
+	if len(ctx.Matched) < index+1 {
+		ctx.Matched = append(ctx.Matched, token)
+	} else {
+		ctx.Matched[index] = token
 	}
 	return nil
 }

@@ -86,26 +86,48 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 			return index, false
 		}
 		tools.Debug("add token to context: %#v %s\n", NodeToContentNode(traverse).GetContent().GetLabel(), tokens[index-1])
-		m.Ctx.AddToken(NodeToContentNode(traverse), tokens[index-1])
+		m.Ctx.AddToken(index-1, NodeToContentNode(traverse), tokens[index-1])
 	}
+	m.Ctx.UpdateCommandBox()
 	return index, true
 }
 
 // Execute executes the command for the given command line.
 func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
-	tools.Tracer("executing line %#v\n", line)
 	m.Ctx.GetProcess().Set(EXECUTE)
 	if _, ok := m.Match(line); !ok {
 		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %#v\n", ok, line)
 		return nil, false
 	}
-	args, err := m.Ctx.GetArgValuesForCommandLabel(nil)
-	if err != nil {
-		tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
-		return nil, false
+	for _, t := range m.Ctx.Matched {
+		tools.Debug("matched %#v\n", t)
 	}
-	command := m.Ctx.GetLastCommand()
-	command.Enter(m.Ctx, args)
+	for i, token := range m.Ctx.GetCommandBox() {
+		cmd := token.Cmd
+		tools.Debug("%d command %#v run-as-no-final: %#v\n", i, cmd.GetLabel(), cmd.RunAsNoFinal)
+		lenCommandBox := len(m.Ctx.GetCommandBox()) - 1
+		if (i < lenCommandBox && cmd.RunAsNoFinal) || (i == lenCommandBox) {
+			if i < lenCommandBox && cmd.RunAsNoFinal {
+				m.Ctx.GetProcess().Append(RUNASNOFINAL)
+			}
+			args, err := m.Ctx.GetArgValuesForCommandLabel(tools.PString(cmd.GetLabel()))
+			if err != nil {
+				tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
+				return nil, false
+			}
+			cmd.Enter(m.Ctx, args)
+			if i < lenCommandBox && cmd.RunAsNoFinal {
+				m.Ctx.GetProcess().Remove(RUNASNOFINAL)
+			}
+		}
+	}
+	//args, err := m.Ctx.GetArgValuesForCommandLabel(nil)
+	//if err != nil {
+	//    tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
+	//    return nil, false
+	//}
+	//command := m.Ctx.GetLastCommand()
+	//command.Enter(m.Ctx, args)
 	if ok, _ := m.Ctx.GetProcess().Check(POPMODE); ok {
 		modeBox := m.Ctx.PopMode()
 		m.Rooter = modeBox.Anchor
