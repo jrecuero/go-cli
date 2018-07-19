@@ -131,6 +131,19 @@ func SetupCommands() []*syntax.Command {
 		return nil
 	}
 
+	configIPCmd := syntax.NewCommand(configCmd, "ip [<IPV4> addr4 | <IPV6> addr6]!", "Configure ip for IPV4 or IPV6",
+		[]*syntax.Argument{
+			syntax.NewArgument("IPV4", "IPV4 address schema", nil, "string", "IPV4", nil),
+			syntax.NewArgument("addr4", "IPV4 address", nil, "string", "", nil),
+			syntax.NewArgument("IPV6", "IPV6 address schema", nil, "string", "IPV6", nil),
+			syntax.NewArgument("addr6", "IPV6 address", nil, "string", "", nil),
+		}, nil)
+	configIPCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tools.ToDisplay("config ip address IPV4: %#v:%#v IPV6: %#v:%#v\n", params["IPV4"], params["addr4"], params["IPV6"], params["addr6"])
+		return nil
+	}
+
 	commands := []*syntax.Command{
 		setCmd,
 		getCmd,
@@ -140,11 +153,12 @@ func SetupCommands() []*syntax.Command {
 		getBaudrateCmd,
 		getSpeedCmd,
 		setSpeedDeviceCmd,
-		configCmd,
-		configDescCmd,
 		terminalCmd,
 		systemCmd,
 		helpCmd,
+		configCmd,
+		configDescCmd,
+		configIPCmd,
 	}
 	return commands
 }

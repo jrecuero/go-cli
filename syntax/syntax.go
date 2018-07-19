@@ -104,30 +104,6 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 				contentInMark = &label
 			} else {
 				inpath = cs.handleIdent(label, cmd, insideBlock, inpath, piped)
-				//newContent, _ := cmd.LookForArgument(label)
-				//newNode := NewContentNode(label, newContent)
-				//// Check if we are in a block, and use AddNodeToBlock in that case.
-				////tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
-				//if insideBlock == true {
-				//    //cs.addNodeToBlockToGraph(newNode)
-				//    keyContent := newContent.CreateKeywordFromSelf()
-				//    keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
-				//    if !inpath {
-				//        // First token in a block should always be a key-pair.
-				//        cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
-				//    } else if piped {
-				//        // Next tokens should check if a piped has been found,
-				//        // if piped was present, the add a key-pair.
-				//        cs.Graph.TerminatePathToBlock()
-				//        cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
-				//    } else {
-				//        // If pipe has not been found, then add a simple node.
-				//        cs.addNodeToGraph(newNode)
-				//    }
-				//    inpath = true
-				//} else {
-				//    cs.addNodeToGraph(newNode)
-				//}
 			}
 			break
 		case parser.OPENBRACKET:
@@ -202,32 +178,7 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			openMark = true
 			break
 		case parser.CLOSEMARK:
-			inpath = cs.handleCloseMark(contentInMark, cmd, insideBlock, inpath, piped)
-			//if contentInMark == nil {
-			//    panic("keyword not provided")
-			//}
-			//label := tools.String(contentInMark)
-			//newContent, _ := cmd.LookForArgument(label)
-			//keyContent := &Argument{
-			//    Content: NewContent(label, newContent.help, NewCompleterIdent(label)).(*Content),
-			//    Type:    "string",
-			//    Default: label,
-			//}
-			//newNode := NewContentNode(keyContent.GetLabel(), keyContent)
-			////tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
-			//if insideBlock {
-			//    if !inpath {
-			//        cs.addNodeToGraph(newNode)
-			//        inpath = true
-			//    } else if piped {
-			//        cs.Graph.TerminatePathToBlock()
-			//        cs.addNodeToBlockToGraph(newNode)
-			//    } else {
-			//        cs.addNodeToGraph(newNode)
-			//    }
-			//} else {
-			//    cs.addNodeToGraph(newNode)
-			//}
+			inpath, piped = cs.handleCloseMark(contentInMark, cmd, insideBlock, inpath, piped)
 			openMark = false
 			break
 		}
@@ -241,7 +192,7 @@ func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock boo
 	newContent, _ := cmd.LookForArgument(label)
 	newNode := NewContentNode(label, newContent)
 	// Check if we are in a block, and use AddNodeToBlock in that case.
-	//tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+	tools.ToDisplay("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
 	if insideBlock {
 		//cs.addNodeToBlockToGraph(newNode)
 		keyContent := newContent.CreateKeywordFromSelf()
@@ -267,7 +218,7 @@ func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock boo
 
 // handleCloseMark handles when close mark has been entered.
 func (cs *CommandSyntax) handleCloseMark(contentInMark *string, cmd *Command, insideBlock bool,
-	inpath bool, piped bool) bool {
+	inpath bool, piped bool) (bool, bool) {
 	if contentInMark == nil {
 		panic("keyword not provided")
 	}
@@ -279,19 +230,20 @@ func (cs *CommandSyntax) handleCloseMark(contentInMark *string, cmd *Command, in
 		Default: label,
 	}
 	newNode := NewContentNode(keyContent.GetLabel(), keyContent)
-	//tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+	tools.ToDisplay("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
 	if insideBlock {
 		if !inpath {
 			cs.addNodeToGraph(newNode)
 			inpath = true
 		} else if piped {
 			cs.Graph.TerminatePathToBlock()
-			cs.addNodeToBlockToGraph(newNode)
+			cs.addNodeToGraph(newNode)
+			piped = false
 		} else {
 			cs.addNodeToGraph(newNode)
 		}
 	} else {
 		cs.addNodeToGraph(newNode)
 	}
-	return inpath
+	return inpath, piped
 }
