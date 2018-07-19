@@ -106,9 +106,11 @@ func (cn *ContentNode) Validate(ctx interface{}, line interface{}, index int) bo
 
 // NewContentNode creates a new content node instance.
 func NewContentNode(label string, content IContent) *ContentNode {
-	return &ContentNode{
+	cn := &ContentNode{
 		graph.NewNode(label, content),
 	}
+	cn.GraphPattern = content.GetGraphPattern()
+	return cn
 }
 
 // ContentNodeToNode casts a ContentNode to a Node

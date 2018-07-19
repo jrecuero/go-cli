@@ -192,7 +192,7 @@ func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock boo
 	newContent, _ := cmd.LookForArgument(label)
 	newNode := NewContentNode(label, newContent)
 	// Check if we are in a block, and use AddNodeToBlock in that case.
-	tools.ToDisplay("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+	tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
 	if insideBlock {
 		//cs.addNodeToBlockToGraph(newNode)
 		keyContent := newContent.CreateKeywordFromSelf()
@@ -230,7 +230,7 @@ func (cs *CommandSyntax) handleCloseMark(contentInMark *string, cmd *Command, in
 		Default: label,
 	}
 	newNode := NewContentNode(keyContent.GetLabel(), keyContent)
-	tools.ToDisplay("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+	tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
 	if insideBlock {
 		if !inpath {
 			cs.addNodeToGraph(newNode)

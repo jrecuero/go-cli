@@ -36,6 +36,8 @@ type Argument struct {
 	Default   interface{}  // default argument value
 }
 
+var argumentGraphPattern = ">%s]"
+
 // Setup initializes all argument fields.
 func (arg *Argument) Setup() *Argument {
 	if arg.completer == nil {
@@ -55,6 +57,11 @@ func (arg *Argument) Setup() *Argument {
 // GetType returns content type.
 func (arg *Argument) GetType() string {
 	return arg.Type
+}
+
+// GetGraphPattern returns the string with the graphical pattern.
+func (arg *Argument) GetGraphPattern() *string {
+	return &argumentGraphPattern
 }
 
 // Cast returns the casting for the argument type.

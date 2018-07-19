@@ -24,6 +24,7 @@ type Node struct {
 	InPath        bool
 	BlockID       int
 	AllowChildren bool
+	GraphPattern  *string
 	Content       interface{}
 }
 
@@ -60,17 +61,26 @@ func (n *Node) IsIn(array []*Node) bool {
 
 func (n *Node) mermaidLabel() string {
 	var buffer bytes.Buffer
+	graphPattern := n.GraphPattern
 	if n.BlockID == -1 {
 		if n.IsJoint == true {
 			buffer.WriteString(fmt.Sprintf("%s-%d((%s))", n.Label, n.id, n.Label))
 		} else {
-			buffer.WriteString(fmt.Sprintf("%s-%d[%s]", n.Label, n.id, n.Label))
+			if graphPattern == nil {
+				buffer.WriteString(fmt.Sprintf("%s-%d[%s]", n.Label, n.id, n.Label))
+			} else {
+				buffer.WriteString(fmt.Sprintf("%s-%d%s", n.Label, n.id, fmt.Sprintf(*graphPattern, n.Label)))
+			}
 		}
 	} else {
 		if n.IsJoint == true {
 			buffer.WriteString(fmt.Sprintf("%s-%d-%d((%s))", n.Label, n.id, n.BlockID, n.Label))
 		} else {
-			buffer.WriteString(fmt.Sprintf("%s-%d-%d[%s]", n.Label, n.id, n.BlockID, n.Label))
+			if graphPattern == nil {
+				buffer.WriteString(fmt.Sprintf("%s-%d-%d[%s]", n.Label, n.id, n.BlockID, n.Label))
+			} else {
+				buffer.WriteString(fmt.Sprintf("%s-%d-%d%s", n.Label, n.id, n.BlockID, fmt.Sprintf(*graphPattern, n.Label)))
+			}
 		}
 	}
 	return buffer.String()

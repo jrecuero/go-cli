@@ -81,6 +81,11 @@ func (c *Content) SetCompleter(completer ICompleter) bool {
 	return true
 }
 
+// GetGraphPattern returns the string with the graphical pattern.
+func (c *Content) GetGraphPattern() *string {
+	return nil
+}
+
 // NewContent returns a new Content instance.
 func NewContent(label string, help string, completer ICompleter) IContent {
 	return &Content{

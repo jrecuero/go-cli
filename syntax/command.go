@@ -21,6 +21,9 @@ type Command struct {
 	ismode         bool           // is the command a mode?
 }
 
+var commandGraphPattern = "[%s]"
+var modeGraphPattern = "{%s}"
+
 // IsCommand returns if content is a command.
 func (cmd *Command) IsCommand() bool {
 	return cmd.ismode == false
@@ -37,6 +40,14 @@ func (cmd *Command) GetStrType() string {
 		return "M"
 	}
 	return "C"
+}
+
+// GetGraphPattern returns the string with the graphical pattern.
+func (cmd *Command) GetGraphPattern() *string {
+	if cmd.ismode {
+		return &modeGraphPattern
+	}
+	return &commandGraphPattern
 }
 
 // LookForArgument searches for an argument in a Command with the given label.

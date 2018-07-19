@@ -16,4 +16,5 @@ type IContent interface {
 	IsMatchable() bool
 	GetStrType() string
 	SetCompleter(ICompleter) bool
+	GetGraphPattern() *string
 }
