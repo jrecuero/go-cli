@@ -5,6 +5,7 @@ import (
 
 	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/parser"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // CommandSyntax represents the command syntax.
@@ -64,6 +65,12 @@ func (cs *CommandSyntax) addNodeToBlockToGraph(cn *ContentNode) bool {
 	return cs.Graph.AddNodeToBlock(ContentNodeToNode(cn))
 }
 
+// addNodeToPathToBlockToGraph adds a content node to a block graph with proper
+// casting.
+func (cs *CommandSyntax) addNodeToPathToBlockToGraph(cn *ContentNode) bool {
+	return cs.Graph.AddPathToBlock(ContentNodeToNode(cn))
+}
+
 // addNodeAndNodeToBlockToGraph adds a key-value pair to a block graph with
 // proper casting.
 func (cs *CommandSyntax) addNodeAndNodeToBlockToGraph(cnkey *ContentNode, cnval *ContentNode) bool {
@@ -77,42 +84,50 @@ func (cs *CommandSyntax) addNodeAndNodeToPathBlockToGraph(cnkey *ContentNode, cn
 }
 
 // CreateGraph creates graph using parsed syntax.
-func (cs *CommandSyntax) CreateGraph(c *Command) bool {
-	if c.HasChildren && cs.Graph.Next == nil {
+func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
+	if cmd.HasChildren && cs.Graph.Next == nil {
 		cs.Graph.Next = graph.NewNodeNext(NewContentJoint("Next", "Next content", NewCompleterJoint("next")))
 	}
 	commandLabel := cs.Parsed.Command
-	cs.addNodeToGraph(NewContentNode(commandLabel, c))
+	cs.addNodeToGraph(NewContentNode(commandLabel, cmd))
 	var insideBlock bool
 	var piped bool
+	var openMark bool
+	var contentInMark *string
 	var inpath bool
 	var block graph.BlockType
 	for i, tok := range cs.Parsed.Tokens {
 		switch tok {
 		case parser.IDENT:
 			label := cs.Parsed.Arguments[i]
-			newContent, _ := c.LookForArgument(label)
-			newNode := NewContentNode(label, newContent)
-			// Check if we are in a block, and use AddNodeToBlock in that case.
-			if insideBlock == true {
-				//cs.addNodeToBlockToGraph(newNode)
-				keyContent := newContent.CreateKeywordFromSelf()
-				keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
-				if !inpath {
-					// First token in a block should always be a key-pair.
-					cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
-				} else if piped {
-					// Next tokens shoudl check if a pipied has been found, it
-					// piped was present, the add a key-pair.
-					cs.Graph.TerminatePathToBlock()
-					cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
-				} else {
-					// If pipe as not been found, then add a simple node.
-					cs.addNodeToGraph(newNode)
-				}
-				inpath = true
+			if openMark {
+				contentInMark = &label
 			} else {
-				cs.addNodeToGraph(newNode)
+				inpath = cs.handleIdent(label, cmd, insideBlock, inpath, piped)
+				//newContent, _ := cmd.LookForArgument(label)
+				//newNode := NewContentNode(label, newContent)
+				//// Check if we are in a block, and use AddNodeToBlock in that case.
+				////tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+				//if insideBlock == true {
+				//    //cs.addNodeToBlockToGraph(newNode)
+				//    keyContent := newContent.CreateKeywordFromSelf()
+				//    keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
+				//    if !inpath {
+				//        // First token in a block should always be a key-pair.
+				//        cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+				//    } else if piped {
+				//        // Next tokens should check if a piped has been found,
+				//        // if piped was present, the add a key-pair.
+				//        cs.Graph.TerminatePathToBlock()
+				//        cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+				//    } else {
+				//        // If pipe has not been found, then add a simple node.
+				//        cs.addNodeToGraph(newNode)
+				//    }
+				//    inpath = true
+				//} else {
+				//    cs.addNodeToGraph(newNode)
+				//}
 			}
 			break
 		case parser.OPENBRACKET:
@@ -184,19 +199,99 @@ func (cs *CommandSyntax) CreateGraph(c *Command) bool {
 			piped = false
 			break
 		case parser.OPENMARK:
-			if insideBlock == false {
-				return false
-			}
-			piped = false
+			openMark = true
 			break
 		case parser.CLOSEMARK:
-			if insideBlock == false {
-				return false
-			}
-			piped = false
+			inpath = cs.handleCloseMark(contentInMark, cmd, insideBlock, inpath, piped)
+			//if contentInMark == nil {
+			//    panic("keyword not provided")
+			//}
+			//label := tools.String(contentInMark)
+			//newContent, _ := cmd.LookForArgument(label)
+			//keyContent := &Argument{
+			//    Content: NewContent(label, newContent.help, NewCompleterIdent(label)).(*Content),
+			//    Type:    "string",
+			//    Default: label,
+			//}
+			//newNode := NewContentNode(keyContent.GetLabel(), keyContent)
+			////tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+			//if insideBlock {
+			//    if !inpath {
+			//        cs.addNodeToGraph(newNode)
+			//        inpath = true
+			//    } else if piped {
+			//        cs.Graph.TerminatePathToBlock()
+			//        cs.addNodeToBlockToGraph(newNode)
+			//    } else {
+			//        cs.addNodeToGraph(newNode)
+			//    }
+			//} else {
+			//    cs.addNodeToGraph(newNode)
+			//}
+			openMark = false
 			break
 		}
 	}
 	cs.Graph.Terminate()
 	return true
+}
+
+// handleIdent handles when ident has been entered.
+func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock bool, inpath bool, piped bool) bool {
+	newContent, _ := cmd.LookForArgument(label)
+	newNode := NewContentNode(label, newContent)
+	// Check if we are in a block, and use AddNodeToBlock in that case.
+	//tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+	if insideBlock {
+		//cs.addNodeToBlockToGraph(newNode)
+		keyContent := newContent.CreateKeywordFromSelf()
+		keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
+		if !inpath {
+			// First token in a block should always be a key-pair.
+			cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+		} else if piped {
+			// Next tokens should check if a piped has been found,
+			// if piped was present, the add a key-pair.
+			cs.Graph.TerminatePathToBlock()
+			cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+		} else {
+			// If pipe has not been found, then add a simple node.
+			cs.addNodeToGraph(newNode)
+		}
+		inpath = true
+	} else {
+		cs.addNodeToGraph(newNode)
+	}
+	return inpath
+}
+
+// handleCloseMark handles when close mark has been entered.
+func (cs *CommandSyntax) handleCloseMark(contentInMark *string, cmd *Command, insideBlock bool,
+	inpath bool, piped bool) bool {
+	if contentInMark == nil {
+		panic("keyword not provided")
+	}
+	label := tools.String(contentInMark)
+	newContent, _ := cmd.LookForArgument(label)
+	keyContent := &Argument{
+		Content: NewContent(label, newContent.help, NewCompleterIdent(label)).(*Content),
+		Type:    "string",
+		Default: label,
+	}
+	newNode := NewContentNode(keyContent.GetLabel(), keyContent)
+	//tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+	if insideBlock {
+		if !inpath {
+			cs.addNodeToGraph(newNode)
+			inpath = true
+		} else if piped {
+			cs.Graph.TerminatePathToBlock()
+			cs.addNodeToBlockToGraph(newNode)
+		} else {
+			cs.addNodeToGraph(newNode)
+		}
+	} else {
+		cs.addNodeToGraph(newNode)
+	}
+	return inpath
 }

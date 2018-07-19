@@ -98,6 +98,39 @@ func SetupCommands() []*syntax.Command {
 		return nil
 	}
 
+	terminalCmd := syntax.NewCommand(nil, "terminal [device | remote]!", "Configure terminal",
+		[]*syntax.Argument{
+			syntax.NewArgument("device", "Terminal device", nil, "string", "device", nil),
+			syntax.NewArgument("remote", "Remote Device", nil, "string", "terminal", nil),
+		}, nil)
+	terminalCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tools.ToDisplay("terminal executed on device: %#v remote: %#v\n", params["device"], params["remote"])
+		return nil
+	}
+
+	systemCmd := syntax.NewCommand(nil, "system <ip>", "Configure terminal",
+		[]*syntax.Argument{
+			syntax.NewArgument("ip", "IP address", nil, "string", "", nil),
+		}, nil)
+	systemCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tools.ToDisplay("system for ip: %#v\n", params["ip"])
+		return nil
+	}
+
+	helpCmd := syntax.NewCommand(nil, "help [<set> | <get>]?", "Application help",
+		[]*syntax.Argument{
+			syntax.NewArgument("set", "Help for set command", nil, "string", "", nil),
+			syntax.NewArgument("speed", "Help for set speed command", nil, "string", "", nil),
+			syntax.NewArgument("get", "Help for get command", nil, "string", "", nil),
+		}, nil)
+	helpCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tools.ToDisplay("help for command: %#v %#v %#v\n", params["set"], params["speed"], params["get"])
+		return nil
+	}
+
 	commands := []*syntax.Command{
 		setCmd,
 		getCmd,
@@ -109,6 +142,9 @@ func SetupCommands() []*syntax.Command {
 		setSpeedDeviceCmd,
 		configCmd,
 		configDescCmd,
+		terminalCmd,
+		systemCmd,
+		helpCmd,
 	}
 	return commands
 }

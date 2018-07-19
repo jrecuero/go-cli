@@ -164,7 +164,9 @@ func (g *Graph) AddIdentAndAnyToPathBlock(ident *Node, any *Node) bool {
 
 // TerminatePathToBlock terminated a node path in a graph block.
 func (g *Graph) TerminatePathToBlock() bool {
-	g.Hook.AddChild(g.ActiveBlock.Loop)
+	if g.Hook != g.ActiveBlock.Start {
+		g.Hook.AddChild(g.ActiveBlock.Loop)
+	}
 	g.setupHookToBlockStart()
 	return true
 }
