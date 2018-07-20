@@ -24,16 +24,6 @@ type Matcher struct {
 	Rooter  *graph.Node  // parsing tree root for any handling.
 }
 
-// Match matches if a node is matched for a token.
-func (m *Matcher) Match(line interface{}) (interface{}, bool) {
-	//tools.Tracer("line: %v\n", line)
-	slice := strings.Fields(line.(string))
-	m.Ctx.GetProcess().Set(MATCH)
-	result := m.matchCommandLine(slice)
-	m.Ctx.GetProcess().Clean()
-	return nil, result
-}
-
 // matchCommandLine matches the given command line with the graph.
 func (m *Matcher) matchCommandLine(line interface{}) bool {
 	//tools.Tracer("line: %v\n", line)
@@ -91,53 +81,6 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 	}
 	m.Ctx.UpdateCommandBox()
 	return index, true
-}
-
-// Execute executes the command for the given command line.
-func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
-	m.Ctx.GetProcess().Set(EXECUTE)
-	if _, ok := m.Match(line); !ok {
-		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %#v\n", ok, line)
-		return nil, false
-	}
-	//for _, t := range m.Ctx.Matched {
-	//    tools.Debug("matched %#v\n", t)
-	//}
-	//for i, token := range m.Ctx.GetCommandBox() {
-	//    for _, a := range token.ArgValues {
-	//        tools.Debug("%d cmdbox.argvalue %#v\n", i, a)
-	//    }
-	//}
-	for i, token := range m.Ctx.GetCommandBox() {
-		cmd := token.Cmd
-		//tools.Debug("%d command %#v run-as-no-final: %#v\n", i, cmd.GetLabel(), cmd.RunAsNoFinal)
-		lenCommandBox := len(m.Ctx.GetCommandBox()) - 1
-		if (i < lenCommandBox && cmd.RunAsNoFinal) || (i == lenCommandBox) {
-			if i < lenCommandBox && cmd.RunAsNoFinal {
-				m.Ctx.GetProcess().Append(RUNASNOFINAL)
-			}
-			args, err := m.Ctx.GetArgValuesForCommandLabel(tools.PString(cmd.GetLabel()))
-			if err != nil {
-				tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
-				return nil, false
-			}
-			cmd.Enter(m.Ctx, args)
-			if i < lenCommandBox && cmd.RunAsNoFinal {
-				m.Ctx.GetProcess().Remove(RUNASNOFINAL)
-			}
-		}
-	}
-	if ok, _ := m.Ctx.GetProcess().Check(POPMODE); ok {
-		modeBox := m.Ctx.PopMode()
-		m.Rooter = modeBox.Anchor
-	} else if m.Ctx.GetLastCommand().IsMode() {
-		m.Ctx.PushMode(m.Rooter)
-		lastAnchor := m.Ctx.GetLastAnchor()
-		m.Rooter = lastAnchor
-	}
-	m.Ctx.GetProcess().Clean()
-	m.Ctx.Clean()
-	return nil, true
 }
 
 // workerComplete gets all complete options for the given node.
@@ -198,12 +141,12 @@ func (m *Matcher) workerCompleteAndHelp(cn *ContentNode, tokens []string) interf
 // processCompleteAndHelp returns possible complete string or help for the
 // command line being entered.
 func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interface{}, bool) {
-	line := in.(string)
 	var lastCN *ContentNode
 	extendLine := false
-	tokens := strings.Fields(line)
+	tokens := m.tokenizeLine(in)
+	//tools.Tracer("tokenize-line: %#v\n", tokens)
 	m.Ctx.UpdateMatched(len(tokens))
-	if tools.LastChar(line) == " " {
+	if tools.LastChar(in.(string)) == " " {
 		tokens = append(tokens, "")
 		extendLine = true
 	}
@@ -250,29 +193,130 @@ func (m *Matcher) removeDuplicated(in interface{}) interface{} {
 	return result
 }
 
+func (m *Matcher) tokenizeLine(in interface{}) []string {
+	//tools.Tracer("%#v\n", in)
+	// This is the behavior that does not process quotes.
+	//tokens := strings.Fields(line.(string))
+	if in == " " {
+		return []string{}
+	}
+	tokens := strings.Split(strings.TrimSpace(in.(string)), " ")
+	//tools.Tracer("%#v\n", tokens)
+	toglue := false
+	var aux string
+	result := []string{}
+	for _, d := range tokens {
+		if toglue {
+			if strings.Contains(d, "\"") {
+				toglue = false
+				if d == "\"" {
+					aux += " "
+				} else {
+					aux += " " + strings.Replace(d, "\"", "", -1)
+				}
+				result = append(result, aux)
+			} else if d == "" {
+				aux += " "
+			} else {
+				aux += " " + d
+			}
+		} else if strings.Contains(d, "\"") {
+			toglue = true
+			if d == "\"" {
+				aux = " "
+			} else {
+				aux = strings.Replace(d, "\"", "", -1)
+			}
+		} else {
+			result = append(result, d)
+		}
+	}
+	if toglue {
+		result = append(result, aux)
+	}
+	return result
+}
+
+// Match matches if a node is matched for a token.
+func (m *Matcher) Match(line interface{}) (interface{}, bool) {
+	tokens := m.tokenizeLine(line)
+	//tools.Tracer("glue-line: %v\n", tokens)
+	m.Ctx.GetProcess().Set(MATCH)
+	result := m.matchCommandLine(tokens)
+	m.Ctx.GetProcess().Clean()
+	return nil, result
+}
+
+// Execute executes the command for the given command line.
+func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
+	m.Ctx.GetProcess().Set(EXECUTE)
+	if _, ok := m.Match(line); !ok {
+		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %#v\n", ok, line)
+		return nil, false
+	}
+	//for _, t := range m.Ctx.Matched {
+	//    tools.Debug("matched %#v\n", t)
+	//}
+	//for i, token := range m.Ctx.GetCommandBox() {
+	//    for _, a := range token.ArgValues {
+	//        tools.Debug("%d cmdbox.argvalue %#v\n", i, a)
+	//    }
+	//}
+	for i, token := range m.Ctx.GetCommandBox() {
+		cmd := token.Cmd
+		//tools.Debug("%d command %#v run-as-no-final: %#v\n", i, cmd.GetLabel(), cmd.RunAsNoFinal)
+		lenCommandBox := len(m.Ctx.GetCommandBox()) - 1
+		if (i < lenCommandBox && cmd.RunAsNoFinal) || (i == lenCommandBox) {
+			if i < lenCommandBox && cmd.RunAsNoFinal {
+				m.Ctx.GetProcess().Append(RUNASNOFINAL)
+			}
+			args, err := m.Ctx.GetArgValuesForCommandLabel(tools.PString(cmd.GetLabel()))
+			if err != nil {
+				tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
+				return nil, false
+			}
+			cmd.Enter(m.Ctx, args)
+			if i < lenCommandBox && cmd.RunAsNoFinal {
+				m.Ctx.GetProcess().Remove(RUNASNOFINAL)
+			}
+		}
+	}
+	if ok, _ := m.Ctx.GetProcess().Check(POPMODE); ok {
+		modeBox := m.Ctx.PopMode()
+		m.Rooter = modeBox.Anchor
+	} else if m.Ctx.GetLastCommand().IsMode() {
+		m.Ctx.PushMode(m.Rooter)
+		lastAnchor := m.Ctx.GetLastAnchor()
+		m.Rooter = lastAnchor
+	}
+	m.Ctx.GetProcess().Clean()
+	m.Ctx.Clean()
+	return nil, true
+}
+
 // Complete returns possible complete string for command line being entered.
-func (m *Matcher) Complete(in interface{}) (interface{}, bool) {
-	//tools.Tracer("line: %v\n", in)
+func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
+	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(COMPLETE)
-	result, ok := m.processCompleteAndHelp(in, m.workerComplete)
+	result, ok := m.processCompleteAndHelp(line, m.workerComplete)
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
 
 // Help returns the help for a node if it is matched.
-func (m *Matcher) Help(in interface{}) (interface{}, bool) {
-	//tools.Tracer("line: %v\n", in)
+func (m *Matcher) Help(line interface{}) (interface{}, bool) {
+	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(HELP)
-	result, ok := m.processCompleteAndHelp(in, m.workerHelp)
+	result, ok := m.processCompleteAndHelp(line, m.workerHelp)
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
 
 // CompleteAndHelp returns possible complete string for command line being entered.
-func (m *Matcher) CompleteAndHelp(in interface{}) (interface{}, bool) {
-	//tools.Tracer("line: %v\n", in)
+func (m *Matcher) CompleteAndHelp(line interface{}) (interface{}, bool) {
+	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(COMPLETE)
-	result, ok := m.processCompleteAndHelp(in, m.workerCompleteAndHelp)
+	result, ok := m.processCompleteAndHelp(line, m.workerCompleteAndHelp)
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
