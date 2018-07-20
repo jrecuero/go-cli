@@ -3,6 +3,7 @@ package syntax
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // CastingCall represents the function for casting the argument type.
@@ -51,6 +52,18 @@ func AssignFreeForm(argcontent interface{}, val interface{}) interface{} {
 	return argcontent.(string) + " " + val.(string)
 }
 
+// AssignMap performs a value assignment.
+func AssignMap(argcontent interface{}, val interface{}) interface{} {
+	entry := strings.Split(val.(string), ":")
+	mapEntry := map[string]string{entry[0]: entry[1]}
+	if argcontent == nil {
+		return mapEntry
+	}
+	argcontent.(map[string]string)[entry[0]] = entry[1]
+	return argcontent
+}
+
+// argmapper represents the structure with all mapper functions.
 type argmapper struct {
 	casting  CastingCall
 	assigner AssignerCall
@@ -61,6 +74,7 @@ var callerMap = map[string]argmapper{
 	"int":      argmapper{CastInt, AssignInt},
 	"list":     argmapper{CastString, AssignStringList},
 	"freeform": argmapper{CastString, AssignFreeForm},
+	"map":      argmapper{CastString, AssignMap},
 }
 
 // Argument represents any CLI argument information.

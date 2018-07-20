@@ -154,6 +154,16 @@ func SetupCommands() []*syntax.Command {
 		return nil
 	}
 
+	configDbaseCmd := syntax.NewCommand(configCmd, "dbase [fields]@", "Configure database",
+		[]*syntax.Argument{
+			syntax.NewArgument("fields", "dbase fields", nil, "map", "base:none", nil),
+		}, nil)
+	configDbaseCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tools.ToDisplay("configure database: %#v\n", params["fields"])
+		return nil
+	}
+
 	commands := []*syntax.Command{
 		setCmd,
 		getCmd,
@@ -169,7 +179,7 @@ func SetupCommands() []*syntax.Command {
 		configCmd,
 		configDescCmd,
 		configIPCmd,
-		configEthCmd,
+		configDbaseCmd,
 	}
 	return commands
 }
