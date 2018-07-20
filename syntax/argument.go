@@ -8,6 +8,9 @@ import (
 // CastingCall represents the function for casting the argument type.
 type CastingCall func(val string) (interface{}, error)
 
+// AssignerCall represents the function for casting the argument type.
+type AssignerCall func(argcontent interface{}, val interface{}) interface{}
+
 // ValidateCall represents the function for validating the argument value.
 type ValidateCall func(val interface{}) (bool, error)
 
@@ -22,9 +25,42 @@ func CastString(val string) (interface{}, error) {
 	return val, nil
 }
 
-var castingMap = map[string]CastingCall{
-	"string": CastString,
-	"int":    CastInt,
+// AssignInt performs a value assignment.
+func AssignInt(argcontent interface{}, val interface{}) interface{} {
+	return val
+}
+
+// AssignString performs a value assignment.
+func AssignString(argcontent interface{}, val interface{}) interface{} {
+	return val
+}
+
+// AssignStringList performs a value assignment.
+func AssignStringList(argcontent interface{}, val interface{}) interface{} {
+	if argcontent == nil {
+		return []string{val.(string)}
+	}
+	return append(argcontent.([]string), val.(string))
+}
+
+// AssignFreeForm performs a value assignment.
+func AssignFreeForm(argcontent interface{}, val interface{}) interface{} {
+	if argcontent == nil {
+		return val.(string)
+	}
+	return argcontent.(string) + " " + val.(string)
+}
+
+type argmapper struct {
+	casting  CastingCall
+	assigner AssignerCall
+}
+
+var callerMap = map[string]argmapper{
+	"string":   argmapper{CastString, AssignString},
+	"int":      argmapper{CastInt, AssignInt},
+	"list":     argmapper{CastString, AssignStringList},
+	"freeform": argmapper{CastString, AssignFreeForm},
 }
 
 // Argument represents any CLI argument information.
@@ -32,6 +68,7 @@ type Argument struct {
 	*Content               // argument content
 	Type      string       // identifies the type of argument.
 	Caster    CastingCall  // caster method to obtein proper argument value.
+	Assigner  AssignerCall // assigner will copy the data passed.
 	Validator ValidateCall // validator method that validates argument value.
 	Default   interface{}  // default argument value
 }
@@ -44,11 +81,19 @@ func (arg *Argument) Setup() *Argument {
 		arg.completer = NewCompleterArgument(arg.GetLabel())
 	}
 	if arg.Caster == nil {
-		castingCall, ok := castingMap[arg.Type]
+		mapper, ok := callerMap[arg.Type]
 		if ok {
-			arg.Caster = castingCall
+			arg.Caster = mapper.casting
 		} else {
 			panic(fmt.Sprintf("argument type %#v does not have casting call", arg.Type))
+		}
+	}
+	if arg.Assigner == nil {
+		mapper, ok := callerMap[arg.Type]
+		if ok {
+			arg.Assigner = mapper.assigner
+		} else {
+			panic(fmt.Sprintf("argument type %#v does not have assigner call", arg.Type))
 		}
 	}
 	return arg
@@ -70,6 +115,14 @@ func (arg *Argument) Cast(val string) (interface{}, error) {
 		return arg.Caster(val)
 	}
 	return val, nil
+}
+
+// Assign returns the casting for the argument type.
+func (arg *Argument) Assign(argcontent interface{}, val interface{}) interface{} {
+	if arg.Assigner != nil {
+		return arg.Assigner(argcontent, val)
+	}
+	return nil
 }
 
 // Validate checks in the argument value is a valid one.

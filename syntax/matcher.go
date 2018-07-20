@@ -57,7 +57,8 @@ func (m *Matcher) traverseAndMatchGraph(node *graph.Node, tokens []string, index
 	}
 	for _, n := range node.Children {
 		cn := NodeToContentNode(n)
-		//tools.Debug("node check for matching: %d %s => %#v\n", index, tokens[index], cn.GetContent().GetLabel())
+		//tools.Debug("node: %#v check for matching: %d %s => %#v\n",
+		//    NodeToContentNode(node).GetContent().GetLabel(), index, tokens[index], cn.GetContent().GetLabel())
 		if indexMatched, ok := cn.Match(m.Ctx, tokens, index); ok {
 			//tools.Debug("node matched: %d:%d %v %s => %v\n", indexMatched, index, ok, tokens[index], cn.GetContent().GetLabel())
 			child := n
@@ -102,6 +103,11 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	//for _, t := range m.Ctx.Matched {
 	//    tools.Debug("matched %#v\n", t)
 	//}
+	//for i, token := range m.Ctx.GetCommandBox() {
+	//    for _, a := range token.ArgValues {
+	//        tools.Debug("%d cmdbox.argvalue %#v\n", i, a)
+	//    }
+	//}
 	for i, token := range m.Ctx.GetCommandBox() {
 		cmd := token.Cmd
 		//tools.Debug("%d command %#v run-as-no-final: %#v\n", i, cmd.GetLabel(), cmd.RunAsNoFinal)
@@ -121,13 +127,6 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 			}
 		}
 	}
-	//args, err := m.Ctx.GetArgValuesForCommandLabel(nil)
-	//if err != nil {
-	//    tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
-	//    return nil, false
-	//}
-	//command := m.Ctx.GetLastCommand()
-	//command.Enter(m.Ctx, args)
 	if ok, _ := m.Ctx.GetProcess().Check(POPMODE); ok {
 		modeBox := m.Ctx.PopMode()
 		m.Rooter = modeBox.Anchor
@@ -232,7 +231,23 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 	}
 	result := worker(lastCN, tokens)
 	//tools.Debug("line: %#v tokens: %#v results (%#v): %#v\n", line, tokens, lastCN.GetContent().GetLabel(), result)
+	result = m.removeDuplicated(result)
 	return result, true
+}
+
+func (m *Matcher) removeDuplicated(in interface{}) interface{} {
+	tokens := in.([]*ComplexComplete)
+	result := []*ComplexComplete{}
+	keys := []string{}
+	for _, tok := range tokens {
+		//tools.Debug("tok: %#v\n", tok)
+		key := tok.Complete.(string) + " " + tok.Help.(string)
+		if tools.SearchKeyInTable(keys, key) != nil {
+			keys = append(keys, key)
+			result = append(result, tok)
+		}
+	}
+	return result
 }
 
 // Complete returns possible complete string for command line being entered.

@@ -144,6 +144,16 @@ func SetupCommands() []*syntax.Command {
 		return nil
 	}
 
+	configEthCmd := syntax.NewCommand(configCmd, "eth [mac]@", "Configure ethernet mac address",
+		[]*syntax.Argument{
+			syntax.NewArgument("mac", "mac address", nil, "freeform", "", nil),
+		}, nil)
+	configEthCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tools.ToDisplay("config mac address: %#v\n", params["mac"])
+		return nil
+	}
+
 	commands := []*syntax.Command{
 		setCmd,
 		getCmd,
@@ -159,6 +169,7 @@ func SetupCommands() []*syntax.Command {
 		configCmd,
 		configDescCmd,
 		configIPCmd,
+		configEthCmd,
 	}
 	return commands
 }

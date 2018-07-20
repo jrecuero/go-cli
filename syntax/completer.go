@@ -167,7 +167,7 @@ type CompleterArgument struct {
 func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interface{}, index int) (int, bool) {
 	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
-	if tokens[index] == "" {
+	if tokens[index] == "" || tokens[index] == _cr {
 		return index, false
 	}
 	// When complete or help process, it should not match if it is still

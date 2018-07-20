@@ -21,6 +21,7 @@ var mapTokenToBlock = map[parser.Token]graph.BlockType{
 	parser.ASTERISK:   graph.LOOPandSKIP,
 	parser.PLUS:       graph.LOOPandNOSKIP,
 	parser.ADMIRATION: graph.NOLOOPandNOSKIP,
+	parser.AT:         graph.LOOPandSKIP,
 }
 
 // NewCommandSyntax returns a new instance of CommandSyntax.
@@ -95,6 +96,7 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 	var openMark bool
 	var contentInMark *string
 	var inpath bool
+	var blockEndToken = parser.ILLEGAL
 	var block graph.BlockType
 	for i, tok := range cs.Parsed.Tokens {
 		switch tok {
@@ -103,7 +105,7 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			if openMark {
 				contentInMark = &label
 			} else {
-				inpath = cs.handleIdent(label, cmd, insideBlock, inpath, piped)
+				inpath = cs.handleIdent(label, cmd, insideBlock, inpath, piped, blockEndToken)
 			}
 			break
 		case parser.OPENBRACKET:
@@ -114,9 +116,9 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			// Look forward in the parsed syntax in order to identify which
 			// kind of block has to be created.
 			// Look for the next entry after parser.CLOSEBRACKET.
-			endTok, _ := lookForCloseBracket(cs.Parsed.Tokens, i)
-			block = mapTokenToBlock[endTok]
-			//tools.Tester("index=%d token=%d block=%d\n", index, endTok, block)
+			blockEndToken, _ = lookForCloseBracket(cs.Parsed.Tokens, i)
+			block = mapTokenToBlock[blockEndToken]
+			//tools.Debug("index=%d token=%d block=%d\n", i, blockEndToken, block)
 			// Create the graph block, any node while in the block should be
 			// added to this block.
 			graph.MapBlockToGraphFunc[block](cs.Graph)
@@ -133,6 +135,7 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			cs.Graph.EndLoop()
 			piped = false
 			inpath = false
+			blockEndToken = parser.ILLEGAL
 			break
 		case parser.PIPE:
 			if insideBlock == false {
@@ -169,9 +172,10 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			piped = false
 			break
 		case parser.AT:
-			if insideBlock == true {
+			if insideBlock == true || block != graph.LOOPandSKIP {
 				return false
 			}
+			block = graph.NOBLOCK
 			piped = false
 			break
 		case parser.OPENMARK:
@@ -188,26 +192,32 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 }
 
 // handleIdent handles when ident has been entered.
-func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock bool, inpath bool, piped bool) bool {
+func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock bool, inpath bool,
+	piped bool, blockEndToken parser.Token) bool {
 	newContent, _ := cmd.LookForArgument(label)
 	newNode := NewContentNode(label, newContent)
 	// Check if we are in a block, and use AddNodeToBlock in that case.
-	tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
+	//tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v endtoken:%#v\n",
+	//    label, insideBlock, piped, inpath, blockEndToken)
 	if insideBlock {
-		//cs.addNodeToBlockToGraph(newNode)
-		keyContent := newContent.CreateKeywordFromSelf()
-		keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
-		if !inpath {
-			// First token in a block should always be a key-pair.
-			cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
-		} else if piped {
-			// Next tokens should check if a piped has been found,
-			// if piped was present, the add a key-pair.
-			cs.Graph.TerminatePathToBlock()
-			cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
-		} else {
-			// If pipe has not been found, then add a simple node.
+		if blockEndToken == parser.AT {
 			cs.addNodeToGraph(newNode)
+		} else {
+			//cs.addNodeToBlockToGraph(newNode)
+			keyContent := newContent.CreateKeywordFromSelf()
+			keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
+			if !inpath {
+				// First token in a block should always be a key-pair.
+				cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+			} else if piped {
+				// Next tokens should check if a piped has been found,
+				// if piped was present, the add a key-pair.
+				cs.Graph.TerminatePathToBlock()
+				cs.addNodeAndNodeToPathBlockToGraph(keyNode, newNode)
+			} else {
+				// If pipe has not been found, then add a simple node.
+				cs.addNodeToGraph(newNode)
+			}
 		}
 		inpath = true
 	} else {
