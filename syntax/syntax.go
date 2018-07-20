@@ -205,6 +205,7 @@ func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock boo
 		} else {
 			//cs.addNodeToBlockToGraph(newNode)
 			keyContent := newContent.CreateKeywordFromSelf()
+			keyContent.Setup()
 			keyNode := NewContentNode(keyContent.GetLabel(), keyContent)
 			if !inpath {
 				// First token in a block should always be a key-pair.
@@ -235,10 +236,14 @@ func (cs *CommandSyntax) handleCloseMark(contentInMark *string, cmd *Command, in
 	label := tools.String(contentInMark)
 	newContent, _ := cmd.LookForArgument(label)
 	keyContent := &Argument{
-		Content: NewContent(label, newContent.help, NewCompleterIdent(label)).(*Content),
-		Type:    "string",
-		Default: label,
+		Content:   NewContent(label, newContent.help, NewCompleterIdent(label)).(*Content),
+		Type:      newContent.Type,
+		Caster:    newContent.Caster,
+		Assigner:  newContent.Assigner,
+		Validator: newContent.Validator,
+		Default:   newContent.Default,
 	}
+	//keyContent.Setup()
 	newNode := NewContentNode(keyContent.GetLabel(), keyContent)
 	tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v\n", label, insideBlock, piped, inpath)
 	if insideBlock {

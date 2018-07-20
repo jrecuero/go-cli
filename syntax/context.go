@@ -283,10 +283,16 @@ func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, 
 	if icmd, err := ctx.GetCmdBoxIndexForCommandLabel(cmdlabel); err == nil {
 		for _, argval := range ctx.cmdbox[icmd].ArgValues {
 			if r, err := argval.Arg.Cast(argval.Value.(string)); err == nil {
-				//tools.Debug("set arg %#v : %#v\n", argval.Arg.GetLabel(), r)
 				result[argval.Arg.GetLabel()] = argval.Arg.Assign(result[argval.Arg.GetLabel()], r)
+				//tools.Debug("set arg %#v : %#v result: %#v\n", argval.Arg.GetLabel(), r, result)
 			} else {
 				return nil, tools.ERROR(err, false, "Argument casting failed %#v", err)
+			}
+		}
+		for _, argo := range ctx.cmdbox[icmd].Cmd.Arguments {
+			//tools.Debug("argo %#v : %#v\n", argo.GetLabel(), argo.Default)
+			if result[argo.GetLabel()] == nil {
+				result[argo.GetLabel()] = argo.Default
 			}
 		}
 		return result, nil

@@ -91,6 +91,7 @@ func (arg *Argument) Setup() *Argument {
 	if arg.Assigner == nil {
 		mapper, ok := callerMap[arg.Type]
 		if ok {
+			//tools.Debug("mapping arg: %#v type: %#v assigner: %#v\n", arg.GetLabel(), arg.GetType(), mapper.assigner)
 			arg.Assigner = mapper.assigner
 		} else {
 			panic(fmt.Sprintf("argument type %#v does not have assigner call", arg.Type))
@@ -119,6 +120,7 @@ func (arg *Argument) Cast(val string) (interface{}, error) {
 
 // Assign returns the casting for the argument type.
 func (arg *Argument) Assign(argcontent interface{}, val interface{}) interface{} {
+	//tools.Debug("arg: %#v type: %#v assigner: %#v\n", arg.GetLabel(), arg.GetType(), arg.Assigner)
 	if arg.Assigner != nil {
 		return arg.Assigner(argcontent, val)
 	}

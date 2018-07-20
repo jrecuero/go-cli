@@ -134,9 +134,9 @@ func SetupCommands() []*syntax.Command {
 	configIPCmd := syntax.NewCommand(configCmd, "ip [<IPV4> addr4 | <IPV6> addr6]!", "Configure ip for IPV4 or IPV6",
 		[]*syntax.Argument{
 			syntax.NewArgument("IPV4", "IPV4 address schema", nil, "string", "IPV4", nil),
-			syntax.NewArgument("addr4", "IPV4 address", nil, "string", "", nil),
+			syntax.NewArgument("addr4", "IPV4 address", nil, "string", "0.0.0.0", nil),
 			syntax.NewArgument("IPV6", "IPV6 address schema", nil, "string", "IPV6", nil),
-			syntax.NewArgument("addr6", "IPV6 address", nil, "string", "", nil),
+			syntax.NewArgument("addr6", "IPV6 address", nil, "string", "0:0:0:0:0:0", nil),
 		}, nil)
 	configIPCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		params := arguments.(map[string]interface{})
@@ -146,7 +146,7 @@ func SetupCommands() []*syntax.Command {
 
 	configEthCmd := syntax.NewCommand(configCmd, "eth [mac]@", "Configure ethernet mac address",
 		[]*syntax.Argument{
-			syntax.NewArgument("mac", "mac address", nil, "freeform", "", nil),
+			syntax.NewArgument("mac", "mac address", nil, "freeform", "nothing to declare", nil),
 		}, nil)
 	configEthCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		params := arguments.(map[string]interface{})
