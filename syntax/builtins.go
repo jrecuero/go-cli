@@ -3,6 +3,8 @@ package syntax
 import (
 	"os"
 	"strings"
+
+	"github.com/jrecuero/go-cli/tools"
 )
 
 func init() {
@@ -44,4 +46,31 @@ func NewExitCommand() *Command {
 	exitCmd.IsBuiltIn = true
 	exitCmd.SetCompleter(&completerExit{NewCompleterCommand(exitCmd.GetLabel())})
 	return exitCmd
+}
+
+// NewDebugCommand generates a new debug mode
+func NewDebugCommand() *Command {
+	debugCmd := NewCommand(nil, "debug [<parse> | <command>]?", "Debug command",
+		[]*Argument{
+			NewArgument("parse", "Parse tree graph", nil, "string", "none", nil),
+			NewArgument("command", "Command tree graph", nil, "string", "none", nil),
+		}, nil)
+	debugCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		if nsm, err := ctx.Cache.Get("nsm"); err == nil {
+			if params["parse"] == "parse" {
+				tools.ToDisplay(nsm.(*NSManager).GetParseTree().ToMermaid())
+			}
+			if params["command"] == "command" {
+				tools.ToDisplay(nsm.(*NSManager).GetCommandTree().ToMermaid())
+			}
+		}
+		return nil
+	}
+	return debugCmd
+}
+
+// NewBuiltins returns all builtin commands
+func NewBuiltins() []*Command {
+	return []*Command{NewExitCommand(), NewDebugCommand()}
 }

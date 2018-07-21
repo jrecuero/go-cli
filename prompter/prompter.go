@@ -32,6 +32,8 @@ func (pr *Prompter) executor(in string) {
 	}
 	fmt.Println("Your input: " + in)
 	tools.Info("Running command line %#v\n", in)
+	// Pass the NSManager to the context cache to be used by internal commands.
+	pr.NSM.GetContext().Cache.Add("nsm", pr.NSM)
 	if _, ok := pr.NSM.Execute(in); !ok {
 		fmt.Errorf("execute return %#v for line: %s", ok, in)
 		return
