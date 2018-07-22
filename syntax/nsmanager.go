@@ -94,7 +94,19 @@ func (nsm *NSManager) CreateCommandTree() error {
 		cmdNode := nsm.cmdTree.AddTo(parent, cmd)
 		if cmd.IsMode() {
 			// Add all builtins commands
-			nsm.cmdTree.AddTo(ContentNodeToNode(cmdNode), NewExitCommand())
+			for _, cmdBuiltin := range NewBuiltins() {
+				if cmd.GetLabel() != cmdBuiltin.GetLabel() {
+					newHookNode := ContentNodeToNode(cmdNode)
+					if cmdBuiltin.Parent == nil {
+						nsm.cmdTree.AddTo(newHookNode, cmdBuiltin)
+					} else {
+						parent = nsm.cmdTree.SearchFlatUnder(newHookNode, cmdBuiltin.Parent)
+						if parent != nil {
+							nsm.cmdTree.AddTo(parent, cmdBuiltin)
+						}
+					}
+				}
+			}
 		}
 	}
 	return nil

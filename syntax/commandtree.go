@@ -58,6 +58,11 @@ func (ct *CommandTree) SearchFlat(cmd *Command) *graph.Node {
 	return ct.searchFlat(ct.Root, cmd)
 }
 
+// SearchFlatUnder looks for the given command in the Command Tree.
+func (ct *CommandTree) SearchFlatUnder(root *graph.Node, cmd *Command) *graph.Node {
+	return ct.searchFlat(root, cmd)
+}
+
 // SearchDeepToContentNode looks for the given command in the Command Tree.
 func (ct *CommandTree) SearchDeepToContentNode(cmd *Command) *ContentNode {
 	return NodeToContentNode(ct.SearchDeep(cmd))

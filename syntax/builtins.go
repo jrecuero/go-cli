@@ -32,8 +32,8 @@ func (ce *completerExit) Help(ctx *Context, content IContent, line interface{}, 
 	return nil, false
 }
 
-// NewExitCommand generates a new exit command.
-func NewExitCommand() *Command {
+// newExitCommand generates a new exit command.
+func newExitCommand() *Command {
 	exitCmd := NewCommand(nil, "exit", "Exit application|Exit mode", nil, nil)
 	exitCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
 		if len(ctx.Modes) == 0 {
@@ -48,29 +48,48 @@ func NewExitCommand() *Command {
 	return exitCmd
 }
 
-// NewDebugCommand generates a new debug mode
-func NewDebugCommand() *Command {
-	debugCmd := NewCommand(nil, "debug [<parse> | <command>]?", "Debug command",
-		[]*Argument{
-			NewArgument("parse", "Parse tree graph", nil, "string", "none", nil),
-			NewArgument("command", "Command tree graph", nil, "string", "none", nil),
-		}, nil)
+// newDebugCommand generates a new debug mode
+func newDebugCommand() *Command {
+	debugCmd := NewCommand(nil, "debug", "Debug mode", nil, nil)
 	debugCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
-		params := arguments.(map[string]interface{})
+		return nil
+	}
+	//debugCmd.Prompt = "debug>>> "
+	debugCmd.IsBuiltIn = true
+	return debugCmd
+}
+
+func newDebugParseCommand(parent *Command) *Command {
+	debugParseCmd := NewCommand(parent, "parse", "Display parse tree", nil, nil)
+	debugParseCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
 		if nsm, err := ctx.Cache.Get("nsm"); err == nil {
-			if params["parse"] == "parse" {
-				tools.ToDisplay(nsm.(*NSManager).GetParseTree().ToMermaid())
-			}
-			if params["command"] == "command" {
-				tools.ToDisplay(nsm.(*NSManager).GetCommandTree().ToMermaid())
-			}
+			tools.ToDisplay(nsm.(*NSManager).GetParseTree().ToMermaid())
 		}
 		return nil
 	}
-	return debugCmd
+	debugParseCmd.IsBuiltIn = true
+	return debugParseCmd
+}
+
+func newDebugCommandCmd(parent *Command) *Command {
+	debugCommandCmd := NewCommand(parent, "command", "Display command tree", nil, nil)
+	debugCommandCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
+		if nsm, err := ctx.Cache.Get("nsm"); err == nil {
+			tools.ToDisplay(nsm.(*NSManager).GetCommandTree().ToMermaid())
+		}
+		return nil
+	}
+	debugCommandCmd.IsBuiltIn = true
+	return debugCommandCmd
 }
 
 // NewBuiltins returns all builtin commands
 func NewBuiltins() []*Command {
-	return []*Command{NewExitCommand(), NewDebugCommand()}
+	debugCmd := newDebugCommand()
+	return []*Command{
+		newExitCommand(),
+		debugCmd,
+		newDebugParseCommand(debugCmd),
+		newDebugCommandCmd(debugCmd),
+	}
 }

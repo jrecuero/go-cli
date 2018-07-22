@@ -101,7 +101,8 @@ func (cc *CompleterCommand) Match(ctx *Context, content IContent, line interface
 func (cc *CompleterCommand) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
 	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	tokens := line.([]string)
-	if content.(*Command).IsBuiltIn && len(tokens) > 1 {
+	cmd := content.(*Command)
+	if cmd.IsBuiltIn && cmd.Parent == nil && len(tokens) > 1 {
 		return nil, false
 	}
 	return cc.completeLabel(ctx, content, line, index)

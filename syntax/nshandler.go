@@ -193,7 +193,6 @@ func CreateNSHandler(nsname string, commands []*Command) (*NSHandler, error) {
 		return nil, err
 	}
 	// Add builtins commands
-	//commandsToProcess := []*Command{NewExitCommand(), NewDebugCommand()}
 	commandsToProcess := NewBuiltins()
 	for _, cmd := range commands {
 		commandsToProcess = append(commandsToProcess, cmd)
