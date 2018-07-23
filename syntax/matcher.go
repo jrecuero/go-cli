@@ -1,7 +1,6 @@
 package syntax
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/jrecuero/go-cli/graph"
@@ -251,7 +250,7 @@ func (m *Matcher) Match(line interface{}) (interface{}, bool) {
 func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	m.Ctx.GetProcess().Set(EXECUTE)
 	if _, ok := m.Match(line); !ok {
-		tools.ERROR(errors.New("token match error"), true, "match return %#v for line: %#v\n", ok, line)
+		tools.ERROR(nil, true, "match return %#v for line: %#v\n", ok, line)
 		return nil, false
 	}
 	//for _, t := range m.Ctx.Matched {

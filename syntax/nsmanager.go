@@ -5,12 +5,17 @@ import (
 	"fmt"
 
 	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // NSManager represents the namespace manager.
 // It is in charge to manage the active namespace, it will provides operation
 // to settle all namespace commands properly and to find commands based on the
 // command line input.
+// It creates and handle the Command Tree and the Parsing Tree.
+// The command tree contains all commands in a hierarchical way.
+// The parsing tree expand the command tree with all command arguments. This is
+// the tree used for parsing the command line.
 type NSManager struct {
 	nsname    string       // NameSpace Manager name.
 	ns        *NameSpace   // NameSpace instance.
@@ -32,7 +37,7 @@ func (nsm *NSManager) GetNameSpace() *NameSpace {
 	return nsm.ns
 }
 
-// GetCommands returns the manager commands.
+// GetCommands returns all commands registered to the NS manager.
 func (nsm *NSManager) GetCommands() []*Command {
 	return nsm.commands
 }
@@ -59,7 +64,8 @@ func (nsm *NSManager) GetParseTree() *ParseTree {
 
 // Setup initializes the namespace manager.
 // It reads all commands for the NameSpace and will update the commands field
-// with all of them.
+// with all of them. Command Tree and Parsing Tree are created at this time.
+// Context and Marcher are initialized here.
 func (nsm *NSManager) Setup() *NSManager {
 	if nsm.ns == nil {
 		return nil
@@ -85,6 +91,27 @@ func (nsm *NSManager) Search(pattern string) ([]*Command, error) {
 	return nil, errors.New("error")
 }
 
+// createBuiltinTree creates the builtin tree inside any mode.
+func (nsm *NSManager) createBuiltinTree(cmd *Command, cmdNode *ContentNode) {
+	for _, cmdBuiltin := range NewBuiltins() {
+		if cmdBuiltin.IsMode() {
+			continue
+		}
+		if cmd.GetLabel() != cmdBuiltin.GetLabel() {
+			newHookNode := ContentNodeToNode(cmdNode)
+			if cmdBuiltin.Parent == nil {
+				nsm.cmdTree.AddTo(newHookNode, cmdBuiltin)
+			} else {
+				parent := nsm.cmdTree.SearchFlatUnder(newHookNode, cmdBuiltin.Parent)
+				if parent != nil {
+					nsm.cmdTree.AddTo(parent, cmdBuiltin)
+				}
+			}
+		}
+	}
+
+}
+
 // CreateCommandTree creates the command tree with all commands already stored
 // in the manager.
 func (nsm *NSManager) CreateCommandTree() error {
@@ -93,23 +120,7 @@ func (nsm *NSManager) CreateCommandTree() error {
 		parent := nsm.cmdTree.SearchFlat(cmd.Parent)
 		cmdNode := nsm.cmdTree.AddTo(parent, cmd)
 		if cmd.IsMode() {
-			// Add all builtins commands
-			for _, cmdBuiltin := range NewBuiltins() {
-				if cmdBuiltin.IsMode() {
-					continue
-				}
-				if cmd.GetLabel() != cmdBuiltin.GetLabel() {
-					newHookNode := ContentNodeToNode(cmdNode)
-					if cmdBuiltin.Parent == nil {
-						nsm.cmdTree.AddTo(newHookNode, cmdBuiltin)
-					} else {
-						parent = nsm.cmdTree.SearchFlatUnder(newHookNode, cmdBuiltin.Parent)
-						if parent != nil {
-							nsm.cmdTree.AddTo(parent, cmdBuiltin)
-						}
-					}
-				}
-			}
+			nsm.createBuiltinTree(cmd, cmdNode)
 		}
 	}
 	return nil
@@ -179,7 +190,7 @@ func NewNSManager(namespace *NameSpace) *NSManager {
 func CreateNSManager(namespace *NameSpace) (*NSManager, error) {
 	nsm := NewNSManager(namespace)
 	if nsm.Setup() == nil {
-		return nil, fmt.Errorf("Error Create NSManager")
+		return nil, tools.ERROR(nil, true, "Error Create NSManager")
 	}
 	return nsm, nil
 }

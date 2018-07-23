@@ -99,6 +99,9 @@ func ToDisplay(format string, params ...interface{}) {
 
 // ERROR sends the formated string to the prompt display.
 func ERROR(err error, todisp bool, format string, params ...interface{}) error {
+	if err == nil {
+		err = fmt.Errorf(format, params...)
+	}
 	Error(format, params...)
 	if todisp {
 		ToDisplay(format, params...)

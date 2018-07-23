@@ -1,7 +1,6 @@
 package syntax
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/jrecuero/go-cli/graph"
@@ -47,7 +46,7 @@ func (cp *ContextProcess) Set(proc string) error {
 		cp.Process = append(cp.Process, proc)
 		return nil
 	}
-	return tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+	return tools.ERROR(nil, false, "Unknown process %#v\n", proc)
 }
 
 // Append adds an additional value to the context process.
@@ -57,7 +56,7 @@ func (cp *ContextProcess) Append(proc string) error {
 		cp.Process = append(cp.Process, proc)
 		return nil
 	}
-	return tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+	return tools.ERROR(nil, false, "Unknown process %#v\n", proc)
 }
 
 // Clean clears all values in the context process.
@@ -77,7 +76,7 @@ func (cp *ContextProcess) Check(proc ...string) (bool, error) {
 				}
 			}
 		} else {
-			return false, tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+			return false, tools.ERROR(nil, false, "Unknown process %#v\n", proc)
 		}
 	}
 	return false, nil
@@ -95,7 +94,7 @@ func (cp *ContextProcess) Remove(proc ...string) (bool, error) {
 				}
 			}
 		} else {
-			return false, tools.ERROR(errors.New("unknown process"), false, "Unknown process %#v\n", proc)
+			return false, tools.ERROR(nil, false, "Unknown process %#v\n", proc)
 		}
 	}
 	cp.Process = processes
@@ -125,7 +124,7 @@ func (cache *Cache) Get(key string) (interface{}, error) {
 	if data, ok := cache.data[key]; ok {
 		return data, nil
 	}
-	return nil, tools.ERROR(errors.New("not found"), false, "not found")
+	return nil, tools.ERROR(nil, false, "not found")
 }
 
 // GetAll returns all cache data.
@@ -297,7 +296,7 @@ func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, 
 		}
 		return result, nil
 	}
-	return nil, tools.ERROR(errors.New("arguments not found"), false, "Arguments not found for Command %s", tools.String(cmdlabel))
+	return nil, tools.ERROR(nil, false, "Arguments not found for Command %s", tools.String(cmdlabel))
 }
 
 // AddToken adds a matched token to the context.
