@@ -95,6 +95,9 @@ func (nsm *NSManager) CreateCommandTree() error {
 		if cmd.IsMode() {
 			// Add all builtins commands
 			for _, cmdBuiltin := range NewBuiltins() {
+				if cmdBuiltin.IsMode() {
+					continue
+				}
 				if cmd.GetLabel() != cmdBuiltin.GetLabel() {
 					newHookNode := ContentNodeToNode(cmdNode)
 					if cmdBuiltin.Parent == nil {

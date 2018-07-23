@@ -50,11 +50,11 @@ func newExitCommand() *Command {
 
 // newDebugCommand generates a new debug mode
 func newDebugCommand() *Command {
-	debugCmd := NewCommand(nil, "debug", "Debug mode", nil, nil)
+	debugCmd := NewMode(nil, "debug", "Debug mode", nil, nil)
 	debugCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
 		return nil
 	}
-	//debugCmd.Prompt = "debug>>> "
+	debugCmd.Prompt = "debug>>> "
 	debugCmd.IsBuiltIn = true
 	return debugCmd
 }
