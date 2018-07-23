@@ -34,6 +34,11 @@ func (cmd *Command) IsMode() bool {
 	return cmd.ismode
 }
 
+//// GetString returns the string for the command content.
+//func (cmd *Command) GetString() string {
+//    return cmd.GetLabel()
+//}
+
 // GetStrType returns the short string for the content type.
 func (cmd *Command) GetStrType() string {
 	if cmd.IsMode() {

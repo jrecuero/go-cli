@@ -15,6 +15,11 @@ func (c *Content) GetLabel() string {
 	return c.label
 }
 
+// GetString returns the string for the content node.
+func (c *Content) GetString() string {
+	return c.GetLabel()
+}
+
 // GetType returns content type.
 func (c *Content) GetType() string {
 	return "string"

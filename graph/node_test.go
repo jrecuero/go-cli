@@ -206,15 +206,15 @@ func TestNode_ToMermaid(t *testing.T) {
 
 // TestNode_ToContent ensures content conversion works properly.
 func TestNode_ToContent(t *testing.T) {
-	n := graph.NewNode("main", "MAIN")
+	n := graph.NewNode("main", &contenido{"MAIN"})
 	output := n.ToContent()
-	exp := "[string              ]	\"MAIN\"\n"
+	exp := "[*graph_test.contenido]\t&graph_test.contenido{label:\"MAIN\"}\n"
 	if !reflect.DeepEqual(output, exp) {
 		t.Errorf("node content mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", exp, output)
 	}
 
-	c1 := graph.NewNode("child-1", "CHILD ONE")
-	c2 := graph.NewNode("child-2", "CHILD TWO")
+	c1 := graph.NewNode("child-1", &contenido{"CHILD ONE"})
+	c2 := graph.NewNode("child-2", &contenido{"CHILD TWO"})
 	if n.AddChild(c1) == false {
 		t.Errorf("add child operation failed")
 	}
@@ -222,7 +222,8 @@ func TestNode_ToContent(t *testing.T) {
 		t.Errorf("add child operation failed")
 	}
 	output = n.ToContentChildren()
-	exp = "[string              ]	\"CHILD ONE\"\n[string              ]	\"CHILD TWO\"\n"
+	//exp = "[string              ]	\"CHILD ONE\"\n[string              ]	\"CHILD TWO\"\n"
+	exp = "[*graph_test.contenido]\t&graph_test.contenido{label:\"CHILD ONE\"}\n[*graph_test.contenido]\t&graph_test.contenido{label:\"CHILD TWO\"}\n"
 	if !reflect.DeepEqual(output, exp) {
 		t.Errorf("node content mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", exp, output)
 	}
@@ -230,7 +231,7 @@ func TestNode_ToContent(t *testing.T) {
 
 // TestNode_Match tests Node.Match behavior..
 func TestNode_Match(t *testing.T) {
-	n := graph.NewNode("main", "MAIN")
+	n := graph.NewNode("main", &contenido{"MAIN"})
 	if index, ok := n.Match(nil, nil, 0); index != 0 || ok != true {
 		t.Errorf("match operation failed: index: %d ok: %v", index, ok)
 	}
@@ -238,15 +239,15 @@ func TestNode_Match(t *testing.T) {
 
 // TestNode_Help tests Node.Help behavior.
 func TestNode_Help(t *testing.T) {
-	n := graph.NewNode("main", "MAIN")
-	if itf, ok := n.Help(nil, nil, 0); itf != "MAIN" || ok != true {
+	n := graph.NewNode("main", &contenido{"MAIN"})
+	if itf, ok := n.Help(nil, nil, 0); itf.(*contenido).label != "MAIN" || ok != true {
 		t.Errorf("help operation failed")
 	}
 }
 
 // TestNode_Query tests Node.Query behavior.
 func TestNode_Query(t *testing.T) {
-	n := graph.NewNode("main", "MAIN")
+	n := graph.NewNode("main", &contenido{"MAIN"})
 	if itf, ok := n.Query(nil, nil, 0); itf != nil || ok != true {
 		t.Errorf("query operation failed")
 	}
@@ -254,15 +255,15 @@ func TestNode_Query(t *testing.T) {
 
 // TestNode_Complete tests Node.Complete behavior.
 func TestNode_Complete(t *testing.T) {
-	n := graph.NewNode("main", "MAIN")
-	if itf, ok := n.Complete(nil, nil, 0); itf != "MAIN" || ok != true {
+	n := graph.NewNode("main", &contenido{"MAIN"})
+	if itf, ok := n.Complete(nil, nil, 0); itf.(*contenido).label != "MAIN" || ok != true {
 		t.Errorf("complete operation failed")
 	}
 }
 
 // TestNode_Validate tests Node.Validate behavior.
 func TestNode_Validate(t *testing.T) {
-	n := graph.NewNode("main", "MAIN")
+	n := graph.NewNode("main", &contenido{"MAIN"})
 	if ok := n.Validate(nil, nil, 0); ok != true {
 		t.Errorf("validate operation failed")
 	}

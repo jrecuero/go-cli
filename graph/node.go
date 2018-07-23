@@ -9,6 +9,12 @@ import (
 
 var masterID int
 
+// IContent represents the interface for any node content.
+type IContent interface {
+	GetLabel() string
+	GetString() string
+}
+
 // Node represents a node in the graph.
 type Node struct {
 	id            int
@@ -25,7 +31,7 @@ type Node struct {
 	BlockID       int
 	AllowChildren bool
 	GraphPattern  *string
-	Content       interface{}
+	Content       IContent
 }
 
 // IsContent checks if a Node contains data content information or not.
@@ -97,10 +103,13 @@ func (n *Node) ToMermaidChildren() string {
 
 // ToContent returns node content information.
 func (n *Node) ToContent() string {
+	if n == nil || n.Content == nil {
+		return "<nil>"
+	}
 	var buffer bytes.Buffer
 	c := n.Content
 	pattern := "[%-20s]\t%#v\n"
-	buffer.WriteString(fmt.Sprintf(pattern, tools.GetReflectType(c), c))
+	buffer.WriteString(fmt.Sprintf(pattern, tools.GetReflectType(c), c.GetString()))
 	return buffer.String()
 }
 
@@ -141,11 +150,15 @@ func (n *Node) Validate(ctx interface{}, line interface{}, index int) bool {
 // NewNode creates a new graph node.
 func NewNode(label string, content interface{}) *Node {
 	masterID++
+	var nodeContent IContent
+	if content != nil {
+		nodeContent = content.(IContent)
+	}
 	node := &Node{
 		id:            masterID,
 		Label:         label,
 		BlockID:       -1,
-		Content:       content,
+		Content:       nodeContent,
 		AllowChildren: true,
 	}
 	return node

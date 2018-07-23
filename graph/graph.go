@@ -196,7 +196,6 @@ func (g *Graph) Explore() {
 		tools.ToDisplay(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
 		if len(traverse.Children) > 0 {
 			for i, child := range traverse.Children {
-				//tools.ToDisplay("\t> %d %s\n", i, child.Label)
 				tools.ToDisplay("\t> %d %s\n", i, child.ToContent())
 			}
 			tools.ToDisplay("\n[0-%d] Select children", len(traverse.Children)-1)

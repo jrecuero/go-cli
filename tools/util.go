@@ -135,6 +135,14 @@ func String(pst *string) string {
 	return ""
 }
 
+// ToString returns the string value contained in a pointer to string.
+func ToString(in interface{}) string {
+	if in != nil {
+		return in.(string)
+	}
+	return ""
+}
+
 // LastChar returns the last character in a string,
 func LastChar(st string) string {
 	return string(st[len(st)-1])

@@ -7,6 +7,18 @@ import (
 	"github.com/jrecuero/go-cli/graph"
 )
 
+type contenido struct {
+	label string
+}
+
+func (c *contenido) GetString() string {
+	return c.label
+}
+
+func (c *contenido) GetLabel() string {
+	return c.label
+}
+
 // TestGraph_NewGraph ensures the graph structure works properly
 func TestGraph_NewGraph(t *testing.T) {
 	var tests = []struct {
@@ -76,7 +88,7 @@ func TestGraph_NewGraph(t *testing.T) {
 // TestGraph_AddNode ensures node is added properly to the graph
 func TestGraph_AddNode(t *testing.T) {
 	g := graph.NewGraph(nil)
-	c1 := graph.NewNode("child-1", "child-1")
+	c1 := graph.NewNode("child-1", &contenido{"child-1"})
 	if g.AddNode(c1) == false {
 		t.Errorf("add node operation failed")
 	}
@@ -164,7 +176,7 @@ func TestGraph_EndLoop(t *testing.T) {
 func TestGraph_AddNodeToLoop(t *testing.T) {
 	g := graph.NewGraph(nil)
 	g.NewBlockNoLoopAndSkip()
-	c1 := graph.NewNode("child-1", "child-1")
+	c1 := graph.NewNode("child-1", &contenido{"child-1"})
 	if g.AddNodeToBlock(c1) == false {
 		t.Errorf("add node to loop operation failed")
 	}
@@ -191,7 +203,7 @@ func TestGraph_AddNodeToLoop(t *testing.T) {
 // TestGraph_Terminate ensures the graph structure works properly
 func TestGraph_Terminate(t *testing.T) {
 	g := graph.NewGraph(&graph.SetupGraph{
-		SinkContent: "sink content",
+		SinkContent: &contenido{"sink content"},
 	})
 	g.Terminate()
 	if g.Hook != nil {
@@ -209,7 +221,7 @@ func TestGraph_Terminate(t *testing.T) {
 // TestGraph_ToString ensures the graph is serialize properly
 func TestGraph_ToString(t *testing.T) {
 	g := graph.NewGraph(&graph.SetupGraph{
-		SinkContent: "sink content",
+		SinkContent: &contenido{"sink content"},
 	})
 	g.Terminate()
 	var tests = []struct {

@@ -84,14 +84,16 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 
 // workerComplete gets all complete options for the given node.
 func (m *Matcher) workerComplete(cn *ContentNode, tokens []string) interface{} {
-	result := []interface{}{}
+	result := []*ComplexComplete{}
 	for _, childNode := range cn.Children {
 		childCN := NodeToContentNode(childNode)
 		completeIf, _ := childCN.Complete(m.Ctx, tokens, 0)
 		complete := completeIf.([]interface{})
 		//tools.Debug("childCN: %#v complete: %#v\n", childCN.GetContent().GetLabel(), complete)
 		for _, c := range complete {
-			result = append(result, c)
+			result = append(result, &ComplexComplete{
+				Complete: c,
+			})
 		}
 	}
 	return result
@@ -99,14 +101,16 @@ func (m *Matcher) workerComplete(cn *ContentNode, tokens []string) interface{} {
 
 // workerHelp gets all help options for the given node.
 func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
-	result := []interface{}{}
+	result := []*ComplexComplete{}
 	for _, childNode := range cn.Children {
 		childCN := NodeToContentNode(childNode)
 		helpIf, _ := childCN.Help(m.Ctx, tokens, 0)
 		help := helpIf.([]interface{})
 		//tools.Debug("childCN: %#v help: %#v\n", childCN.GetContent().GetLabel(), help)
-		for _, c := range help {
-			result = append(result, c)
+		for _, h := range help {
+			result = append(result, &ComplexComplete{
+				Help: h,
+			})
 		}
 	}
 	return result
@@ -183,7 +187,9 @@ func (m *Matcher) removeDuplicated(in interface{}) interface{} {
 	keys := []string{}
 	for _, tok := range tokens {
 		//tools.Debug("tok: %#v\n", tok)
-		key := tok.Complete.(string) + " " + tok.Help.(string)
+		complete := tools.ToString(tok.Complete)
+		help := tools.ToString(tok.Help)
+		key := complete + " " + help
 		if tools.SearchKeyInTable(keys, key) != nil {
 			keys = append(keys, key)
 			result = append(result, tok)
@@ -297,7 +303,11 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(COMPLETE)
-	result, ok := m.processCompleteAndHelp(line, m.workerComplete)
+	complexResult, ok := m.processCompleteAndHelp(line, m.workerComplete)
+	var result []interface{}
+	for _, c := range complexResult.([]*ComplexComplete) {
+		result = append(result, c.Complete)
+	}
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
@@ -306,7 +316,11 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 func (m *Matcher) Help(line interface{}) (interface{}, bool) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(HELP)
-	result, ok := m.processCompleteAndHelp(line, m.workerHelp)
+	complexResult, ok := m.processCompleteAndHelp(line, m.workerHelp)
+	var result []interface{}
+	for _, c := range complexResult.([]*ComplexComplete) {
+		result = append(result, c.Help)
+	}
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }

@@ -44,7 +44,7 @@ func inlog(mod string, format string, params ...interface{}) {
 		//funcname := methodname[index+1:]
 		ifname := strings.LastIndex(filename, "/")
 		fname := filename[ifname+1:]
-		Log().Printf(fmt.Sprintf("[%s] %s:%d %s() ||| %s", mod, fname, line, methodname, format), params...)
+		Log().Printf(fmt.Sprintf("[%s] [%s:%d] [%s()]\t||| %s", mod, fname, line, methodname, format), params...)
 	} else {
 		Log().Printf(fmt.Sprintf("[%s] ||| %s", mod, format), params...)
 	}
@@ -52,17 +52,17 @@ func inlog(mod string, format string, params ...interface{}) {
 
 // Error logs the trace..
 func Error(format string, params ...interface{}) {
-	inlog("ERROR", format, params...)
+	inlog("ERROR ", format, params...)
 }
 
 // Warning logs the trace..
 func Warning(format string, params ...interface{}) {
-	inlog("WARNING", format, params...)
+	inlog("WARN  ", format, params...)
 }
 
 // Info logs the trace..
 func Info(format string, params ...interface{}) {
-	inlog("INFO", format, params...)
+	inlog("INFO  ", format, params...)
 }
 
 // Tracer logs the trace..
@@ -72,12 +72,12 @@ func Tracer(format string, params ...interface{}) {
 
 // Debug logs the trace..
 func Debug(format string, params ...interface{}) {
-	inlog("DEBUG", format, params...)
+	inlog("DEBUG ", format, params...)
 }
 
 // Tester logs the test log..
 func Tester(format string, params ...interface{}) {
-	inlog("TERSTER", format, params...)
+	inlog("TESTER", format, params...)
 }
 
 // LogJSON configures the JSON log file.
