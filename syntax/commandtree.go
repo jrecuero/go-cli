@@ -1,9 +1,15 @@
 package syntax
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"reflect"
+	"strconv"
+	"strings"
 
 	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // CommandTree represents a command tree.
@@ -81,6 +87,40 @@ func (ct *CommandTree) AddTo(parent *graph.Node, cmd *Command) *ContentNode {
 	node := NewContentNode(cmd.GetLabel(), cmd)
 	parent.AddChild(ContentNodeToNode(node))
 	return node
+}
+
+// Explore implements a mechanism to interactibily explore the graph.
+func (ct *CommandTree) Explore() {
+	reader := bufio.NewReader(os.Stdin)
+	traverse := ct.Root
+	parents := []*graph.Node{}
+	var index int
+	for {
+		tools.ToDisplay(fmt.Sprintf("\n\nNode Information: %s\n", NodeToContentNode(traverse).ToContent()))
+		tools.ToDisplay(fmt.Sprintf("Nbr of children: %d\n", len(traverse.Children)))
+		if len(traverse.Children) > 0 {
+			for i, child := range traverse.Children {
+				//tools.ToDisplay("\t> %d %s\n", i, child.Label)
+				tools.ToDisplay("\t> %d %s\n", i, NodeToContentNode(child).GetContent().GetLabel())
+			}
+			tools.ToDisplay("\n[0-%d] Select children", len(traverse.Children)-1)
+		}
+		tools.ToDisplay("\n[-] Select Parent\n[x] Exit\nSelect: ")
+		text, _ := reader.ReadString('\n')
+		text = strings.TrimSpace(text)
+		if text == "x" {
+			break
+		} else if text == "-" {
+			traverse = parents[len(parents)-1]
+			parents = parents[:len(parents)-1]
+			tools.ToDisplay("Parent selected %s\n", traverse.Label)
+		} else {
+			index, _ = strconv.Atoi(text)
+			parents = append(parents, traverse)
+			traverse = traverse.Children[index]
+			tools.ToDisplay("Children selected %d - %s\n", index, traverse.Label)
+		}
+	}
 }
 
 // NewCommandTree creates a new CommandTree instance.

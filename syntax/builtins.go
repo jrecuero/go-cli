@@ -83,6 +83,30 @@ func newDebugCommandCmd(parent *Command) *Command {
 	return debugCommandCmd
 }
 
+func newDebugExploreCommandTreeCmd(parent *Command) *Command {
+	debugExploreCommandTreeCmd := NewCommand(parent, "explore-command", "Explore command tree", nil, nil)
+	debugExploreCommandTreeCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
+		if nsm, err := ctx.Cache.Get("nsm"); err == nil {
+			nsm.(*NSManager).GetCommandTree().Explore()
+		}
+		return nil
+	}
+	debugExploreCommandTreeCmd.IsBuiltIn = true
+	return debugExploreCommandTreeCmd
+}
+
+func newDebugExploreParseTreeCmd(parent *Command) *Command {
+	debugExploreParseTreeCmd := NewCommand(parent, "explore-parse", "Explore parse tree", nil, nil)
+	debugExploreParseTreeCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
+		if nsm, err := ctx.Cache.Get("nsm"); err == nil {
+			nsm.(*NSManager).GetParseTree().Explore()
+		}
+		return nil
+	}
+	debugExploreParseTreeCmd.IsBuiltIn = true
+	return debugExploreParseTreeCmd
+}
+
 // NewBuiltins returns all builtin commands
 func NewBuiltins() []*Command {
 	debugCmd := newDebugCommand()
@@ -91,5 +115,7 @@ func NewBuiltins() []*Command {
 		debugCmd,
 		newDebugParseCommand(debugCmd),
 		newDebugCommandCmd(debugCmd),
+		newDebugExploreCommandTreeCmd(debugCmd),
+		newDebugExploreParseTreeCmd(debugCmd),
 	}
 }

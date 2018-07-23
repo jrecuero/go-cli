@@ -1,7 +1,11 @@
 package syntax
 
 import (
+	"bytes"
+	"fmt"
+
 	"github.com/jrecuero/go-cli/graph"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // ContentNode represents any node which content is IContent.
@@ -102,6 +106,29 @@ func (cn *ContentNode) Validate(ctx interface{}, line interface{}, index int) bo
 		return completer.Validate(context, content, line, index)
 	}
 	return true
+}
+
+// ToContent returns node content information.
+func (cn *ContentNode) ToContent() string {
+	var buffer bytes.Buffer
+	pattern := "[%-20s]\t%#v\n"
+	if cn == nil || cn.Content == nil {
+		buffer.WriteString(fmt.Sprintf(pattern, "nil", "nil"))
+	} else {
+		c := cn.GetContent()
+		buffer.WriteString(fmt.Sprintf(pattern, tools.GetReflectType(c), c.GetLabel()))
+
+	}
+	return buffer.String()
+}
+
+// ToContentChildren returns children node content information.
+func (cn *ContentNode) ToContentChildren() string {
+	var buffer bytes.Buffer
+	for _, child := range cn.Children {
+		buffer.WriteString(NodeToContentNode(child).ToContent())
+	}
+	return buffer.String()
 }
 
 // NewContentNode creates a new content node instance.
