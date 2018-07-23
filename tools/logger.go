@@ -18,7 +18,9 @@ var logfile *os.File
 // Log configures the log file.
 func Log() *log.Logger {
 	if logger == nil {
-		if logfile, err := os.OpenFile("go-cli.log", os.O_RDWR|os.O_CREATE, 0666); err == nil {
+		path := "go-cli.log"
+		os.Remove(path)
+		if logfile, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666); err == nil {
 			logger = log.New(logfile, "GOCLI: ", log.Ldate|log.Ltime|log.Lmicroseconds)
 		} else {
 			panic("log file could not be opened")
@@ -84,7 +86,9 @@ func Tester(format string, params ...interface{}) {
 func LogJSON() *os.File {
 	if loggerJSON == nil {
 		var err error
-		if loggerJSON, err = os.OpenFile("go-cli-json.log", os.O_RDWR|os.O_CREATE, 0666); err != nil {
+		path := "go-cli-json.log"
+		os.Remove(path)
+		if loggerJSON, err = os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666); err != nil {
 			panic(err)
 		}
 		logger.Println("***** LOGGER-JSON HAS BEEN INITIALIZED *****")
