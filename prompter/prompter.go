@@ -57,7 +57,7 @@ func (pr *Prompter) completer(d prompt.Document) []prompt.Suggest {
 	result, _ := pr.NSM.CompleteAndHelp(line)
 	var s []prompt.Suggest
 	var varArgs []prompt.Suggest
-	for _, r := range result.([]*syntax.ComplexComplete) {
+	for _, r := range result.([]*syntax.CompleteHelp) {
 		//tools.Tracer("result: %#v\n", r)
 		completeStr := r.Complete.(string)
 		newSuggest := prompt.Suggest{Text: completeStr, Description: r.Help.(string)}

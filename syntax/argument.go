@@ -15,6 +15,9 @@ type AssignerCall func(argcontent interface{}, val interface{}) interface{}
 // ValidateCall represents the function for validating the argument value.
 type ValidateCall func(val interface{}) (bool, error)
 
+// QueryCall represents the functions for querying information.
+type QueryCall func(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool)
+
 // CastInt performs a string to int casting.
 func CastInt(val string) (interface{}, error) {
 	result, err := strconv.Atoi(val)
@@ -84,6 +87,7 @@ type Argument struct {
 	Caster    CastingCall  // caster method to obtein proper argument value.
 	Assigner  AssignerCall // assigner will copy the data passed.
 	Validator ValidateCall // validator method that validates argument value.
+	Query     QueryCall    // query method that returns possible values.
 	Default   interface{}  // default argument value
 }
 

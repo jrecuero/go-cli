@@ -3,6 +3,7 @@ package syntax
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 
 	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/tools"
@@ -16,6 +17,28 @@ type ContentNode struct {
 // GetContent returns the Content field as IContent.
 func (cn *ContentNode) GetContent() IContent {
 	return cn.Content.(IContent)
+}
+
+// slicing transforms data into a slice.
+func (cn *ContentNode) slicing(in interface{}) []interface{} {
+	result := []interface{}{}
+	rt := reflect.TypeOf(in)
+	switch rt.Kind() {
+	case reflect.Slice:
+		for _, r := range in.([]interface{}) {
+			result = append(result, r)
+		}
+		break
+	case reflect.Array:
+		for _, r := range in.([]interface{}) {
+			result = append(result, r)
+		}
+		break
+	default:
+		result = append(result, in)
+		break
+	}
+	return result
 }
 
 // Match returns the match for content node.
@@ -33,6 +56,17 @@ func (cn *ContentNode) Match(ctx interface{}, line interface{}, index int) (int,
 	return index, false
 }
 
+// Query returns the query for content node.
+func (cn *ContentNode) Query(ctx interface{}, line interface{}, index int) (interface{}, bool) {
+	content := cn.GetContent()
+	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
+	if completer := content.GetCompleter(); completer != nil {
+		context := ctx.(*Context)
+		return completer.Query(context, content, line, index)
+	}
+	return nil, true
+}
+
 // Help returns the help for content node.
 func (cn *ContentNode) Help(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	content := cn.GetContent()
@@ -42,7 +76,7 @@ func (cn *ContentNode) Help(ctx interface{}, line interface{}, index int) (inter
 		result := []interface{}{}
 		if cn.IsContent() || cn.IsSink {
 			if ret, ok := cn.GetContent().GetCompleter().Help(context, cn.GetContent(), line, 0); ok {
-				result = append(result, ret)
+				result = cn.slicing(ret)
 			}
 		} else {
 			for _, childNode := range cn.Children {
@@ -59,17 +93,6 @@ func (cn *ContentNode) Help(ctx interface{}, line interface{}, index int) (inter
 	return content.GetLabel(), true
 }
 
-// Query returns the query for content node.
-func (cn *ContentNode) Query(ctx interface{}, line interface{}, index int) (interface{}, bool) {
-	content := cn.GetContent()
-	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
-	if completer := content.GetCompleter(); completer != nil {
-		context := ctx.(*Context)
-		return completer.Query(context, content, line, index)
-	}
-	return nil, true
-}
-
 // Complete returns the complete match for content node.
 func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (interface{}, bool) {
 	content := cn.GetContent()
@@ -80,7 +103,7 @@ func (cn *ContentNode) Complete(ctx interface{}, line interface{}, index int) (i
 		result := []interface{}{}
 		if cn.IsContent() || cn.IsSink {
 			if ret, ok := cn.GetContent().GetCompleter().Complete(context, cn.GetContent(), line, 0); ok {
-				result = append(result, ret)
+				result = cn.slicing(ret)
 			}
 		} else {
 			for _, childNode := range cn.Children {

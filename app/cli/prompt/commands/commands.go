@@ -5,6 +5,20 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
+// NamesCompleter represents the name completer
+type NamesCompleter struct {
+	*syntax.CompleterArgument
+}
+
+// Query returns the query for any node completer.
+func (nc *NamesCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	data := []*syntax.CompleteHelp{
+		syntax.NewCompleteHelp("Coke", "Coke device"),
+		syntax.NewCompleteHelp("Pepsi", "Pepsi device"),
+	}
+	return data, true
+}
+
 // SetupCommands configures all command to run.
 func SetupCommands() []*syntax.Command {
 	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
@@ -58,11 +72,15 @@ func SetupCommands() []*syntax.Command {
 
 	setSpeedDeviceCmd := syntax.NewCommand(setSpeedCmd, "device name", "Set speed device help",
 		[]*syntax.Argument{
-			syntax.NewArgument("name", "Device name", nil, "string", "", nil),
+			syntax.NewArgument("name", "Device name", &NamesCompleter{syntax.NewCompleterArgument("name")}, "string", "", nil),
 		}, nil)
 	setSpeedDeviceCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		params := arguments.(map[string]interface{})
 		tools.ToDisplay("executing set speed device with device: %#v\n", params["name"])
+		if argo, err := setSpeedDeviceCmd.LookForArgument("name"); err == nil {
+			q, _ := argo.GetCompleter().Query(ctx, nil, nil, 0)
+			tools.ToDisplay("Query: %#v\n", q)
+		}
 		return nil
 	}
 

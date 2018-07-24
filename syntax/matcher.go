@@ -7,12 +7,6 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
-// ComplexComplete represents complete and help together.
-type ComplexComplete struct {
-	Complete interface{} // token complete value.
-	Help     interface{} // token help value.
-}
-
 // Worker represent the function for any complete or help worker.
 type Worker = func(cn *ContentNode, tokens []string) interface{}
 
@@ -84,16 +78,19 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 
 // workerComplete gets all complete options for the given node.
 func (m *Matcher) workerComplete(cn *ContentNode, tokens []string) interface{} {
-	result := []*ComplexComplete{}
+	result := []*CompleteHelp{}
 	for _, childNode := range cn.Children {
 		childCN := NodeToContentNode(childNode)
-		completeIf, _ := childCN.Complete(m.Ctx, tokens, 0)
+		var completeIf interface{}
+		if qresult, ok := childCN.Query(m.Ctx, tokens, 0); ok && qresult != nil {
+			completeIf = qresult
+		} else {
+			completeIf, _ = childCN.Complete(m.Ctx, tokens, 0)
+		}
 		complete := completeIf.([]interface{})
 		//tools.Debug("childCN: %#v complete: %#v\n", childCN.GetContent().GetLabel(), complete)
 		for _, c := range complete {
-			result = append(result, &ComplexComplete{
-				Complete: c,
-			})
+			result = append(result, NewCompleteHelp(c, nil))
 		}
 	}
 	return result
@@ -101,16 +98,19 @@ func (m *Matcher) workerComplete(cn *ContentNode, tokens []string) interface{} {
 
 // workerHelp gets all help options for the given node.
 func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
-	result := []*ComplexComplete{}
+	result := []*CompleteHelp{}
 	for _, childNode := range cn.Children {
 		childCN := NodeToContentNode(childNode)
-		helpIf, _ := childCN.Help(m.Ctx, tokens, 0)
+		var helpIf interface{}
+		if qresult, ok := childCN.Query(m.Ctx, tokens, 0); ok && qresult != nil {
+			helpIf = qresult
+		} else {
+			helpIf, _ = childCN.Help(m.Ctx, tokens, 0)
+		}
 		help := helpIf.([]interface{})
 		//tools.Debug("childCN: %#v help: %#v\n", childCN.GetContent().GetLabel(), help)
 		for _, h := range help {
-			result = append(result, &ComplexComplete{
-				Help: h,
-			})
+			result = append(result, NewCompleteHelp(nil, h))
 		}
 	}
 	return result
@@ -118,24 +118,42 @@ func (m *Matcher) workerHelp(cn *ContentNode, tokens []string) interface{} {
 
 // workerCompleteAndHelp gets all complete and help options for the given node.
 func (m *Matcher) workerCompleteAndHelp(cn *ContentNode, tokens []string) interface{} {
-	result := []*ComplexComplete{}
+	result := []*CompleteHelp{}
 	//tools.Debug("cn: %#v\n", cn.GetContent().GetLabel())
 	for _, childNode := range cn.Children {
 		childCN := NodeToContentNode(childNode)
-		completeIf, _ := childCN.Complete(m.Ctx, tokens, 0)
-		helpIf, _ := childCN.Help(m.Ctx, tokens, 0)
-		complete := completeIf.([]interface{})
-		help := helpIf.([]interface{})
-		//tools.Debug("childCN: %#v complete: %#v help: %#v\n", childCN.GetContent().GetLabel(), complete, help)
-		limit := len(complete)
-		if limit > len(help) {
-			limit = len(help)
+		if qresult, ok := childCN.Query(m.Ctx, tokens, 0); ok && qresult != nil {
+			for _, r := range qresult.([]*CompleteHelp) {
+				result = append(result, r)
+			}
+		} else {
+			completeIf, _ := childCN.Complete(m.Ctx, tokens, 0)
+			helpIf, _ := childCN.Help(m.Ctx, tokens, 0)
+			complete := completeIf.([]interface{})
+			help := helpIf.([]interface{})
+			//tools.Debug("childCN: %#v complete: %#v help: %#v\n", childCN.GetContent().GetLabel(), complete, help)
+			limit := len(complete)
+			if limit > len(help) {
+				limit = len(help)
+			}
+			for i := 0; i < limit; i++ {
+				result = append(result, NewCompleteHelp(complete[i], help[i]))
+			}
 		}
-		for i := 0; i < limit; i++ {
-			result = append(result, &ComplexComplete{
-				Complete: complete[i],
-				Help:     help[i],
-			})
+	}
+	return result
+}
+
+//// workerQuery gets all possible values for the given node
+func (m *Matcher) workerQuery(cn *ContentNode, tokens []string) interface{} {
+	result := []*CompleteHelp{}
+	//tools.Debug("cn: %#v\n", cn.GetContent().GetLabel())
+	for _, childNode := range cn.Children {
+		childCN := NodeToContentNode(childNode)
+		if qresult, ok := childCN.Query(m.Ctx, tokens, 0); ok && qresult != nil {
+			for _, r := range qresult.([]*CompleteHelp) {
+				result = append(result, r)
+			}
 		}
 	}
 	return result
@@ -156,7 +174,7 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 	index, _ := m.matchWithGraph(tokens)
 	if index < (len(tokens) - 1) {
 		tools.Debug("not-a-proper-match tokens: %#v index: %d len: %d\n", tokens, index, len(tokens))
-		return []*ComplexComplete{}, false
+		return []*CompleteHelp{}, false
 	}
 	//tools.Debug("len(matched): %d extended: %v index: %d\n", len(m.Ctx.Matched), extendLine, index)
 	if len(m.Ctx.Matched) == 0 {
@@ -182,8 +200,8 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 }
 
 func (m *Matcher) removeDuplicated(in interface{}) interface{} {
-	tokens := in.([]*ComplexComplete)
-	result := []*ComplexComplete{}
+	tokens := in.([]*CompleteHelp)
+	result := []*CompleteHelp{}
 	keys := []string{}
 	for _, tok := range tokens {
 		//tools.Debug("tok: %#v\n", tok)
@@ -303,11 +321,8 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(COMPLETE)
-	complexResult, ok := m.processCompleteAndHelp(line, m.workerComplete)
-	var result []interface{}
-	for _, c := range complexResult.([]*ComplexComplete) {
-		result = append(result, c.Complete)
-	}
+	completeAndHelp, ok := m.processCompleteAndHelp(line, m.workerComplete)
+	result := GetCompletes(completeAndHelp.([]*CompleteHelp))
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
@@ -316,11 +331,8 @@ func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
 func (m *Matcher) Help(line interface{}) (interface{}, bool) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(HELP)
-	complexResult, ok := m.processCompleteAndHelp(line, m.workerHelp)
-	var result []interface{}
-	for _, c := range complexResult.([]*ComplexComplete) {
-		result = append(result, c.Help)
-	}
+	completeAndHelp, ok := m.processCompleteAndHelp(line, m.workerHelp)
+	result := GetHelps(completeAndHelp.([]*CompleteHelp))
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }
@@ -330,6 +342,15 @@ func (m *Matcher) CompleteAndHelp(line interface{}) (interface{}, bool) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(COMPLETE)
 	result, ok := m.processCompleteAndHelp(line, m.workerCompleteAndHelp)
+	m.Ctx.GetProcess().Clean()
+	return result, ok
+}
+
+// Query returns possible values for the given token.
+func (m *Matcher) Query(line interface{}) (interface{}, bool) {
+	//tools.Tracer("line: %v\n", line)
+	m.Ctx.GetProcess().Set(QUERY)
+	result, ok := m.processCompleteAndHelp(line, m.workerQuery)
 	m.Ctx.GetProcess().Clean()
 	return result, ok
 }

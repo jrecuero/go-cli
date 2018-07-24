@@ -208,7 +208,7 @@ func TestNode_ToMermaid(t *testing.T) {
 func TestNode_ToContent(t *testing.T) {
 	n := graph.NewNode("main", &contenido{"MAIN"})
 	output := n.ToContent()
-	exp := "[*graph_test.contenido]\t&graph_test.contenido{label:\"MAIN\"}\n"
+	exp := "[*graph_test.contenido]\t\"MAIN\"\n"
 	if !reflect.DeepEqual(output, exp) {
 		t.Errorf("node content mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", exp, output)
 	}
@@ -223,7 +223,7 @@ func TestNode_ToContent(t *testing.T) {
 	}
 	output = n.ToContentChildren()
 	//exp = "[string              ]	\"CHILD ONE\"\n[string              ]	\"CHILD TWO\"\n"
-	exp = "[*graph_test.contenido]\t&graph_test.contenido{label:\"CHILD ONE\"}\n[*graph_test.contenido]\t&graph_test.contenido{label:\"CHILD TWO\"}\n"
+	exp = "[*graph_test.contenido]\t\"CHILD ONE\"\n[*graph_test.contenido]\t\"CHILD TWO\"\n"
 	if !reflect.DeepEqual(output, exp) {
 		t.Errorf("node content mistmatch:\n\nexp=%#v\n\ngot=%#v\n\n", exp, output)
 	}
