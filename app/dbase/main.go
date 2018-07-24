@@ -1,27 +1,38 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/jrecuero/go-cli/app/dbase/commands"
 	"github.com/jrecuero/go-cli/dbase"
+	"github.com/jrecuero/go-cli/prompter"
+	"github.com/jrecuero/go-cli/tools"
 )
 
-func main() {
+func runDbaseWork() {
 	db := dbase.NewDB("database-test")
-	fmt.Printf("Database %s has been created.\n", db.Name)
+	tools.ToDisplay("Database %s has been created.\n", db.Name)
 	tbname := "Person"
 	//db.CreateTable(tbname, dbase.GetLayout(&dbase.Person{}))
 	db.CreateTable(tbname, dbase.PersonLayout())
 	var p = dbase.NewPerson("jose carlos", 51)
 	key, ok := db.AddRow(tbname, p)
 	if !ok {
-		fmt.Printf("AddRow error for table %s data %v\n", tbname, p)
+		tools.ToDisplay("AddRow error for table %s data %v\n", tbname, p)
 	}
 	data, ok := db.GetRow(tbname, key)
 	if !ok {
-		fmt.Printf("GetRow error for table %s key %v\n", tbname, key)
+		tools.ToDisplay("GetRow error for table %s key %v\n", tbname, key)
 	}
-	fmt.Printf("Table: %s, Row nbr %d is %v %v %s\n", tbname, key, data, data.Get(), data.ToString())
+	tools.ToDisplay("Table: %s, Row nbr %d is %v %v %s\n", tbname, key, data, data.Get(), data.ToString())
 	tb, _ := db.FindTable(tbname)
-	fmt.Printf("Table: %s has this layout: %v\n", tb.Name, tb.Layout)
+	tools.ToDisplay("Table: %s has this layout: %v\n", tb.Name, tb.Layout)
+}
+
+func runDbase() {
+	pr := prompter.NewPrompter()
+	pr.Setup("prompter", commands.SetupCommands()...)
+	pr.Run()
+}
+
+func main() {
+	runDbase()
 }

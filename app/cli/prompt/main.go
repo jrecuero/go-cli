@@ -83,7 +83,7 @@ func runMultiSelectSurvey() {
 func runPrompter() {
 	//pr := &prompter.Prompter{}
 	pr := prompter.NewPrompter()
-	pr.Setup("prompter", commands.SetupCommands())
+	pr.Setup("prompter", commands.SetupCommands()...)
 	pr.Run()
 }
 

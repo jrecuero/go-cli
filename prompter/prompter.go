@@ -78,7 +78,7 @@ func (pr *Prompter) changeLivePrefix() (string, bool) {
 }
 
 // Setup initializes the prompter with the given commands.
-func (pr *Prompter) Setup(nsname string, commands []*syntax.Command) error {
+func (pr *Prompter) Setup(nsname string, commands ...*syntax.Command) error {
 	if nsh, err := syntax.CreateNSHandler(nsname, commands); err == nil {
 		pr.NSH = nsh
 		pr.NSM = nsh.GetActive().NSMgr
