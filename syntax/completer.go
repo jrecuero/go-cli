@@ -3,8 +3,6 @@ package syntax
 import (
 	"fmt"
 	"strings"
-
-	"github.com/jrecuero/go-cli/tools"
 )
 
 const _joint = ""
@@ -179,17 +177,11 @@ func (ca *CompleterArgument) Match(ctx *Context, content IContent, line interfac
 			return index, false
 		}
 	}
-	if ok, err := content.Validate(tokens[index]); !ok {
-		tools.ERROR(err, false, "Validation ERROR: %#v\n", err)
-		return index, false
-	}
 	return index + 1, true
 }
 
 // Complete returns the complete match for any node completer.
 func (ca *CompleterArgument) Complete(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool) {
-	// TODO: Query should be checked here.
-	//return "<<WORD>>", true
 	//tools.Tracer("line: %#v | index: %d | label: %#v\n", line, index, content.GetLabel())
 	return fmt.Sprintf("<<%s>>", content.GetType()), true
 }

@@ -69,8 +69,15 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 		if traverse, index, ok = m.traverseAndMatchGraph(traverse, tokens, index); !ok {
 			return index, false
 		}
-		//tools.Debug("add token to context: %#v %s\n", NodeToContentNode(traverse).GetContent().GetLabel(), tokens[index-1])
-		m.Ctx.AddToken(index-1, NodeToContentNode(traverse), tokens[index-1])
+		// TODO: Validation should be called at this point before adding the
+		// token to the Match..
+		cn := NodeToContentNode(traverse)
+		//tools.Debug("add token to context: %#v %s\n", cn.GetContent().GetLabel(), tokens[index-1])
+		if cn.Validate(m.Ctx, strings.Join(tokens, " "), index-1) {
+			m.Ctx.AddToken(index-1, cn, tokens[index-1])
+		} else {
+			return index, false
+		}
 	}
 	m.Ctx.UpdateCommandBox()
 	return index, true

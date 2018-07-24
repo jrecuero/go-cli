@@ -12,12 +12,6 @@ type CastingCall func(val string) (interface{}, error)
 // AssignerCall represents the function for casting the argument type.
 type AssignerCall func(argcontent interface{}, val interface{}) interface{}
 
-// ValidateCall represents the function for validating the argument value.
-type ValidateCall func(val interface{}) (bool, error)
-
-// QueryCall represents the functions for querying information.
-type QueryCall func(ctx *Context, content IContent, line interface{}, index int) (interface{}, bool)
-
 // CastInt performs a string to int casting.
 func CastInt(val string) (interface{}, error) {
 	result, err := strconv.Atoi(val)
@@ -82,13 +76,11 @@ var callerMap = map[string]argmapper{
 
 // Argument represents any CLI argument information.
 type Argument struct {
-	*Content               // argument content
-	Type      string       // identifies the type of argument.
-	Caster    CastingCall  // caster method to obtein proper argument value.
-	Assigner  AssignerCall // assigner will copy the data passed.
-	Validator ValidateCall // validator method that validates argument value.
-	Query     QueryCall    // query method that returns possible values.
-	Default   interface{}  // default argument value
+	*Content              // argument content
+	Type     string       // identifies the type of argument.
+	Caster   CastingCall  // caster method to obtein proper argument value.
+	Assigner AssignerCall // assigner will copy the data passed.
+	Default  interface{}  // default argument value
 }
 
 var argumentGraphPattern = ">%s]"
@@ -145,14 +137,6 @@ func (arg *Argument) Assign(argcontent interface{}, val interface{}) interface{}
 	return nil
 }
 
-// Validate checks in the argument value is a valid one.
-func (arg *Argument) Validate(val interface{}) (bool, error) {
-	if arg.Validator != nil {
-		return arg.Validator(val)
-	}
-	return true, nil
-}
-
 // CreateKeywordFromSelf creates a new Argument instance that contains the
 // argument in keyword format
 func (arg *Argument) CreateKeywordFromSelf() *Argument {
@@ -187,11 +171,10 @@ func GetValueFromArguments(field string, arguments interface{}) interface{} {
 // NewArgument creates a new Argument instance.
 func NewArgument(label string, help string, completer ICompleter, atype string, adefault interface{}, casting CastingCall) *Argument {
 	argo := &Argument{
-		Content:   NewContent(label, help, completer).(*Content),
-		Type:      atype,
-		Default:   adefault,
-		Caster:    casting,
-		Validator: nil,
+		Content: NewContent(label, help, completer).(*Content),
+		Type:    atype,
+		Default: adefault,
+		Caster:  casting,
 	}
 	argo.Setup()
 	return argo

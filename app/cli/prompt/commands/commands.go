@@ -1,9 +1,29 @@
 package commands
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/jrecuero/go-cli/syntax"
 	"github.com/jrecuero/go-cli/tools"
 )
+
+// NamesCompleter represents the name completer
+type versionCompleter struct {
+	*syntax.CompleterArgument
+}
+
+// Validate checks if the content is value for the given line.
+func (vc *versionCompleter) Validate(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) bool {
+	token := strings.Fields(line.(string))[index]
+	if data, err := strconv.Atoi(token); err == nil {
+		if data >= 1 && data <= 9 {
+			return true
+		}
+	}
+	tools.ToDisplay("\ninvalid version: %s. 1 <= version <= 9\n", token)
+	return false
+}
 
 // NamesCompleter represents the name completer
 type NamesCompleter struct {
@@ -19,11 +39,17 @@ func (nc *NamesCompleter) Query(ctx *syntax.Context, content syntax.IContent, li
 	return data, true
 }
 
+// Validate checks if the content is value for the given line.
+func (nc *NamesCompleter) Validate(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) bool {
+	tokens := strings.Fields(line.(string))
+	return tokens[index] == "Coke" || tokens[index] == "Pepsi"
+}
+
 // SetupCommands configures all command to run.
 func SetupCommands() []*syntax.Command {
 	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
 		[]*syntax.Argument{
-			syntax.NewArgument("version", "Version number", nil, "int", 0, nil),
+			syntax.NewArgument("version", "Version number", &versionCompleter{syntax.NewCompleterArgument("version")}, "int", 0, nil),
 		}, nil)
 	setCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		version, err := ctx.GetArgValueForArgLabel(nil, "version")
@@ -77,10 +103,10 @@ func SetupCommands() []*syntax.Command {
 	setSpeedDeviceCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		params := arguments.(map[string]interface{})
 		tools.ToDisplay("executing set speed device with device: %#v\n", params["name"])
-		if argo, err := setSpeedDeviceCmd.LookForArgument("name"); err == nil {
-			q, _ := argo.GetCompleter().Query(ctx, nil, nil, 0)
-			tools.ToDisplay("Query: %#v\n", q)
-		}
+		//if argo, err := setSpeedDeviceCmd.LookForArgument("name"); err == nil {
+		//    q, _ := argo.GetCompleter().Query(ctx, nil, nil, 0)
+		//    tools.ToDisplay("Query: %#v\n", q)
+		//}
 		return nil
 	}
 
