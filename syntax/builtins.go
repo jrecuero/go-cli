@@ -107,6 +107,42 @@ func newDebugExploreParseTreeCmd(parent *Command) *Command {
 	return debugExploreParseTreeCmd
 }
 
+func newHelpCmd() *Command {
+	helpCmd := NewCommand(nil, "help", "Display help", nil, nil)
+	helpCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
+		if inst, err := ctx.Cache.Get("nsm"); err == nil {
+			nsm := inst.(*NSManager)
+			helps := nsm.GetParseTree().GetAllRootFromAnchor(nsm.GetMatcher().Rooter)
+			for _, node := range helps {
+				content := NodeToContentNode(node).GetContent()
+				tools.ToDisplay("[%s] %-16s: %s\n",
+					content.GetStrType(), content.GetLabel(), content.GetHelp())
+			}
+		}
+		return nil
+	}
+	helpCmd.IsBuiltIn = true
+	return helpCmd
+}
+
+func newSyntaxCmd() *Command {
+	syntaxCmd := NewCommand(nil, "syntax", "Display syntax", nil, nil)
+	syntaxCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
+		if inst, err := ctx.Cache.Get("nsm"); err == nil {
+			nsm := inst.(*NSManager)
+			helps := nsm.GetParseTree().GetAllRootFromAnchor(nsm.GetMatcher().Rooter)
+			for _, node := range helps {
+				content := NodeToContentNode(node).GetContent()
+				tools.ToDisplay("[%s] %-16s: %s\n",
+					content.GetStrType(), content.GetLabel(), content.(*Command).CmdSyntax.Syntax)
+			}
+		}
+		return nil
+	}
+	syntaxCmd.IsBuiltIn = true
+	return syntaxCmd
+}
+
 // NewBuiltins returns all builtin commands
 func NewBuiltins() []*Command {
 	debugCmd := newDebugCommand()
@@ -117,5 +153,7 @@ func NewBuiltins() []*Command {
 		newDebugCommandCmd(debugCmd),
 		newDebugExploreCommandTreeCmd(debugCmd),
 		newDebugExploreParseTreeCmd(debugCmd),
+		newHelpCmd(),
+		newSyntaxCmd(),
 	}
 }

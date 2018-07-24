@@ -119,7 +119,7 @@ func SetupCommands() []*syntax.Command {
 		return nil
 	}
 
-	helpCmd := syntax.NewCommand(nil, "help [<set> | <get>]?", "Application help",
+	helpCmd := syntax.NewCommand(nil, "helper [<set> | <get>]?", "Application help",
 		[]*syntax.Argument{
 			syntax.NewArgument("set", "Help for set command", nil, "string", "", nil),
 			syntax.NewArgument("speed", "Help for set speed command", nil, "string", "", nil),

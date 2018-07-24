@@ -185,6 +185,17 @@ func (g *Graph) Terminate() {
 	g.Terminated = true
 }
 
+// GetAllRootFromAnchor returns all Root child from the given anchor.
+func (g *Graph) GetAllRootFromAnchor(anchor *Node) []*Node {
+	var nodes []*Node
+	for _, child := range anchor.Children {
+		if child.IsRoot && len(child.Children) == 1 {
+			nodes = append(nodes, child.Children[0])
+		}
+	}
+	return nodes
+}
+
 // Explore implements a mechanism to interactibily explore the graph.
 func (g *Graph) Explore() {
 	reader := bufio.NewReader(os.Stdin)
