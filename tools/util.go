@@ -147,3 +147,21 @@ func ToString(in interface{}) string {
 func LastChar(st string) string {
 	return string(st[len(st)-1])
 }
+
+// GetValFromArgs returns the value for the given name from arguments being
+// passed to any command callback.
+func GetValFromArgs(arguments interface{}, name string) interface{} {
+	return arguments.(map[string]interface{})[name]
+}
+
+// GetStringFromArgs returns the string value for the given name from arguments
+// being passed to any command callback.
+func GetStringFromArgs(arguments interface{}, name string) string {
+	return arguments.(map[string]interface{})[name].(string)
+}
+
+// GetIntFromArgs returns the int value for the given name from arguments
+// being passed to any command callback.
+func GetIntFromArgs(arguments interface{}, name string) int {
+	return arguments.(map[string]interface{})[name].(int)
+}

@@ -25,6 +25,7 @@ type NSManager struct {
 	cmdTree   *CommandTree // CommandTree instance
 	parseTree *ParseTree   // ParseTree instance
 	commands  []*Command   // Contains all commands that can be used for the NameSpace Manager.
+	Record    *Recorder    // Contains command bein recorded.
 }
 
 // GetName returns the NameSpace Manager name.
@@ -70,6 +71,7 @@ func (nsm *NSManager) Setup() *NSManager {
 	if nsm.ns == nil {
 		return nil
 	}
+	nsm.Record = NewRecorder()
 	for _, cmd := range nsm.ns.GetCommands() {
 		nsm.commands = append(nsm.commands, cmd)
 	}
@@ -157,6 +159,7 @@ func (nsm *NSManager) CreateParseTree(root *graph.Node) error {
 
 // Execute executes the command for the given command line.
 func (nsm *NSManager) Execute(line interface{}) (interface{}, error) {
+	nsm.Record.Add(line)
 	return nsm.matcher.Execute(line)
 }
 
