@@ -22,6 +22,7 @@ type Prompter struct {
 	NSM         *syntax.NSManager
 	NS          *syntax.NameSpace
 	PrefixState *LivePrefixState
+	_prompt     *prompt.Prompt
 }
 
 // executor executes any command entered in the command line.
@@ -34,8 +35,13 @@ func (pr *Prompter) executor(in string) {
 	tools.Info("Running command line %#v\n", in)
 	// Pass the NSManager to the context cache to be used by internal commands.
 	pr.NSM.GetContext().Cache.Add("nsm", pr.NSM)
-	if _, ok := pr.NSM.Execute(in); !ok {
-		fmt.Errorf("execute return %#v for line: %s", ok, in)
+	pr.NSM.GetContext().Cache.Add("prompt", pr._prompt)
+	if retcode, err := pr.NSM.Execute(in); err == nil {
+		if retcode == syntax.POPMODE {
+			prompt.OptionInputTextColor(prompt.DefaultColor)(pr._prompt)
+		}
+	} else {
+		fmt.Errorf("execute return %#v for line: %s", err, in)
 		return
 	}
 	//tools.ToDisplay(pr.NSM.GetCommandTree().ToMermaid())
@@ -95,7 +101,7 @@ func (pr *Prompter) Setup(nsname string, commands ...*syntax.Command) error {
 // Run runs the prompt.
 func (pr *Prompter) Run() {
 	fmt.Println("Please select:")
-	p := prompt.New(
+	pr._prompt = prompt.New(
 		pr.executor,
 		pr.completer,
 		prompt.OptionPrefix(syntax.DEFAULTPROMPT),
@@ -113,7 +119,7 @@ func (pr *Prompter) Run() {
 			return suggest, true
 		}),
 	)
-	p.Run()
+	pr._prompt.Run()
 }
 
 // NewPrompter creates a new Prompter instance.

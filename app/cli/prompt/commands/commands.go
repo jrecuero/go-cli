@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	prompt "github.com/c-bata/go-prompt"
 	"github.com/jrecuero/go-cli/syntax"
 	"github.com/jrecuero/go-cli/tools"
 )
@@ -132,6 +133,9 @@ func SetupCommands() []*syntax.Command {
 	configCmd := syntax.NewMode(nil, "config", "Config test help", nil, nil)
 	configCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		tools.ToDisplay("executing config mode\n")
+		if _prompt, err := ctx.Cache.Get("prompt"); err == nil {
+			prompt.OptionInputTextColor(prompt.Red)(_prompt.(*prompt.Prompt))
+		}
 		return nil
 	}
 	configCmd.Prompt = "config>>> "

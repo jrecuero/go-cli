@@ -18,19 +18,18 @@ type Matcher struct {
 }
 
 // matchCommandLine matches the given command line with the graph.
-func (m *Matcher) matchCommandLine(line interface{}) bool {
+func (m *Matcher) matchCommandLine(line interface{}) error {
 	//tools.Tracer("line: %v\n", line)
 	tokens := line.([]string)
 	tokens = append(tokens, GetCR().GetLabel())
-	index, result := m.matchWithGraph(tokens)
-	if index != len(tokens) {
-		tools.Error("Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
-		return false
+	index, ok := m.matchWithGraph(tokens)
+	if !ok || index != len(tokens) {
+		return tools.ERROR(nil, true, "Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
 	}
 	//for _, mt := range m.Ctx.Matched {
 	//    tools.Tracer("Context matched: %s %s %v\n", mt.Node.GetContent().GetLabel(), mt.Value, mt)
 	//}
-	return result
+	return nil
 }
 
 // traverseAndMatchGraph finds a match in the graph for the given tokens.
@@ -76,7 +75,7 @@ func (m *Matcher) matchWithGraph(tokens []string) (int, bool) {
 		if cn.Validate(m.Ctx, strings.Join(tokens, " "), index-1) {
 			m.Ctx.AddToken(index-1, cn, tokens[index-1])
 		} else {
-			return index, false
+			return index - 1, false
 		}
 	}
 	m.Ctx.UpdateCommandBox()
@@ -168,7 +167,7 @@ func (m *Matcher) workerQuery(cn *ContentNode, tokens []string) interface{} {
 
 // processCompleteAndHelp returns possible complete string or help for the
 // command line being entered.
-func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interface{}, bool) {
+func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interface{}, error) {
 	var lastCN *ContentNode
 	extendLine := false
 	tokens := m.tokenizeLine(in)
@@ -180,8 +179,7 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 	}
 	index, _ := m.matchWithGraph(tokens)
 	if index < (len(tokens) - 1) {
-		tools.Debug("not-a-proper-match tokens: %#v index: %d len: %d\n", tokens, index, len(tokens))
-		return []*CompleteHelp{}, false
+		return []*CompleteHelp{}, tools.ERROR(nil, false, "not-a-proper-match tokens: %#v index: %d len: %d\n", tokens, index, len(tokens))
 	}
 	//tools.Debug("len(matched): %d extended: %v index: %d\n", len(m.Ctx.Matched), extendLine, index)
 	if len(m.Ctx.Matched) == 0 {
@@ -203,7 +201,7 @@ func (m *Matcher) processCompleteAndHelp(in interface{}, worker Worker) (interfa
 	result := worker(lastCN, tokens)
 	//tools.Debug("line: %#v tokens: %#v results (%#v): %#v\n", line, tokens, lastCN.GetContent().GetLabel(), result)
 	result = m.removeDuplicated(result)
-	return result, true
+	return result, nil
 }
 
 func (m *Matcher) removeDuplicated(in interface{}) interface{} {
@@ -268,21 +266,21 @@ func (m *Matcher) tokenizeLine(in interface{}) []string {
 }
 
 // Match matches if a node is matched for a token.
-func (m *Matcher) Match(line interface{}) (interface{}, bool) {
+func (m *Matcher) Match(line interface{}) (interface{}, error) {
 	tokens := m.tokenizeLine(line)
 	//tools.Tracer("glue-line: %v\n", tokens)
 	m.Ctx.GetProcess().Set(MATCH)
-	result := m.matchCommandLine(tokens)
+	err := m.matchCommandLine(tokens)
 	m.Ctx.GetProcess().Clean()
-	return nil, result
+	return nil, err
 }
 
 // Execute executes the command for the given command line.
-func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
+func (m *Matcher) Execute(line interface{}) (interface{}, error) {
+	var retcode interface{}
 	m.Ctx.GetProcess().Set(EXECUTE)
-	if _, ok := m.Match(line); !ok {
-		tools.ERROR(nil, true, "match return %#v for line: %#v\n", ok, line)
-		return nil, false
+	if _, err := m.Match(line); err != nil {
+		return nil, tools.ERROR(err, false, "match return %#v for line: %#v\n", err, line)
 	}
 	//for _, t := range m.Ctx.Matched {
 	//    tools.Debug("matched %#v\n", t)
@@ -302,8 +300,7 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 			}
 			args, err := m.Ctx.GetArgValuesForCommandLabel(tools.PString(cmd.GetLabel()))
 			if err != nil {
-				tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
-				return nil, false
+				return nil, tools.ERROR(err, true, "line: %#v arguments not found: %#v\n", line, err)
 			}
 			cmd.Enter(m.Ctx, args)
 			if i < lenCommandBox && cmd.RunAsNoFinal {
@@ -314,6 +311,7 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	if ok, _ := m.Ctx.GetProcess().Check(POPMODE); ok {
 		modeBox := m.Ctx.PopMode()
 		m.Rooter = modeBox.Anchor
+		retcode = POPMODE
 	} else if m.Ctx.GetLastCommand().IsMode() {
 		m.Ctx.PushMode(m.Rooter)
 		lastAnchor := m.Ctx.GetLastAnchor()
@@ -321,45 +319,45 @@ func (m *Matcher) Execute(line interface{}) (interface{}, bool) {
 	}
 	m.Ctx.GetProcess().Clean()
 	m.Ctx.Clean()
-	return nil, true
+	return retcode, nil
 }
 
 // Complete returns possible complete string for command line being entered.
-func (m *Matcher) Complete(line interface{}) (interface{}, bool) {
+func (m *Matcher) Complete(line interface{}) (interface{}, error) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(COMPLETE)
-	completeAndHelp, ok := m.processCompleteAndHelp(line, m.workerComplete)
+	completeAndHelp, err := m.processCompleteAndHelp(line, m.workerComplete)
 	result := GetCompletes(completeAndHelp.([]*CompleteHelp))
 	m.Ctx.GetProcess().Clean()
-	return result, ok
+	return result, err
 }
 
 // Help returns the help for a node if it is matched.
-func (m *Matcher) Help(line interface{}) (interface{}, bool) {
+func (m *Matcher) Help(line interface{}) (interface{}, error) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(HELP)
-	completeAndHelp, ok := m.processCompleteAndHelp(line, m.workerHelp)
+	completeAndHelp, err := m.processCompleteAndHelp(line, m.workerHelp)
 	result := GetHelps(completeAndHelp.([]*CompleteHelp))
 	m.Ctx.GetProcess().Clean()
-	return result, ok
+	return result, err
 }
 
 // CompleteAndHelp returns possible complete string for command line being entered.
-func (m *Matcher) CompleteAndHelp(line interface{}) (interface{}, bool) {
+func (m *Matcher) CompleteAndHelp(line interface{}) (interface{}, error) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(COMPLETE)
-	result, ok := m.processCompleteAndHelp(line, m.workerCompleteAndHelp)
+	result, err := m.processCompleteAndHelp(line, m.workerCompleteAndHelp)
 	m.Ctx.GetProcess().Clean()
-	return result, ok
+	return result, err
 }
 
 // Query returns possible values for the given token.
-func (m *Matcher) Query(line interface{}) (interface{}, bool) {
+func (m *Matcher) Query(line interface{}) (interface{}, error) {
 	//tools.Tracer("line: %v\n", line)
 	m.Ctx.GetProcess().Set(QUERY)
-	result, ok := m.processCompleteAndHelp(line, m.workerQuery)
+	result, err := m.processCompleteAndHelp(line, m.workerQuery)
 	m.Ctx.GetProcess().Clean()
-	return result, ok
+	return result, err
 }
 
 // NewMatcher creates a new Matcher instance.

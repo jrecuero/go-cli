@@ -156,22 +156,22 @@ func (nsm *NSManager) CreateParseTree(root *graph.Node) error {
 }
 
 // Execute executes the command for the given command line.
-func (nsm *NSManager) Execute(line interface{}) (interface{}, bool) {
+func (nsm *NSManager) Execute(line interface{}) (interface{}, error) {
 	return nsm.matcher.Execute(line)
 }
 
 // Complete returns possible complete string for command line being entered.
-func (nsm *NSManager) Complete(line interface{}) (interface{}, bool) {
+func (nsm *NSManager) Complete(line interface{}) (interface{}, error) {
 	return nsm.matcher.Complete(line)
 }
 
 // Help returns the help for a node if it is matched.
-func (nsm *NSManager) Help(line interface{}) (interface{}, bool) {
+func (nsm *NSManager) Help(line interface{}) (interface{}, error) {
 	return nsm.matcher.Help(line)
 }
 
 // CompleteAndHelp returns possible complete string for command line being entered.
-func (nsm *NSManager) CompleteAndHelp(line interface{}) (interface{}, bool) {
+func (nsm *NSManager) CompleteAndHelp(line interface{}) (interface{}, error) {
 	return nsm.matcher.CompleteAndHelp(line)
 }
 

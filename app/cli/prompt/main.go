@@ -12,6 +12,8 @@ import (
 	"gopkg.in/AlecAivazis/survey.v1"
 )
 
+var p *prompt.Prompt
+
 var livePrefixState struct {
 	livePrefix string
 	isEnable   bool
@@ -48,14 +50,14 @@ func runGoPrompt() {
 	tools.ToDisplay("Please select table.")
 	//t := prompt.Input("> ", completer)
 	//tools.ToDisplay("You selected " + t)
-	p := prompt.New(
+	p = prompt.New(
 		executor,
 		completer,
 		prompt.OptionPrefix(syntax.DEFAULTPROMPT),
 		prompt.OptionLivePrefix(changeLivePrefix),
 		prompt.OptionTitle("cli-prompt"),
 		prompt.OptionHistory([]string{}),
-		prompt.OptionPrefixTextColor(prompt.Yellow),
+		prompt.OptionPrefixTextColor(prompt.Red),
 		prompt.OptionPreviewSuggestionTextColor(prompt.Blue),
 		prompt.OptionSelectedSuggestionBGColor(prompt.LightGray),
 		prompt.OptionSuggestionBGColor(prompt.DarkGray),
