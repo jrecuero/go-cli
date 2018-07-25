@@ -64,13 +64,17 @@ func (rec *Recorder) Load(filename string, appendto bool) error {
 
 // Play plays commands in the recorder.
 func (rec *Recorder) Play(m *Matcher) error {
+	var retcode error
+	savedContext := *m.Ctx
 	for _, line := range rec.commands {
 		tools.ToDisplay("Playing %#v\n", line)
 		if _, err := m.Execute(line); err != nil {
-			return tools.ERROR(err, false, "Playing recorder error: %#v\n", err)
+			retcode = tools.ERROR(err, false, "Playing recorder error: %#v\n", err)
+			break
 		}
 	}
-	return nil
+	m.Ctx = &savedContext
+	return retcode
 }
 
 // NewRecorder creates a new recorder instance.
