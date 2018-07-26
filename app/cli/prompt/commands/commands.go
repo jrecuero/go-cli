@@ -48,6 +48,17 @@ func (nc *NamesCompleter) Validate(ctx *syntax.Context, content syntax.IContent,
 
 // SetupCommands configures all command to run.
 func SetupCommands() []*syntax.Command {
+	tenantCmd := syntax.NewCommand(nil, "tenant tname", "Create a new tenant",
+		[]*syntax.Argument{
+			syntax.NewArgument("tname", "Tenant name", nil, "string", "none", nil),
+		}, nil)
+	tenantCmd.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		tname := tools.GetValFromArgs(arguments, "tname").(string)
+		tools.ToDisplay("Create tenant %#v\n", tname)
+		return nil
+	}
+	tenantCmd.IsBuiltIn = true
+
 	setCmd := syntax.NewCommand(nil, "set version", "Set test help",
 		[]*syntax.Argument{
 			syntax.NewArgument("version", "Version number", &versionCompleter{syntax.NewCompleterArgument("version")}, "int", 0, nil),
@@ -228,6 +239,7 @@ func SetupCommands() []*syntax.Command {
 		configDescCmd,
 		configIPCmd,
 		configDbaseCmd,
+		tenantCmd,
 	}
 	return commands
 }

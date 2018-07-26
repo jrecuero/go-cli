@@ -10,10 +10,10 @@ type Command struct {
 	*Callback                     // command callbacks (enter/exit/...)
 	*Content                      // command content
 	Syntax         string         // command syntas as a string.
-	CmdSyntax      *CommandSyntax //command syntax instance.
+	CmdSyntax      *CommandSyntax // command syntax instance.
 	Arguments      []*Argument    // command arguments.
 	NameSpaceNames []string       // command namespaces.
-	Parent         *Command       //command parent
+	Parent         *Command       // command parent
 	HasChildren    bool           // has the command children Ccommands)?
 	IsBuiltIn      bool           // is the command a built-on command?
 	RunAsNoFinal   bool           // is the command exec as a parent command?

@@ -13,6 +13,7 @@ type CommandSyntax struct {
 	Syntax string         // command syntax as a string.
 	Parsed *parser.Syntax // command parsed instance.
 	Graph  *graph.Graph   // command parsing tree graph instance.
+	done   bool           // Identify if the graph has already been created
 }
 
 // mapTokenToBlock maps the parser token with required graph block to be created.
@@ -86,6 +87,9 @@ func (cs *CommandSyntax) addNodeAndNodeToPathBlockToGraph(cnkey *ContentNode, cn
 
 // CreateGraph creates graph using parsed syntax.
 func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
+	if cs.done {
+		return true
+	}
 	if cmd.HasChildren && cs.Graph.Next == nil {
 		cs.Graph.Next = graph.NewNodeNext(NewContentJoint("Next", "Next content", NewCompleterJoint("next")))
 	}
@@ -188,6 +192,7 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 		}
 	}
 	cs.Graph.Terminate()
+	cs.done = true
 	return true
 }
 

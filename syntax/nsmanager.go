@@ -26,6 +26,7 @@ type NSManager struct {
 	parseTree *ParseTree   // ParseTree instance
 	commands  []*Command   // Contains all commands that can be used for the NameSpace Manager.
 	Record    *Recorder    // Contains command bein recorded.
+	builtins  []*Command   // Builtin commands
 }
 
 // GetName returns the NameSpace Manager name.
@@ -76,6 +77,11 @@ func (nsm *NSManager) Setup() *NSManager {
 		nsm.commands = append(nsm.commands, cmd)
 	}
 	nsm.cmdTree = NewCommandTree()
+	for _, cmd := range nsm.commands {
+		if cmd.IsBuiltIn {
+			nsm.builtins = append(nsm.builtins, cmd)
+		}
+	}
 	if err := nsm.CreateCommandTree(); err != nil {
 		return nil
 	}
@@ -95,7 +101,8 @@ func (nsm *NSManager) Search(pattern string) ([]*Command, error) {
 
 // createBuiltinTree creates the builtin tree inside any mode.
 func (nsm *NSManager) createBuiltinTree(cmd *Command, cmdNode *ContentNode) {
-	for _, cmdBuiltin := range NewBuiltins() {
+	//for _, cmdBuiltin := range NewBuiltins() {
+	for _, cmdBuiltin := range nsm.builtins {
 		if cmdBuiltin.IsMode() {
 			continue
 		}
