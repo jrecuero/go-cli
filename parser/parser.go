@@ -10,13 +10,14 @@ type ILexer interface {
 	Parse(index int, token Token, char string) error
 	Result() interface{}
 	GetCharMap() map[rune]Token
+	IsIdentRune(ch rune) bool
 }
 
 // Parser represents a parser.
 type Parser struct {
-	lex ILexer
-	s   *Scanner
-	buf struct {
+	lexer ILexer
+	s     *Scanner
+	buf   struct {
 		// last read token
 		tok Token
 		// last read literal
@@ -39,10 +40,10 @@ func (p *Parser) Parse() (interface{}, error) {
 		} else if tok == EOF {
 			break
 		}
-		p.lex.Parse(index, tok, lit)
+		p.lexer.Parse(index, tok, lit)
 		index++
 	}
-	return p.lex.Result(), nil
+	return p.lexer.Result(), nil
 }
 
 // scan returns the next token from the underlying scanner.
@@ -79,7 +80,7 @@ func (p *Parser) unscan() {
 // NewParser returns a new instance of Parser.
 func NewParser(r io.Reader, lexer ILexer) *Parser {
 	return &Parser{
-		s:   NewScanner(r, lexer.GetCharMap()),
-		lex: lexer,
+		s:     NewScanner(r, lexer),
+		lexer: lexer,
 	}
 }

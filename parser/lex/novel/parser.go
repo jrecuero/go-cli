@@ -1,4 +1,4 @@
-package cli
+package novel
 
 import (
 	"github.com/jrecuero/go-cli/parser"
@@ -42,41 +42,28 @@ var cliCharMap = map[rune]parser.Token{
 	'>': CLOSEMARK,
 }
 
-// Syntax represents the CLI command syntax.
+// Syntax represents the Novel command syntax.
 type Syntax struct {
-	Command   string
 	Arguments []string
 	Tokens    []parser.Token
 }
 
-// Parser represents the CLI parser.
+// Parser represents the Novel parser.
 type Parser struct {
 	syntax  *Syntax
 	charMap map[rune]parser.Token
 }
 
-// Parse implements the CLI parse functionality.
+// Parse implements the Novel parse functionality.
 func (p *Parser) Parse(index int, token parser.Token, lit string) error {
-	if index == 1 {
-		if token != parser.IDENT {
-			return tools.ERROR(nil, true, "found %q, illega token, expected IDENT", lit)
-		}
-		p.syntax.Command = lit
-	} else {
-		p.syntax.Arguments = append(p.syntax.Arguments, lit)
-		p.syntax.Tokens = append(p.syntax.Tokens, token)
-	}
+	p.syntax.Arguments = append(p.syntax.Arguments, lit)
+	p.syntax.Tokens = append(p.syntax.Tokens, token)
 	return nil
 }
 
 // Result returns the parse result.
 func (p *Parser) Result() interface{} {
 	return p.syntax
-}
-
-// GetCharMap returns the mapping between runes to tokens.
-func (p *Parser) GetCharMap() map[rune]parser.Token {
-	return p.charMap
 }
 
 // getIdentRunes returns special runes to be scanned as part of idents.
@@ -89,10 +76,15 @@ func (p *Parser) IsIdentRune(ch rune) bool {
 	return parser.IsLetter(ch) || parser.IsDigit(ch) || tools.SearchKeyInRuneTable(p.getIdentRunes(), ch) == nil
 }
 
+// GetCharMap returns the mapping between runes to tokens.
+func (p *Parser) GetCharMap() map[rune]parser.Token {
+	return p.charMap
+}
+
 // Parser should implement ILexer interface.
 var _ parser.ILexer = (*Parser)(nil)
 
-// NewParser creates a new CLI Parser instance.
+// NewParser creates a new Novel Parser instance.
 func NewParser() *Parser {
 	return &Parser{
 		syntax:  &Syntax{},

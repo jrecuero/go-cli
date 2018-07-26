@@ -10,6 +10,7 @@ import (
 type Scanner struct {
 	r       *bufio.Reader
 	charmap map[rune]Token
+	lexer   ILexer
 }
 
 // Scan returns the next token and literal value.
@@ -23,7 +24,7 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
-	} else if isLetter(ch) {
+	} else if IsLetter(ch) {
 		s.unread()
 		return s.scanIdent()
 	}
@@ -68,7 +69,8 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if !isLetter(ch) && !isDigit(ch) && ch != '_' && ch != '-' {
+			//} else if !IsLetter(ch) && !IsDigit(ch) && ch != '_' && ch != '-' {
+		} else if !s.lexer.IsIdentRune(ch) {
 			s.unread()
 			break
 		} else {
@@ -99,13 +101,13 @@ func isWhitespace(ch rune) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n'
 }
 
-// isLetter returns true if the rune is a letter.
-func isLetter(ch rune) bool {
+// IsLetter returns true if the rune is a letter.
+func IsLetter(ch rune) bool {
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
 }
 
-// isDigit returns true if the rune is a digit.
-func isDigit(ch rune) bool {
+// IsDigit returns true if the rune is a digit.
+func IsDigit(ch rune) bool {
 	return (ch >= '0' && ch <= '9')
 }
 
@@ -113,10 +115,11 @@ func isDigit(ch rune) bool {
 var eof = rune(0)
 
 // NewScanner returns a new instance of Scanner.
-func NewScanner(r io.Reader, charmap map[rune]Token) *Scanner {
+func NewScanner(r io.Reader, lexer ILexer) *Scanner {
 	scan := &Scanner{
 		r:       bufio.NewReader(r),
-		charmap: charmap,
+		lexer:   lexer,
+		charmap: lexer.GetCharMap(),
 	}
 	scan.charmap[eof] = EOF
 	return scan

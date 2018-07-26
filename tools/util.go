@@ -59,6 +59,16 @@ func SearchKeyInTable(table []string, key string) error {
 	return errors.New("not found")
 }
 
+// SearchKeyInRuneTable checks if the key is in the given array.
+func SearchKeyInRuneTable(table []rune, key rune) error {
+	for _, v := range table {
+		if key == v {
+			return nil
+		}
+	}
+	return errors.New("not found")
+}
+
 // SearchKeyInMap checks if the key is in the given map.
 func SearchKeyInMap(table map[string]interface{}, key string) error {
 	for k := range table {
