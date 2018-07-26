@@ -11,6 +11,7 @@ type ILexer interface {
 	Result() interface{}
 	GetCharMap() map[rune]Token
 	IsIdentRune(ch rune) bool
+	IsIdentPrefixRune(ch rune) bool
 }
 
 // Parser represents a parser.

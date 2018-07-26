@@ -21,8 +21,8 @@ var novelCharMap = map[rune]parser.Token{
 
 // Syntax represents the Novel command syntax.
 type Syntax struct {
-	Arguments []string
-	Tokens    []parser.Token
+	Idents []string
+	Tokens []parser.Token
 }
 
 // Parser represents the Novel parser.
@@ -33,7 +33,7 @@ type Parser struct {
 
 // Parse implements the Novel parse functionality.
 func (p *Parser) Parse(index int, token parser.Token, lit string) error {
-	p.syntax.Arguments = append(p.syntax.Arguments, lit)
+	p.syntax.Idents = append(p.syntax.Idents, lit)
 	p.syntax.Tokens = append(p.syntax.Tokens, token)
 	return nil
 }
@@ -51,6 +51,11 @@ func (p *Parser) getIdentRunes() []rune {
 // IsIdentRune returns if the rune can be part of an ident.
 func (p *Parser) IsIdentRune(ch rune) bool {
 	return parser.IsLetter(ch) || parser.IsDigit(ch) || tools.SearchKeyInRuneTable(p.getIdentRunes(), ch) == nil
+}
+
+// IsIdentPrefixRune returns if the rune can be ident prefix.
+func (p *Parser) IsIdentPrefixRune(ch rune) bool {
+	return parser.IsLetter(ch) || ch == '<' || ch == '>'
 }
 
 // GetCharMap returns the mapping between runes to tokens.

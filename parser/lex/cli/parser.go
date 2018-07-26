@@ -89,6 +89,11 @@ func (p *Parser) IsIdentRune(ch rune) bool {
 	return parser.IsLetter(ch) || parser.IsDigit(ch) || tools.SearchKeyInRuneTable(p.getIdentRunes(), ch) == nil
 }
 
+// IsIdentPrefixRune returns if the rune can be ident prefix.
+func (p *Parser) IsIdentPrefixRune(ch rune) bool {
+	return parser.IsLetter(ch)
+}
+
 // Parser should implement ILexer interface.
 var _ parser.ILexer = (*Parser)(nil)
 

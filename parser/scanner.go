@@ -24,7 +24,8 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
-	} else if IsLetter(ch) {
+		//} else if IsLetter(ch) {
+	} else if s.lexer.IsIdentPrefixRune(ch) {
 		s.unread()
 		return s.scanIdent()
 	} else if ch == eof {

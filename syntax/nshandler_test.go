@@ -202,8 +202,8 @@ func TestNSHandler_Setup(t *testing.T) {
 	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line := "set 1.0 speed device home"
-	if _, ok := m.Match(line); !ok {
-		t.Errorf("match return %#v for line: %s", ok, line)
+	if _, err := m.Match(line); err != nil {
+		t.Errorf("match return %#v for line: %s", err, line)
 	}
 }
 
@@ -216,12 +216,12 @@ func TestNSHandler_Execute_Enter(t *testing.T) {
 	ctx := syntax.NewContext(nil)
 	m := syntax.NewMatcher(ctx, nsm.GetParseTree().Graph)
 	line := "set 1.0 speed device home"
-	if _, ok := m.Match(line); !ok {
-		t.Errorf("match return %#v for line: %s", ok, line)
+	if _, err := m.Match(line); err != nil {
+		t.Errorf("match return %#v for line: %s", err, line)
 	}
 	//line = "set 1.0"
-	//if _, ok := m.Match(line); !ok {
-	//    t.Errorf("match return %#v for line: %s", ok, line)
+	//if _, err := m.Match(line); err != nil {
+	//    t.Errorf("match return %#v for line: %s", err, line)
 	//} else {
 	//    lastCommand := ctx.GetLastCommand()
 	//    lastCommand.Enter(ctx, nil)
