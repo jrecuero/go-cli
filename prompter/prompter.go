@@ -30,8 +30,10 @@ func (pr *Prompter) executor(in string) {
 	if in == "quit" {
 		tools.CloseLog()
 		os.Exit(0)
+	} else if len(strings.TrimSpace(in)) == 0 {
+		return
 	}
-	fmt.Println("Your input: " + in)
+	//tools.ToDisplay("Your input: %#v\n" + in)
 	tools.Info("Running command line %#v\n", in)
 	// Pass the NSManager to the context cache to be used by internal commands.
 	pr.NSM.GetContext().Cache.Add("nsm", pr.NSM)
