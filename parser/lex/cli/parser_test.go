@@ -1,4 +1,4 @@
-package parser_test
+package cli_test
 
 import (
 	"reflect"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/jrecuero/go-cli/parser"
+	lexcli "github.com/jrecuero/go-cli/parser/lex/cli"
 	"github.com/jrecuero/go-cli/tools"
 )
 
@@ -13,12 +14,12 @@ import (
 func TestParser_ParseSyntax(t *testing.T) {
 	var tests = []struct {
 		s      string
-		syntax *parser.Syntax
+		syntax *lexcli.Syntax
 		err    string
 	}{
 		{
 			s: "SELECT name",
-			syntax: &parser.Syntax{
+			syntax: &lexcli.Syntax{
 				Command:   "SELECT",
 				Arguments: []string{"name"},
 				Tokens:    []parser.Token{parser.IDENT},
@@ -26,7 +27,7 @@ func TestParser_ParseSyntax(t *testing.T) {
 		},
 		{
 			s: "SELECT fname lname",
-			syntax: &parser.Syntax{
+			syntax: &lexcli.Syntax{
 				Command:   "SELECT",
 				Arguments: []string{"fname", "lname"},
 				Tokens:    []parser.Token{parser.IDENT, parser.IDENT},
@@ -34,48 +35,48 @@ func TestParser_ParseSyntax(t *testing.T) {
 		},
 		{
 			s: "SELECT name [ age ]",
-			syntax: &parser.Syntax{
+			syntax: &lexcli.Syntax{
 				Command:   "SELECT",
 				Arguments: []string{"name", "[", "age", "]"},
-				Tokens: []parser.Token{parser.IDENT, parser.OPENBRACKET,
-					parser.IDENT, parser.CLOSEBRACKET},
+				Tokens: []parser.Token{parser.IDENT, lexcli.OPENBRACKET,
+					parser.IDENT, lexcli.CLOSEBRACKET},
 			},
 		},
 		{
 			s: "SELECT name age [ id | passport ]",
-			syntax: &parser.Syntax{
+			syntax: &lexcli.Syntax{
 				Command:   "SELECT",
 				Arguments: []string{"name", "age", "[", "id", "|", "passport", "]"},
 				Tokens: []parser.Token{parser.IDENT, parser.IDENT,
-					parser.OPENBRACKET, parser.IDENT,
-					parser.PIPE, parser.IDENT, parser.CLOSEBRACKET},
+					lexcli.OPENBRACKET, parser.IDENT,
+					lexcli.PIPE, parser.IDENT, lexcli.CLOSEBRACKET},
 			},
 		},
 		{
 			s: "SELECT name [ age ]?",
-			syntax: &parser.Syntax{
+			syntax: &lexcli.Syntax{
 				Command:   "SELECT",
 				Arguments: []string{"name", "[", "age", "]", "?"},
-				Tokens: []parser.Token{parser.IDENT, parser.OPENBRACKET, parser.IDENT,
-					parser.CLOSEBRACKET, parser.QUESTION},
+				Tokens: []parser.Token{parser.IDENT, lexcli.OPENBRACKET, parser.IDENT,
+					lexcli.CLOSEBRACKET, lexcli.QUESTION},
 			},
 		},
 		{
 			s: "SELECT <name>",
-			syntax: &parser.Syntax{
+			syntax: &lexcli.Syntax{
 				Command:   "SELECT",
 				Arguments: []string{"<", "name", ">"},
-				Tokens:    []parser.Token{parser.OPENMARK, parser.IDENT, parser.CLOSEMARK},
+				Tokens:    []parser.Token{lexcli.OPENMARK, parser.IDENT, lexcli.CLOSEMARK},
 			},
 		},
 
 		// Errors
-		{s: "1one", err: `found "1", expected command`, syntax: nil},
-		{s: "SELECT 2", err: `found "2", expected argument`, syntax: nil},
+		{s: "1one", err: `found "1", illegal token`, syntax: nil},
+		{s: "SELECT 2", err: `found "2", illegal token`, syntax: nil},
 	}
 
 	for i, tt := range tests {
-		syntax, err := parser.NewParser(strings.NewReader(tt.s)).Parse()
+		syntax, err := parser.NewParser(strings.NewReader(tt.s), lexcli.NewParser()).Parse()
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q error mismatch:\n exp=%s\n got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.syntax, syntax) {

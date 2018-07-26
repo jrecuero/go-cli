@@ -1,10 +1,11 @@
-package parser_test
+package cli_test
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/jrecuero/go-cli/parser"
+	lexcli "github.com/jrecuero/go-cli/parser/lex/cli"
 )
 
 // Ensure the scanner can scan tokens correctly.
@@ -22,23 +23,23 @@ func TestScanner_Scan(t *testing.T) {
 		{s: "\n", tok: parser.WS, lit: "\n"},
 
 		// Misc characters
-		{s: "[", tok: parser.OPENBRACKET, lit: "["},
-		{s: "]", tok: parser.CLOSEBRACKET, lit: "]"},
-		{s: "|", tok: parser.PIPE, lit: "|"},
-		{s: "*", tok: parser.ASTERISK, lit: "*"},
-		{s: "+", tok: parser.PLUS, lit: "+"},
-		{s: "?", tok: parser.QUESTION, lit: "?"},
-		{s: "!", tok: parser.ADMIRATION, lit: "!"},
-		{s: "@", tok: parser.AT, lit: "@"},
-		{s: "<", tok: parser.OPENMARK, lit: "<"},
-		{s: ">", tok: parser.CLOSEMARK, lit: ">"},
+		{s: "[", tok: lexcli.OPENBRACKET, lit: "["},
+		{s: "]", tok: lexcli.CLOSEBRACKET, lit: "]"},
+		{s: "|", tok: lexcli.PIPE, lit: "|"},
+		{s: "*", tok: lexcli.ASTERISK, lit: "*"},
+		{s: "+", tok: lexcli.PLUS, lit: "+"},
+		{s: "?", tok: lexcli.QUESTION, lit: "?"},
+		{s: "!", tok: lexcli.ADMIRATION, lit: "!"},
+		{s: "@", tok: lexcli.AT, lit: "@"},
+		{s: "<", tok: lexcli.OPENMARK, lit: "<"},
+		{s: ">", tok: lexcli.CLOSEMARK, lit: ">"},
 
 		// Identifiers
 		{s: "foo", tok: parser.IDENT, lit: "foo"},
 	}
 
 	for i, tt := range tests {
-		s := parser.NewScanner(strings.NewReader(tt.s))
+		s := parser.NewScanner(strings.NewReader(tt.s), lexcli.NewParser())
 		tok, lit := s.Scan()
 		if tt.tok != tok {
 			t.Errorf("%d. %q token mismatch: exp=%q got=%q <%q>", i, tt.s, tt.tok, tok, lit)

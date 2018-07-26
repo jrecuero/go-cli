@@ -27,6 +27,8 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	} else if IsLetter(ch) {
 		s.unread()
 		return s.scanIdent()
+	} else if ch == eof {
+		return EOF, ""
 	}
 
 	if code, ok := s.charmap[ch]; ok {
@@ -121,6 +123,5 @@ func NewScanner(r io.Reader, lexer ILexer) *Scanner {
 		lexer:   lexer,
 		charmap: lexer.GetCharMap(),
 	}
-	scan.charmap[eof] = EOF
 	return scan
 }

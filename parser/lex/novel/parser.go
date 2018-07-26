@@ -11,35 +11,12 @@ const (
 	// CLOSEBRACKET token ]. #5
 	CLOSEBRACKET
 	// PIPE token |. #6
-	PIPE
-	// ASTERISK token *. #7
-	ASTERISK
-	// PLUS token +. #8
-	PLUS
-	// QUESTION mark token ?. #9
-	QUESTION
-	// ADMIRATION mark token !. #10
-	ADMIRATION
-	// AT token @. #11
-	AT
-	// OPENMARK token <. #12
-	OPENMARK
-	// CLOSEMARK token >. #13
-	CLOSEMARK
 )
 
-// cliCharMap represents the mapping between runes and codes.
-var cliCharMap = map[rune]parser.Token{
+// novelCharMap represents the mapping between runes and codes.
+var novelCharMap = map[rune]parser.Token{
 	'[': OPENBRACKET,
 	']': CLOSEBRACKET,
-	'|': PIPE,
-	'*': ASTERISK,
-	'+': PLUS,
-	'?': QUESTION,
-	'!': ADMIRATION,
-	'@': AT,
-	'<': OPENMARK,
-	'>': CLOSEMARK,
 }
 
 // Syntax represents the Novel command syntax.
@@ -68,7 +45,7 @@ func (p *Parser) Result() interface{} {
 
 // getIdentRunes returns special runes to be scanned as part of idents.
 func (p *Parser) getIdentRunes() []rune {
-	return []rune{'_', '-'}
+	return []rune{'_', '-', '<', '>'}
 }
 
 // IsIdentRune returns if the rune can be part of an ident.
@@ -88,6 +65,6 @@ var _ parser.ILexer = (*Parser)(nil)
 func NewParser() *Parser {
 	return &Parser{
 		syntax:  &Syntax{},
-		charMap: cliCharMap,
+		charMap: novelCharMap,
 	}
 }
