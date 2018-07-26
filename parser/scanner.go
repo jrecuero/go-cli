@@ -8,12 +8,8 @@ import (
 
 // Scanner represents a lexical scanner.
 type Scanner struct {
-	r *bufio.Reader
-}
-
-// NewScanner returns a new instance of Scanner.
-func NewScanner(r io.Reader) *Scanner {
-	return &Scanner{r: bufio.NewReader(r)}
+	r       *bufio.Reader
+	charmap map[rune]Token
 }
 
 // Scan returns the next token and literal value.
@@ -32,30 +28,8 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		return s.scanIdent()
 	}
 
-	// Otherwise read the individual character.
-	switch ch {
-	case eof:
-		return EOF, ""
-	case '[':
-		return OPENBRACKET, string(ch)
-	case ']':
-		return CLOSEBRACKET, string(ch)
-	case '|':
-		return PIPE, string(ch)
-	case '*':
-		return ASTERISK, string(ch)
-	case '+':
-		return PLUS, string(ch)
-	case '?':
-		return QUESTION, string(ch)
-	case '!':
-		return ADMIRATION, string(ch)
-	case '@':
-		return AT, string(ch)
-	case '<':
-		return OPENMARK, string(ch)
-	case '>':
-		return CLOSEMARK, string(ch)
+	if code, ok := s.charmap[ch]; ok {
+		return code, string(ch)
 	}
 
 	return ILLEGAL, string(ch)
@@ -137,3 +111,13 @@ func isDigit(ch rune) bool {
 
 // eof represents a marker rune for the end of the reader.
 var eof = rune(0)
+
+// NewScanner returns a new instance of Scanner.
+func NewScanner(r io.Reader, charmap map[rune]Token) *Scanner {
+	scan := &Scanner{
+		r:       bufio.NewReader(r),
+		charmap: charmap,
+	}
+	scan.charmap[eof] = EOF
+	return scan
+}

@@ -5,15 +5,16 @@ import (
 	"io"
 )
 
-// Syntax represent a command syntax.
-type Syntax struct {
-	Command   string
-	Arguments []string
-	Tokens    []Token
+// ILexer represents any lexer interface.
+type ILexer interface {
+	Parse(index int, token Token, char string) error
+	Result() interface{}
+	GetCharMap() map[rune]Token
 }
 
 // Parser represents a parser.
 type Parser struct {
+	lex ILexer
 	s   *Scanner
 	buf struct {
 		// last read token
@@ -25,37 +26,23 @@ type Parser struct {
 	}
 }
 
-// NewParser returns a new instance of Parser.
-func NewParser(r io.Reader) *Parser {
-	return &Parser{s: NewScanner(r)}
-}
-
 // Parse parses a statement.
-func (p *Parser) Parse() (*Syntax, error) {
-	syntax := &Syntax{}
-
-	tok, lit := p.scanIgnoreWhitespace()
-	//tools.Log().Printf("1. tok is '%s'\n", lit)
-	if tok != IDENT {
-		return nil, fmt.Errorf("found %q, expected command", lit)
-	}
-
-	syntax.Command = lit
-
-	// Next we should loop over all arguments
+func (p *Parser) Parse() (interface{}, error) {
+	index := 1
 	for {
 		// Read a field
-		tok, lit = p.scanIgnoreWhitespace()
-		//tools.Log().Printf("2. tok:%d, lit: '%s'\n", tok, lit)
+		tok, lit := p.scanIgnoreWhitespace()
+
+		//tools.Debug("tok:%d, lit: '%s'\n", tok, lit)
 		if tok == ILLEGAL {
-			return nil, fmt.Errorf("found %q, expected argument", lit)
+			return nil, fmt.Errorf("found %q, illegal token", lit)
 		} else if tok == EOF {
 			break
 		}
-		syntax.Arguments = append(syntax.Arguments, lit)
-		syntax.Tokens = append(syntax.Tokens, tok)
+		p.lex.Parse(index, tok, lit)
+		index++
 	}
-	return syntax, nil
+	return p.lex.Result(), nil
 }
 
 // scan returns the next token from the underlying scanner.
@@ -87,4 +74,12 @@ func (p *Parser) scanIgnoreWhitespace() (tok Token, lit string) {
 // unscan pushes the previously read token back onto the buffer.
 func (p *Parser) unscan() {
 	p.buf.n = 1
+}
+
+// NewParser returns a new instance of Parser.
+func NewParser(r io.Reader, lexer ILexer) *Parser {
+	return &Parser{
+		s:   NewScanner(r, lexer.GetCharMap()),
+		lex: lexer,
+	}
 }

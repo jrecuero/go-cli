@@ -5,29 +5,30 @@ import (
 
 	"github.com/jrecuero/go-cli/graph"
 	"github.com/jrecuero/go-cli/parser"
+	lexcli "github.com/jrecuero/go-cli/parser/lex/cli"
 	"github.com/jrecuero/go-cli/tools"
 )
 
 // CommandSyntax represents the command syntax.
 type CommandSyntax struct {
 	Syntax string         // command syntax as a string.
-	Parsed *parser.Syntax // command parsed instance.
+	Parsed *lexcli.Syntax // command parsed instance.
 	Graph  *graph.Graph   // command parsing tree graph instance.
 	done   bool           // Identify if the graph has already been created
 }
 
 // mapTokenToBlock maps the parser token with required graph block to be created.
 var mapTokenToBlock = map[parser.Token]graph.BlockType{
-	parser.QUESTION:   graph.NOLOOPandSKIP,
-	parser.ASTERISK:   graph.LOOPandSKIP,
-	parser.PLUS:       graph.LOOPandNOSKIP,
-	parser.ADMIRATION: graph.NOLOOPandNOSKIP,
-	parser.AT:         graph.LOOPandSKIP,
+	lexcli.QUESTION:   graph.NOLOOPandSKIP,
+	lexcli.ASTERISK:   graph.LOOPandSKIP,
+	lexcli.PLUS:       graph.LOOPandNOSKIP,
+	lexcli.ADMIRATION: graph.NOLOOPandNOSKIP,
+	lexcli.AT:         graph.LOOPandSKIP,
 }
 
 // NewCommandSyntax returns a new instance of CommandSyntax.
 func NewCommandSyntax(st string) *CommandSyntax {
-	ps, _ := parser.NewParser(strings.NewReader(st)).Parse()
+	ps, _ := parser.NewParser(strings.NewReader(st), lexcli.NewParser()).Parse()
 	setupG := &graph.SetupGraph{
 		RootContent:  NewContentJoint("Root", "Root content", NewCompleterJoint("root")),
 		SinkContent:  GetCR(),
@@ -38,7 +39,7 @@ func NewCommandSyntax(st string) *CommandSyntax {
 	}
 	return &CommandSyntax{
 		Syntax: st,
-		Parsed: ps,
+		Parsed: ps.(*lexcli.Syntax),
 		Graph:  graph.NewGraph(setupG),
 	}
 }
@@ -48,7 +49,7 @@ func lookForCloseBracket(toks []parser.Token, index int) (parser.Token, int) {
 		if i < index {
 			continue
 		}
-		if tok == parser.CLOSEBRACKET {
+		if tok == lexcli.CLOSEBRACKET {
 			retIndex := i + 1
 			return toks[retIndex], retIndex
 		}
@@ -112,14 +113,14 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 				inpath = cs.handleIdent(label, cmd, insideBlock, inpath, piped, blockEndToken)
 			}
 			break
-		case parser.OPENBRACKET:
+		case lexcli.OPENBRACKET:
 			if insideBlock == true {
 				return false
 			}
 			insideBlock = true
 			// Look forward in the parsed syntax in order to identify which
 			// kind of block has to be created.
-			// Look for the next entry after parser.CLOSEBRACKET.
+			// Look for the next entry after lexcli.CLOSEBRACKET.
 			blockEndToken, _ = lookForCloseBracket(cs.Parsed.Tokens, i)
 			block = mapTokenToBlock[blockEndToken]
 			//tools.Debug("index=%d token=%d block=%d\n", i, blockEndToken, block)
@@ -128,7 +129,7 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			graph.MapBlockToGraphFunc[block](cs.Graph)
 			piped = false
 			break
-		case parser.CLOSEBRACKET:
+		case lexcli.CLOSEBRACKET:
 			if insideBlock == false {
 				return false
 			}
@@ -141,51 +142,51 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			inpath = false
 			blockEndToken = parser.ILLEGAL
 			break
-		case parser.PIPE:
+		case lexcli.PIPE:
 			if insideBlock == false {
 				return false
 			}
 			piped = true
 			break
-		case parser.ASTERISK:
+		case lexcli.ASTERISK:
 			if insideBlock == true || block != graph.LOOPandSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
 			piped = false
 			break
-		case parser.PLUS:
+		case lexcli.PLUS:
 			if insideBlock == true || block != graph.LOOPandNOSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
 			piped = false
 			break
-		case parser.QUESTION:
+		case lexcli.QUESTION:
 			if insideBlock == true || block != graph.NOLOOPandSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
 			piped = false
 			break
-		case parser.ADMIRATION:
+		case lexcli.ADMIRATION:
 			if insideBlock == true || block != graph.NOLOOPandNOSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
 			piped = false
 			break
-		case parser.AT:
+		case lexcli.AT:
 			if insideBlock == true || block != graph.LOOPandSKIP {
 				return false
 			}
 			block = graph.NOBLOCK
 			piped = false
 			break
-		case parser.OPENMARK:
+		case lexcli.OPENMARK:
 			openMark = true
 			break
-		case parser.CLOSEMARK:
+		case lexcli.CLOSEMARK:
 			inpath, piped = cs.handleCloseMark(contentInMark, cmd, insideBlock, inpath, piped)
 			openMark = false
 			break
@@ -205,7 +206,7 @@ func (cs *CommandSyntax) handleIdent(label string, cmd *Command, insideBlock boo
 	//tools.Debug("adding keyword: %#v, inblock: %#v, piped: %#v, inpath: %#v endtoken:%#v\n",
 	//    label, insideBlock, piped, inpath, blockEndToken)
 	if insideBlock {
-		if blockEndToken == parser.AT {
+		if blockEndToken == lexcli.AT {
 			cs.addNodeToGraph(newNode)
 		} else {
 			//cs.addNodeToBlockToGraph(newNode)
