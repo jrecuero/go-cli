@@ -242,7 +242,7 @@ func newRecorderSaveCmd(parent *Command) *Command {
 }
 
 func newRecorderLoadCmd(parent *Command) *Command {
-	recorderLoadCmd := NewCommand(parent, "load", "Load recorder",
+	recorderLoadCmd := NewCommand(parent, "load filename", "Load recorder",
 		[]*Argument{
 			NewArgument("filename", "Filename to load", nil, "string", "recorder.log", nil),
 		}, nil)

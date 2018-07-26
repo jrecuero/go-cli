@@ -1,15 +1,16 @@
 package syntax
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/jrecuero/go-cli/tools"
 )
 
 // Recorder represents recorded commands.
 type Recorder struct {
-	filename string
-	file     *os.File
 	commands []interface{}
 	enable   bool
 }
@@ -54,11 +55,29 @@ func (rec *Recorder) Clean() error {
 
 // Save saves command recorded in the given filename.
 func (rec *Recorder) Save(filename string, appendto bool) error {
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		return tools.ERROR(err, true, "Error saving recorder: %#v\n", err)
+	}
+	defer file.Close()
+	for _, line := range rec.commands {
+		file.WriteString(fmt.Sprintf("%v\n", line))
+	}
 	return nil
 }
 
 // Load loads recorded commands from the given filename.
 func (rec *Recorder) Load(filename string, appendto bool) error {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return tools.ERROR(err, true, "Error loading recorder: %#v\n", err)
+	}
+	rec.commands = []interface{}{}
+	for _, line := range strings.Split(string(data), "\n") {
+		if len(strings.TrimSpace(line)) != 0 {
+			rec.commands = append(rec.commands, line)
+		}
+	}
 	return nil
 }
 
