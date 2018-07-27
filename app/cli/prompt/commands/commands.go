@@ -31,6 +31,33 @@ type NamesCompleter struct {
 	*syntax.CompleterArgument
 }
 
+type boolCmdCompleter struct {
+	*syntax.CompleterCommand
+}
+
+var boolFlag = true
+
+func (bc *boolCmdCompleter) Match(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (int, bool) {
+	if boolFlag {
+		return bc.CompleterCommand.Match(ctx, content, line, index)
+	}
+	return index, false
+}
+
+func (bc *boolCmdCompleter) Complete(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	if boolFlag {
+		return bc.CompleterCommand.Complete(ctx, content, line, index)
+	}
+	return nil, false
+}
+
+func (bc *boolCmdCompleter) Help(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	if boolFlag {
+		return bc.CompleterCommand.Help(ctx, content, line, index)
+	}
+	return nil, false
+}
+
 // Query returns the query for any node completer.
 func (nc *NamesCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
 	data := []*syntax.CompleteHelp{
@@ -85,6 +112,7 @@ func SetupCommands() []*syntax.Command {
 		tools.ToDisplay("executing bool command\n")
 		return nil
 	}
+	setBoolCmd.SetCompleter(&boolCmdCompleter{syntax.NewCompleterCommand("bool")})
 
 	setBaudrateCmd := syntax.NewCommand(setCmd, "baudrate [speed | parity]?", "Set baudrate help",
 		[]*syntax.Argument{
