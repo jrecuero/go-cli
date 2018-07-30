@@ -41,6 +41,14 @@ func AssignStringList(argcontent interface{}, val interface{}) interface{} {
 	return append(argcontent.([]string), val.(string))
 }
 
+// AssignList performs a value assignment.
+func AssignList(argcontent interface{}, val interface{}) interface{} {
+	if argcontent == nil {
+		return []interface{}{val}
+	}
+	return append(argcontent.([]interface{}), val)
+}
+
 // AssignFreeForm performs a value assignment.
 func AssignFreeForm(argcontent interface{}, val interface{}) interface{} {
 	if argcontent == nil {
@@ -69,7 +77,8 @@ type argmapper struct {
 var callerMap = map[string]argmapper{
 	"string":   argmapper{CastString, AssignString},
 	"int":      argmapper{CastInt, AssignInt},
-	"list":     argmapper{CastString, AssignStringList},
+	"strlist":  argmapper{CastString, AssignStringList},
+	"list":     argmapper{CastString, AssignList},
 	"freeform": argmapper{CastString, AssignFreeForm},
 	"map":      argmapper{CastString, AssignMap},
 }

@@ -25,23 +25,23 @@ type Column struct {
 }
 
 // SetLayout is ...
-func (col *Column) SetLayout(width int, align string) *Column {
+func (col *Column) SetLayout(label interface{}, width int, align string) *Column {
+	var _label string
+	if label == nil {
+		_label = col.Name
+	} else {
+		_label = label.(string)
+	}
+	col.Label = _label
 	col.Width = width
 	col.Align = align
 	return col
 }
 
 // NewColumn is ...
-func NewColumn(name string, label interface{}, ctype string) *Column {
-	var _label string
-	if label == nil {
-		_label = name
-	} else {
-		_label = label.(string)
-	}
+func NewColumn(name string, ctype string) *Column {
 	return &Column{
 		Name:  name,
-		Label: _label,
 		CType: ctype,
 	}
 }

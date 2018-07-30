@@ -97,7 +97,7 @@ func initContext(configs ...config) *context {
 
 func runDataBase() {
 	layout := dbase.NewTableLayout()
-	layout.AddColumn(dbase.NewColumn("name", nil, "string"), dbase.NewColumn("age", nil, "int"))
+	layout.AddColumn(dbase.NewColumn("name", "string"), dbase.NewColumn("age", "int"))
 	tb := dbase.NewTable("Person").SetLayout(layout)
 	db := dbase.NewDataBase("WORK")
 	db.AddTable(tb)
