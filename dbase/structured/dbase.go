@@ -1,4 +1,4 @@
-package dbase
+package structured
 
 import (
 	"reflect"

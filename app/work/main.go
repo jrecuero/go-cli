@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"sync"
+
+	"github.com/jrecuero/go-cli/dbase"
 )
 
 // Dbase creates a database interface
@@ -93,6 +95,18 @@ func initContext(configs ...config) *context {
 	return ctx
 }
 
+func runDataBase() {
+	layout := dbase.NewTableLayout()
+	layout.AddColumn(dbase.NewColumn("name", nil, "string"), dbase.NewColumn("age", nil, "int"))
+	tb := dbase.NewTable("Person").SetLayout(layout)
+	db := dbase.NewDataBase("WORK")
+	db.AddTable(tb)
+	tb.AddRow(dbase.NewRow("jc", "51"), dbase.NewRow("marce", "43"))
+	fmt.Printf("Layout: %#v\n", layout)
+	fmt.Printf("Table: %#v\n", tb)
+	fmt.Printf("DataBase: %#v\n", db)
+}
+
 func main() {
 	//var x = &DB{}
 	//fmt.Println(add((Dbase)(x), "me"))
@@ -101,7 +115,9 @@ func main() {
 	//draw(mocka)
 	//named(mocka)
 
-	contexto := initContext(newMockShape)
-	draw(contexto.s)
-	named((*contexto).s)
+	//contexto := initContext(newMockShape)
+	//draw(contexto.s)
+	//named((*contexto).s)
+
+	runDataBase()
 }

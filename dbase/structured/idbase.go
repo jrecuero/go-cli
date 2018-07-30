@@ -1,4 +1,4 @@
-package dbase
+package structured
 
 // DbData represents the interface for any data in the database.
 type DbData interface {
