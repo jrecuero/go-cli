@@ -105,6 +105,11 @@ func runDataBase() {
 	fmt.Printf("Layout: %#v\n", layout)
 	fmt.Printf("Table: %#v\n", tb)
 	fmt.Printf("DataBase: %#v\n", db)
+	db.Save()
+	newDB := dbase.NewDataBase("NEW-WORK")
+	fmt.Printf("DataBase: %#v\n", newDB)
+	newDB, _ = dbase.Load("WORK.db")
+	fmt.Printf("DataBase: %#v\n", newDB)
 }
 
 func main() {

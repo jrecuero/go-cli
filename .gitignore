@@ -109,3 +109,6 @@ go-cli
 
 # recorded
 *.rec
+
+# db
+*.db

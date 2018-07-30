@@ -1,52 +1,15 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/jrecuero/go-cli/dbase"
 	"github.com/jrecuero/go-cli/syntax"
 	"github.com/jrecuero/go-cli/tools"
 )
 
-// StructuredDatabase represents the active dataabase
-//var StructuredDatabase *dbase.DB
-
 // Dbase represents the active dataabase
 var Dbase *dbase.DataBase
-
-//// StructuredSetupCommands configures all command to run.
-//func StructuredSetupCommands() []*syntax.Command {
-//    createCommand := syntax.NewCommand(nil, "CREATE", "Create ...", nil, nil)
-
-//    createDbaseCommand := syntax.NewCommand(createCommand, "DBASE dbname", "Create Database",
-//        []*syntax.Argument{
-//            syntax.NewArgument("dbname", "Database name", nil, "string", "none", nil),
-//        }, nil)
-//    createDbaseCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-//        params := arguments.(map[string]interface{})
-//        dbname := params["dbname"].(string)
-//        tools.ToDisplay("CREATE DBASE %#v\n", dbname)
-//        StructuredDatabase = dbase.NewDB(dbname)
-//        return nil
-//    }
-
-//    createTableCommand := syntax.NewCommand(createCommand, "TABLE tbname", "Create table",
-//        []*syntax.Argument{
-//            syntax.NewArgument("tbname", "Table name", nil, "string", "none", nil),
-//        }, nil)
-//    createTableCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-//        params := arguments.(map[string]interface{})
-//        tbname := params["tbname"].(string)
-//        tools.ToDisplay("CREATE TABLE %#v\n", tbname)
-//        Database.CreateTable(tbname, dbase.PersonLayout())
-//        return nil
-//    }
-
-//    commands := []*syntax.Command{
-//        createCommand,
-//        createDbaseCommand,
-//        createTableCommand,
-//    }
-//    return commands
-//}
 
 // SetupCommands configures all command to run.
 func SetupCommands() []*syntax.Command {
@@ -63,6 +26,40 @@ func SetupCommands() []*syntax.Command {
 		"Display ...",
 		nil,
 		nil)
+
+	saveCommand := syntax.NewCommand(
+		nil,
+		"SAVE",
+		"Save database...",
+		nil,
+		nil)
+	saveCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		tools.ToDisplay("saving database %#v...\n", fmt.Sprintf("%s.db", Dbase.Name))
+		return Dbase.Save()
+	}
+
+	loadCommand := syntax.NewCommand(
+		nil,
+		"LOAD filename",
+		"Load database...",
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"filename",
+				"Database filename",
+				nil,
+				"string",
+				"none",
+				nil),
+		},
+		nil)
+	loadCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		filename := params["filename"].(string)
+		var err error
+		tools.ToDisplay("loading database %#v...\n", filename)
+		Dbase, err = dbase.Load(filename)
+		return err
+	}
 
 	createDbaseCommand := syntax.NewCommand(
 		createCommand,
@@ -169,7 +166,7 @@ func SetupCommands() []*syntax.Command {
 		params := arguments.(map[string]interface{})
 		tbname := params["tbname"].(string)
 		tb := Dbase.GetTable(tbname)
-		layout := tb.GetLayout()
+		layout := tb.Layout
 		for i, col := range layout.Columns {
 			tools.ToDisplay("%d Column: %#v\n", i, col)
 		}
@@ -186,6 +183,8 @@ func SetupCommands() []*syntax.Command {
 		createRowCommand,
 		displayCommand,
 		displayTableCommand,
+		saveCommand,
+		loadCommand,
 	}
 	return commands
 }

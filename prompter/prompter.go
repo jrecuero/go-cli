@@ -1,7 +1,6 @@
 package prompter
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -43,7 +42,7 @@ func (pr *Prompter) executor(in string) {
 			prompt.OptionInputTextColor(prompt.DefaultColor)(pr._prompt)
 		}
 	} else {
-		fmt.Errorf("execute return %#v for line: %s", err, in)
+		tools.ERROR(nil, true, "execute return %#v for line: %s", err, in)
 		return
 	}
 	//tools.ToDisplay(pr.NSM.GetCommandTree().ToMermaid())
@@ -97,12 +96,11 @@ func (pr *Prompter) Setup(nsname string, commands ...*syntax.Command) error {
 		}
 		return nil
 	}
-	return fmt.Errorf("Prompter setup error")
+	return tools.ERROR(nil, true, "Prompter setup error")
 }
 
 // Run runs the prompt.
 func (pr *Prompter) Run() {
-	fmt.Println("Please select:")
 	pr._prompt = prompt.New(
 		pr.executor,
 		pr.completer,

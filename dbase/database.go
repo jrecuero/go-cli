@@ -1,5 +1,11 @@
 package dbase
 
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+)
+
 // Row represents ...
 type Row struct {
 	Data []interface{}
@@ -49,50 +55,45 @@ func NewColumn(name string, ctype string) *Column {
 // TableLayout represents ...
 type TableLayout struct {
 	Columns   []*Column
-	columnMap map[string]*Column
+	ColumnMap map[string]*Column
 }
 
 // AddColumn is ...
 func (tl *TableLayout) AddColumn(cols ...*Column) *TableLayout {
 	for _, col := range cols {
 		tl.Columns = append(tl.Columns, col)
-		tl.columnMap[col.Name] = col
+		tl.ColumnMap[col.Name] = col
 	}
 	return tl
 }
 
 // GetColumn is ...
 func (tl *TableLayout) GetColumn(colname string) *Column {
-	return tl.columnMap[colname]
+	return tl.ColumnMap[colname]
 }
 
 // NewTableLayout is ...
 func NewTableLayout() *TableLayout {
 	return &TableLayout{
-		columnMap: make(map[string]*Column),
+		ColumnMap: make(map[string]*Column),
 	}
 }
 
 // Table represents ...
 type Table struct {
 	Name        string
-	layout      *TableLayout
+	Layout      *TableLayout
 	Rows        []*Row
-	columnIndex map[string]int
+	ColumnIndex map[string]int
 }
 
 // SetLayout is ...
 func (tb *Table) SetLayout(layout *TableLayout) *Table {
-	tb.layout = layout
+	tb.Layout = layout
 	for index, col := range layout.Columns {
-		tb.columnIndex[col.Name] = index
+		tb.ColumnIndex[col.Name] = index
 	}
 	return tb
-}
-
-// GetLayout is ...
-func (tb *Table) GetLayout() *TableLayout {
-	return tb.layout
 }
 
 // AddRow is ...
@@ -105,17 +106,17 @@ func (tb *Table) AddRow(rows ...*Row) *Table {
 
 // GetColumnIndex is ...
 func (tb *Table) GetColumnIndex(colname string) int {
-	return tb.columnIndex[colname]
+	return tb.ColumnIndex[colname]
 }
 
 // GetColumnFromName is ...
 func (tb *Table) GetColumnFromName(colname string) *Column {
-	return tb.layout.GetColumn(colname)
+	return tb.Layout.GetColumn(colname)
 }
 
 // GetColumnFromIndex is ...
 func (tb *Table) GetColumnFromIndex(icol int) *Column {
-	return tb.layout.Columns[icol]
+	return tb.Layout.Columns[icol]
 }
 
 // GetRow is ...
@@ -127,7 +128,7 @@ func (tb *Table) GetRow(irow int) *Row {
 func NewTable(name string) *Table {
 	return &Table{
 		Name:        name,
-		columnIndex: make(map[string]int),
+		ColumnIndex: make(map[string]int),
 	}
 }
 
@@ -135,27 +136,54 @@ func NewTable(name string) *Table {
 type DataBase struct {
 	Name     string
 	Tables   []*Table
-	tableMap map[string]*Table
+	TableMap map[string]*Table
 }
 
 // AddTable is ...
 func (db *DataBase) AddTable(tables ...*Table) *DataBase {
 	for _, tb := range tables {
 		db.Tables = append(db.Tables, tb)
-		db.tableMap[tb.Name] = tb
+		db.TableMap[tb.Name] = tb
 	}
 	return db
 }
 
-// GetTable ...
+// GetTable is ...
 func (db *DataBase) GetTable(tbname string) *Table {
-	return db.tableMap[tbname]
+	return db.TableMap[tbname]
+}
+
+// Save is ...
+func (db *DataBase) Save() error {
+	data, err := json.Marshal(db)
+	if err == nil {
+		filename := fmt.Sprintf("%s.db", db.Name)
+		ferr := ioutil.WriteFile(filename, data, 0666)
+		if ferr != nil {
+			panic(ferr)
+		}
+		return nil
+	}
+	return err
 }
 
 // NewDataBase is ...
 func NewDataBase(name string) *DataBase {
 	return &DataBase{
 		Name:     name,
-		tableMap: make(map[string]*Table),
+		TableMap: make(map[string]*Table),
 	}
+}
+
+// Load is ...
+func Load(filename string) (*DataBase, error) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	var newDb *DataBase
+	if err := json.Unmarshal(data, &newDb); err != nil {
+		panic(err)
+	}
+	return newDb, nil
 }
