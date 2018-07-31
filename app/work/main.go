@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -95,6 +96,11 @@ func initContext(configs ...config) *context {
 	return ctx
 }
 
+type person struct {
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
+
 func runDataBase() {
 	layout := dbase.NewTableLayout()
 	layout.AddColumn(dbase.NewColumn("name", "string"), dbase.NewColumn("age", "int"))
@@ -105,11 +111,25 @@ func runDataBase() {
 	fmt.Printf("Layout: %#v\n", layout)
 	fmt.Printf("Table: %#v\n", tb)
 	fmt.Printf("DataBase: %#v\n", db)
+	fmt.Printf("Row: %#v\n", tb.GetRow(1))
+	m := tb.GetRowAsByteArray(1)
+	fmt.Printf("Row: %s\n", string(m))
+	p := &person{}
+	json.Unmarshal(m, &p)
+	fmt.Printf("person: %#v\n", p)
+	columns, _ := tb.SetLayoutFromStruct(&person{})
+	for i, col := range columns {
+		fmt.Printf("%d %#v\n", i, col)
+	}
+	_p := tb.GetRowAsStruct(1).(*person)
+	fmt.Printf("p: %#v\n", _p)
 	db.Save()
 	newDB := dbase.NewDataBase("NEW-WORK")
 	fmt.Printf("DataBase: %#v\n", newDB)
 	newDB, _ = dbase.Load("WORK.db")
 	fmt.Printf("DataBase: %#v\n", newDB)
+	fmt.Printf("Table: %#v\n", newDB.Tables[0])
+	fmt.Printf("Layout: %#v\n", newDB.Tables[0].Layout)
 }
 
 func main() {

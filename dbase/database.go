@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"reflect"
+	"strconv"
 )
 
 // Row represents ...
@@ -85,6 +87,7 @@ type Table struct {
 	Layout      *TableLayout
 	Rows        []*Row
 	ColumnIndex map[string]int
+	Stut        interface{}
 }
 
 // SetLayout is ...
@@ -122,6 +125,65 @@ func (tb *Table) GetColumnFromIndex(icol int) *Column {
 // GetRow is ...
 func (tb *Table) GetRow(irow int) *Row {
 	return tb.Rows[irow]
+}
+
+// GetRowAsByteArray is ...
+func (tb *Table) GetRowAsByteArray(irow int) []byte {
+	row := tb.GetRow(irow)
+	result := []byte("{")
+	for i, field := range row.Data {
+		if i != 0 {
+			result = append(result, []byte(",")...)
+		}
+		column := tb.GetColumnFromIndex(i)
+		entry := fmt.Sprintf("%#v:%#v", column.Name, field)
+		result = append(result, []byte(entry)...)
+	}
+	result = append(result, []byte("}")...)
+	return result
+}
+
+// GetRowAsStruct is ...
+func (tb *Table) GetRowAsStruct(irow int) interface{} {
+	if tb.Stut != nil {
+		rowbyte := tb.GetRowAsByteArray(irow)
+		dummy := reflect.New(reflect.ValueOf(tb.Stut).Elem().Type()).Interface()
+		json.Unmarshal(rowbyte, &dummy)
+		return dummy
+	}
+	return nil
+}
+
+// SetLayoutFromStruct is ...
+func (tb *Table) SetLayoutFromStruct(in interface{}) ([]*Column, error) {
+	// TypeOf returns the reflection Type that represents the dynamic type of variable.
+	// If variable is a nil interface value, TypeOf returns nil.
+	t := reflect.TypeOf(in)
+	// Get the type and kind of our "in" variable
+	if t.Kind() == reflect.Ptr {
+		t = reflect.Indirect(reflect.ValueOf(in)).Type()
+	}
+	tb.Layout = NewTableLayout()
+	// Iterate over all available fields and read the tag value
+	for i := 0; i < t.NumField(); i++ {
+		// Get the field, returns https://golang.org/pkg/reflect/#StructField
+		field := t.Field(i)
+		//if field.PkgPath == ""
+		col := NewColumn(field.Tag.Get("json"), field.Type.Name())
+		col.Width, _ = strconv.Atoi(field.Tag.Get("width"))
+		col.Align = field.Tag.Get("align")
+		if col.Align == "" {
+			col.Align = "LEFT"
+		}
+		col.Key = (field.Tag.Get("key") == "true")
+		col.Label = field.Tag.Get("label")
+		if col.Label == "" {
+			col.Label = col.Name
+		}
+		tb.Layout.AddColumn(col)
+	}
+	tb.Stut = in
+	return tb.Layout.Columns, nil
 }
 
 // NewTable is ...
