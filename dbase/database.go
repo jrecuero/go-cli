@@ -204,6 +204,53 @@ func (tb *Table) SetLayoutFromStruct(in interface{}) ([]*Column, error) {
 	return tb.Layout.Columns, nil
 }
 
+// UpdateRow updates table with the given row at the given index.
+func (tb *Table) UpdateRow(irow int, row *Row) *Table {
+	tb.Rows[irow] = row
+	return tb
+}
+
+// UpdateColByIndexInRow updates the given column (by index) at the given row
+// with the given value.
+func (tb *Table) UpdateColByIndexInRow(irow int, icol int, colvalue interface{}) *Table {
+	row := tb.GetRow(irow)
+	row.Data[icol] = colvalue
+	tb.Rows[irow] = row
+	return tb
+}
+
+// UpdateColByNameInRow updates the given column (by name) at the given row
+// with the given value.
+func (tb *Table) UpdateColByNameInRow(irow int, colname string, colvalue interface{}) *Table {
+	row := tb.GetRow(irow)
+	icol := tb.GetColumnIndex(colname)
+	row.Data[icol] = colvalue
+	tb.Rows[irow] = row
+	return tb
+}
+
+// GetColByIndexInRow return the column value for the given row for the given
+// column index.
+func (tb *Table) GetColByIndexInRow(irow int, icol int) interface{} {
+	row := tb.GetRow(irow)
+	return row.Data[icol]
+}
+
+// GetColByNameInRow returns the column value for the given row for the given
+// column name.
+func (tb *Table) GetColByNameInRow(irow int, colname string) interface{} {
+	row := tb.GetRow(irow)
+	icol := tb.GetColumnIndex(colname)
+	return row.Data[icol]
+}
+
+// DeleteRow deletes the row at the given index.
+func (tb *Table) DeleteRow(irow int) *Table {
+	rowLen := len(tb.Rows)
+	tb.Rows = append(tb.Rows[0:irow], tb.Rows[irow+1:rowLen]...)
+	return tb
+}
+
 // NewTable creates a new Table instance.
 func NewTable(name string) *Table {
 	return &Table{
