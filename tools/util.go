@@ -175,3 +175,12 @@ func GetStringFromArgs(arguments interface{}, name string) string {
 func GetIntFromArgs(arguments interface{}, name string) int {
 	return arguments.(map[string]interface{})[name].(int)
 }
+
+// GetString returns the value from the same parameter, unless it is an empty
+// string, so it gets the value from the second parameter.
+func GetString(first string, second string) string {
+	if first == "" {
+		return second
+	}
+	return first
+}

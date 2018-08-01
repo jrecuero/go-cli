@@ -97,8 +97,9 @@ func initContext(configs ...config) *context {
 }
 
 type person struct {
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	//Name string `json:"name"`
+	Name string `align:"CENTER"`
+	Age  int    `json:"age" width:"16"`
 }
 
 func runDataBase() {
@@ -125,11 +126,14 @@ func runDataBase() {
 	fmt.Printf("p: %#v\n", _p)
 	db.Save()
 	newDB := dbase.NewDataBase("NEW-WORK")
-	fmt.Printf("DataBase: %#v\n", newDB)
+	//fmt.Printf("DataBase: %#v\n", newDB)
 	newDB, _ = dbase.Load("WORK.db")
-	fmt.Printf("DataBase: %#v\n", newDB)
-	fmt.Printf("Table: %#v\n", newDB.Tables[0])
-	fmt.Printf("Layout: %#v\n", newDB.Tables[0].Layout)
+	//fmt.Printf("DataBase: %#v\n", newDB)
+	//fmt.Printf("Table: %#v\n", newDB.Tables[0])
+	//fmt.Printf("Layout: %#v\n", newDB.Tables[0].Layout)
+	for _, c := range newDB.Tables[0].Layout.Columns {
+		fmt.Printf("Column: %#v\n", c)
+	}
 }
 
 func main() {
