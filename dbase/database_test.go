@@ -7,24 +7,147 @@ import (
 	"github.com/jrecuero/go-cli/dbase"
 )
 
+// TestMatch_NewMatch is ...
+func TestMatch_NewMatch(t *testing.T) {
+	got := dbase.NewMatch("name", "EQUAL", "home", "AND")
+	if got == nil {
+		t.Errorf("NewMatch: return mismatch: <nil>")
+	}
+	exp := &dbase.Match{
+		Key:     "name",
+		Operand: "EQUAL",
+		Value:   "home",
+		Link:    "AND",
+	}
+	if !reflect.DeepEqual(exp, got) {
+		t.Errorf("NewMatch output mismatch:exp:\t%#v\ngot:\t%#v\n", exp, got)
+	}
+}
+
+// TestMatch_IsContinue is ...
+func TestMatch_IsContinue(t *testing.T) {
+	if match := dbase.NewMatch("name", "EQUAL", "home", "AND"); match != nil {
+		if got := match.IsContinue(true); !got {
+			t.Errorf("IsContinue: return mismatch: AND: exp: true got: %#v\n", got)
+		}
+		if got := match.IsContinue(false); got {
+			t.Errorf("IsContinue: return mismatch: AND: exp: true got: %#v\n", got)
+		}
+	}
+	if match := dbase.NewMatch("name", "EQUAL", "home", "OR"); match != nil {
+		if got := match.IsContinue(true); !got {
+			t.Errorf("IsContinue: return mismatch: OR: exp: true got: %#v\n", got)
+		}
+		if got := match.IsContinue(false); !got {
+			t.Errorf("IsContinue: return mismatch: OR: exp: true got: %#v\n", got)
+		}
+	}
+}
+
+// TestMatch_IsMatch is ...
+func TestMatch_IsMatch(t *testing.T) {
+	if match := dbase.NewMatch("name", "EQUAL", "home", "AND"); match != nil {
+		if got, conti := match.IsMatch("home"); !got || !conti {
+			t.Errorf("IsMatch: return mismatch: exp true,true got: %#v,%#v\n", got, conti)
+		}
+		if got, conti := match.IsMatch("nothome"); got || conti {
+			t.Errorf("IsMatch: return mismatch: exp false,false got: %#v,%#v\n", got, conti)
+		}
+	}
+	if match := dbase.NewMatch("name", "EQUAL", "home", "OR"); match != nil {
+		if got, conti := match.IsMatch("home"); !got || !conti {
+			t.Errorf("IsMatch: return mismatch: exp true,true got: %#v,%#v\n", got, conti)
+		}
+		if got, conti := match.IsMatch("nothome"); got || !conti {
+			t.Errorf("IsMatch: return mismatch: exp false,true got: %#v,%#v\n", got, conti)
+		}
+	}
+	if match := dbase.NewMatch("name", "NOT EQUAL", "home", "AND"); match != nil {
+		if got, conti := match.IsMatch("home"); got || conti {
+			t.Errorf("IsMatch: return mismatch: exp false,false got: %#v,%#v\n", got, conti)
+		}
+		if got, conti := match.IsMatch("nothome"); !got || !conti {
+			t.Errorf("IsMatch: return mismatch: exp true,true got: %#v,%#v\n", got, conti)
+		}
+	}
+	if match := dbase.NewMatch("name", "NOT EQUAL", "home", "OR"); match != nil {
+		if got, conti := match.IsMatch("home"); got || !conti {
+			t.Errorf("IsMatch: return mismatch: exp false,true got: %#v,%#v\n", got, conti)
+		}
+		if got, conti := match.IsMatch("nothome"); !got || !conti {
+			t.Errorf("IsMatch: return mismatch: exp true,true got: %#v,%#v\n", got, conti)
+		}
+	}
+}
+
+// TestFilter_NewFilter is ...
+func TestFilter_NewFilter(t *testing.T) {
+	if got := dbase.NewFilter(); true {
+		if got == nil {
+			t.Errorf("NewFilter: return mismatch: <nil>")
+		}
+		if len(got.Matches) != 0 {
+			t.Errorf("NewFilter: len mismatch: exp: 0 got: %d\n", len(got.Matches))
+		}
+	}
+}
+
+// TestFilter_Add is ...
+func TestFilter_Add(t *testing.T) {
+	if got := dbase.NewFilter(); got != nil {
+		if got.Add(dbase.NewMatch("a", "EQUAL", "b", "AND")) == nil {
+			t.Errorf("Add: return mismatch: <nil>\n")
+		}
+		if len(got.Matches) != 1 {
+			t.Errorf("Add: len matches mismatch: exp: 1 got: %d\n", len(got.Matches))
+		}
+	}
+}
+
+// TestFilter_IsMatch is ...
+func TestFilter_IsMatch(t *testing.T) {
+	if filter := dbase.NewFilter(dbase.NewMatch("name", "EQUAL", "home", "AND")); filter != nil {
+		if !filter.IsMatch(func(key string) interface{} {
+			return "home"
+		}) {
+			t.Errorf("IsMatch: return mistmatch: exp: true got:false\n")
+		}
+	}
+	if filter := dbase.NewFilter(
+		dbase.NewMatch("name", "EQUAL", "home", "AND"),
+		dbase.NewMatch("age", "EQUAL", 30, "AND")); filter != nil {
+		if !filter.IsMatch(func(key string) interface{} {
+			switch key {
+			case "name":
+				return "home"
+			case "age":
+				return 30
+			}
+			return nil
+		}) {
+			t.Errorf("IsMatch: return mistmatch: exp: true got:false\n")
+		}
+	}
+}
+
 // TestRow_NewRow is ...
 func TestRow_NewRow(t *testing.T) {
 	var row *dbase.Row
 	row = dbase.NewRow("a")
 	if len(row.Data) != 1 {
-		t.Errorf("NewRow: length mismatch: got: %d exp: 1", len(row.Data))
+		t.Errorf("NewRow: length mismatch: got: %d exp: 1\n", len(row.Data))
 	}
 	if row.Data[0] != "a" {
-		t.Errorf("NewRow: data mismatch: got: %#v exp: \"a\"", row.Data[0])
+		t.Errorf("NewRow: data mismatch: got: %#v exp: \"a\"\n", row.Data[0])
 	}
 
 	row = dbase.NewRow(1, 2, 3, 4, 5)
 	if len(row.Data) != 5 {
-		t.Errorf("NewRow: length mismatch: got: %d exp: 5", len(row.Data))
+		t.Errorf("NewRow: length mismatch: got: %d exp: 5\n", len(row.Data))
 	}
 	for i := 0; i < 5; i++ {
 		if row.Data[i] != i+1 {
-			t.Errorf("NewRow: data mismatch: got: %#v exp: %d", row.Data[i], i+1)
+			t.Errorf("NewRow: data mismatch: got: %#v exp: %d\n", row.Data[i], i+1)
 		}
 	}
 }
@@ -440,5 +563,94 @@ func TestTable_DeleteRow(t *testing.T) {
 	}
 	if len(tb.Rows) != 4 {
 		t.Errorf("DeleteRow: len mistmatch: exp:4 got: %d\n", len(tb.Rows))
+	}
+}
+
+// TestTableSearch_NewTableSearch is ...
+func TestTableSearch_NewTableSearch(t *testing.T) {
+	if got := dbase.NewTableSearch(nil, nil); got == nil {
+		t.Errorf("NewTableSearch: return mismatch: <nil")
+	}
+}
+
+// TestTableSearch_Search is ...
+func TestTableSearch_Search(t *testing.T) {
+	tb := dbase.NewTable("test-table")
+	tb.SetLayoutFromStruct(&Person{})
+	tb.AddRow(dbase.NewRow("john", 20))
+	tb.AddRow(dbase.NewRow("ann", 25))
+	tb.AddRow(dbase.NewRow("david", 30))
+	tb.AddRow(dbase.NewRow("mary", 27))
+	tb.AddRow(dbase.NewRow("frank", 35))
+	tb.AddRow(dbase.NewRow("john", 50))
+	if filter := dbase.NewFilter(dbase.NewMatch("Name", "EQUAL", "ann", "AND")); filter != nil {
+		if tbs := dbase.NewTableSearch(tb, filter); tbs != nil {
+			got := tbs.Search()
+			if len(got) != 1 {
+				t.Errorf("Search: result mistmatch: exp: 1 got:%d\n", len(got))
+			}
+			exp := []*dbase.Row{
+				dbase.NewRow("ann", 25),
+			}
+			if !reflect.DeepEqual(exp[0], got[0]) {
+				t.Errorf("Search output mismatch:exp:\t%#v\ngot:\t%#v\n", exp[0], got[0])
+			}
+		}
+	}
+	if filter := dbase.NewFilter(
+		dbase.NewMatch("Name", "EQUAL", "ann", "OR"),
+		dbase.NewMatch("Name", "EQUAL", "frank", "OR")); filter != nil {
+		if tbs := dbase.NewTableSearch(tb, filter); tbs != nil {
+			got := tbs.Search()
+			if len(got) != 2 {
+				t.Errorf("Search: result mistmatch: exp: 2 got:%d\n", len(got))
+			}
+			exp := []*dbase.Row{
+				dbase.NewRow("ann", 25),
+				dbase.NewRow("frank", 35),
+			}
+			if !reflect.DeepEqual(exp[0], got[0]) {
+				t.Errorf("Search output mismatch:\nexp:\t%#v\ngot:\t%#v\n", exp[0], got[0])
+			}
+			if !reflect.DeepEqual(exp[1], got[1]) {
+				t.Errorf("Search output mismatch:\nexp:\t%#v\ngot:\t%#v\n", exp[1], got[1])
+			}
+		}
+	}
+	if filter := dbase.NewFilter(
+		dbase.NewMatch("Name", "EQUAL", "ann", "OR"),
+		dbase.NewMatch("Age", "EQUAL", 20, "OR")); filter != nil {
+		if tbs := dbase.NewTableSearch(tb, filter); tbs != nil {
+			got := tbs.Search()
+			if len(got) != 2 {
+				t.Errorf("Search: result mistmatch: exp: 2 got:%d\n", len(got))
+			}
+			exp := []*dbase.Row{
+				dbase.NewRow("john", 20),
+				dbase.NewRow("ann", 25),
+			}
+			if !reflect.DeepEqual(exp[0], got[0]) {
+				t.Errorf("Search output mismatch:\nexp:\t%#v\ngot:\t%#v\n", exp[0], got[0])
+			}
+			if !reflect.DeepEqual(exp[1], got[1]) {
+				t.Errorf("Search output mismatch:\nexp:\t%#v\ngot:\t%#v\n", exp[1], got[1])
+			}
+		}
+	}
+	if filter := dbase.NewFilter(
+		dbase.NewMatch("Name", "EQUAL", "john", "AND"),
+		dbase.NewMatch("Age", "EQUAL", 50, "AND")); filter != nil {
+		if tbs := dbase.NewTableSearch(tb, filter); tbs != nil {
+			got := tbs.Search()
+			if len(got) != 1 {
+				t.Errorf("Search: result mistmatch: exp: 1 got:%d\n", len(got))
+			}
+			exp := []*dbase.Row{
+				dbase.NewRow("john", 50),
+			}
+			if !reflect.DeepEqual(exp[0], got[0]) {
+				t.Errorf("Search output mismatch:\nexp:\t%#v\ngot:\t%#v\n", exp[0], got[0])
+			}
+		}
 	}
 }

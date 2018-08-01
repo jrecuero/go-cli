@@ -10,6 +10,100 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
+// Match represents any match entry in a filter. Any Match is composed for a
+// kye, which will be usd to identify the data to search, an operand, a value
+// to match and a link with further Matches instances.
+type Match struct {
+	Key     string
+	Operand string
+	Value   interface{}
+	Link    string
+}
+
+// IsContinue returns if the match should allows to continue matching further
+// Match instances.
+func (m *Match) IsContinue(match bool) bool {
+	var conti bool
+	if m.Link == "AND" && match {
+		conti = true
+	} else if m.Link == "AND" && !match {
+		conti = false
+	} else if m.Link == "OR" {
+		conti = true
+	} else {
+		panic(fmt.Sprintf("unknown link %#v", m.Link))
+	}
+	return conti
+}
+
+// IsMatch returns if there is a match and if the Match allows to continue
+// matching further.
+func (m *Match) IsMatch(value interface{}) (bool, bool) {
+	var match bool
+	switch m.Operand {
+	case "EQUAL":
+		match = value == m.Value
+		break
+	case "NOT EQUAL":
+		match = value != m.Value
+		break
+	default:
+		panic(fmt.Sprintf("unknown operand %#v", m.Operand))
+	}
+	return match, m.IsContinue(match)
+}
+
+// NewMatch returns a new Match instance.
+func NewMatch(key string, operand string, value interface{}, link string) *Match {
+	return &Match{
+		Key:     key,
+		Operand: operand,
+		Value:   value,
+		Link:    link,
+	}
+}
+
+// FilterGetter represents any method that returns a value ot be used in a
+// filter for the given key passed. The key is the value from the Match
+// instance, and the return should feed Match.IsMatch call.
+type FilterGetter func(key string) interface{}
+
+// Filter represents a filter, which is composed by a list of possible matches.
+type Filter struct {
+	Matches []*Match
+}
+
+// Add is ...
+func (f *Filter) Add(matches ...*Match) *Filter {
+	for _, match := range matches {
+		f.Matches = append(f.Matches, match)
+	}
+	return f
+}
+
+// IsMatch check if the filter matches for the given getter method. The getter
+// will provide the value to feed for every March.IsMatch in the filter.
+func (f *Filter) IsMatch(getter FilterGetter) bool {
+	var gotMatch bool
+	var conti bool
+	var matchResult bool
+	for _, match := range f.Matches {
+		value := getter(match.Key)
+		gotMatch, conti = match.IsMatch(value)
+		if !gotMatch && !conti {
+			return false
+		}
+		matchResult = matchResult || gotMatch
+	}
+	return matchResult
+}
+
+// NewFilter returns a new Filter instance.
+func NewFilter(matches ...*Match) *Filter {
+	f := &Filter{}
+	return f.Add(matches...)
+}
+
 // Row represents data stored in any row. Data can be from any type so it is
 // stored in a generic way as an array of interface{}.
 type Row struct {
@@ -315,4 +409,32 @@ func Load(filename string) (*DataBase, error) {
 		panic(err)
 	}
 	return newDb, nil
+}
+
+// TableSearch represents a search for a table. Search is defined by a filter.
+type TableSearch struct {
+	table  *Table
+	filter *Filter
+}
+
+// Search returns all rows in the table that match the search filter.
+func (tbsearch *TableSearch) Search() []*Row {
+	rows := []*Row{}
+	for _, row := range tbsearch.table.Rows {
+		if tbsearch.filter.IsMatch(func(key string) interface{} {
+			icol := tbsearch.table.GetColumnIndex(key)
+			return row.Data[icol]
+		}) {
+			rows = append(rows, row)
+		}
+	}
+	return rows
+}
+
+// NewTableSearch returns a new TableSearch instance.
+func NewTableSearch(table *Table, filter *Filter) *TableSearch {
+	return &TableSearch{
+		table:  table,
+		filter: filter,
+	}
 }
