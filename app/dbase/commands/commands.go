@@ -20,6 +20,20 @@ func SetupCommands() []*syntax.Command {
 		nil,
 		nil)
 
+	updateCommand := syntax.NewCommand(
+		nil,
+		"UPDATE",
+		"Update ...",
+		nil,
+		nil)
+
+	deleteCommand := syntax.NewCommand(
+		nil,
+		"DELETE",
+		"Delete ...",
+		nil,
+		nil)
+
 	displayCommand := syntax.NewCommand(
 		nil,
 		"DISPLAY",
@@ -121,7 +135,7 @@ func SetupCommands() []*syntax.Command {
 	createRowCommand := syntax.NewCommand(
 		createCommand,
 		"ROW tbname [row]@",
-		"Create table",
+		"Create row in table",
 		[]*syntax.Argument{
 			syntax.NewArgument(
 				"tbname",
@@ -145,6 +159,74 @@ func SetupCommands() []*syntax.Command {
 		row := params["row"].([]interface{})
 		tb := Dbase.GetTable(tbname)
 		tb.AddRow(dbase.NewRow(row...))
+		return nil
+	}
+
+	updateRowCommand := syntax.NewCommand(
+		updateCommand,
+		"ROW tbname irow [row]@",
+		"Update row in table",
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"tbname",
+				"Table name",
+				nil,
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"irow",
+				"Row index",
+				nil,
+				"int",
+				"0",
+				nil),
+			syntax.NewArgument(
+				"row",
+				"New row",
+				nil,
+				"list",
+				"none",
+				nil),
+		},
+		nil)
+	updateRowCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tbname := params["tbname"].(string)
+		irow, _ := params["irow"].(int)
+		row := params["row"].([]interface{})
+		tb := Dbase.GetTable(tbname)
+		tb.UpdateRow(irow, dbase.NewRow(row...))
+		return nil
+	}
+
+	deleteRowCommand := syntax.NewCommand(
+		deleteCommand,
+		"ROW tbname irow",
+		"Delete row from table",
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"tbname",
+				"Table name",
+				nil,
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"irow",
+				"Row index",
+				nil,
+				"int",
+				"0",
+				nil),
+		},
+		nil)
+	deleteRowCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		tbname := params["tbname"].(string)
+		irow := params["irow"].(int)
+		tb := Dbase.GetTable(tbname)
+		tb.DeleteRow(irow)
 		return nil
 	}
 
@@ -181,6 +263,10 @@ func SetupCommands() []*syntax.Command {
 		createDbaseCommand,
 		createTableCommand,
 		createRowCommand,
+		updateCommand,
+		updateRowCommand,
+		deleteCommand,
+		deleteRowCommand,
 		displayCommand,
 		displayTableCommand,
 		saveCommand,
