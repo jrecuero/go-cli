@@ -8,6 +8,26 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
+// Object is ...
+type Object struct {
+	Name string
+}
+
+// GoTo is ...
+type GoTo struct {
+	Name  string
+	GType string
+	Dest  *Room
+}
+
+// Room is ...
+type Room struct {
+	Name    string
+	Objects []*Object
+	Actors  []*Actor
+	GoTos   []*GoTo
+}
+
 // Actor represents any actor in the app.
 type Actor struct {
 	Name     string
