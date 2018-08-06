@@ -1,6 +1,7 @@
 package novel
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jrecuero/go-cli/parser"
@@ -161,3 +162,33 @@ func (n *Novel) Compile(line string) *ActionExec {
 	}
 	return ae
 }
+
+// App is ...
+type App struct {
+	Player  *Actor
+	Enemies []*Actor
+}
+
+// Run is ...
+func (app *App) Run() {
+	app.Player = &Actor{
+		Name:     "Player",
+		Life:     100,
+		Strength: 10,
+	}
+	for i := 0; i < 3; i++ {
+		app.Enemies = append(app.Enemies, &Actor{
+			Name:     fmt.Sprintf("Enemy-%d", i),
+			Life:     10,
+			Strength: 5,
+		})
+	}
+}
+
+// NewApp is ...
+func NewApp() *App {
+	return &App{}
+}
+
+// TheApp is ...
+var TheApp = NewApp()
