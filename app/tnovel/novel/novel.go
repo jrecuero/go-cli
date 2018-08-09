@@ -134,7 +134,9 @@ func ActionHit(novel *Novel) ActionCallback {
 		}
 		for _, target := range targets {
 			origin := origins[0]
-			tools.ToDisplay("%#v hits with %d to %#v: %d life point\n", origin.Name, origin.Strength, target.Name, target.Life)
+			damage := origin.Strength
+			target.Life -= damage
+			tools.ToDisplay("%#v hits with %d damage to %#v: %d life points\n", origin.Name, origin.Strength, target.Name, target.Life)
 		}
 		return nil
 	}
@@ -261,7 +263,7 @@ func (novel *Novel) Run() {
 	for i := 0; i < 3; i++ {
 		novel.Actors = append(novel.Actors, &Actor{
 			Name:     fmt.Sprintf("Enemy-%d", i),
-			Life:     10,
+			Life:     15,
 			Strength: 5,
 			IsEnemy:  true,
 		})

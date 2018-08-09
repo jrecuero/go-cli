@@ -24,14 +24,14 @@ func SetupCommands() []*syntax.Command {
 
 	actionCommand := syntax.NewCommand(
 		nil,
-		"action action-str",
+		"action [action-str]@",
 		"Action ...",
 		[]*syntax.Argument{
 			syntax.NewArgument(
 				"action-str",
 				"Action to execute",
 				nil,
-				"string",
+				"freeform",
 				"none",
 				nil),
 		},
@@ -39,10 +39,8 @@ func SetupCommands() []*syntax.Command {
 	actionCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		params := arguments.(map[string]interface{})
 		actionStr := params["action-str"].(string)
-		//tools.ToDisplay("%#v\n", actionStr)
-		//ae := n.Compile(actionStr)
+		tools.ToDisplay("%#v\n", actionStr)
 		TheNovel.Execute(actionStr)
-		//tools.ToDisplay("%#v\n", ae)
 		return nil
 	}
 
