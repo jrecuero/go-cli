@@ -91,9 +91,9 @@ type ActionSequence struct {
 	Flags   []string
 }
 
-// Execute is ...
-func (as *ActionSequence) Execute() error {
-	//tools.ToDisplay("Execute: %#v\n", as)
+// RunAction is ...
+func (as *ActionSequence) RunAction() error {
+	//tools.ToDisplay("RunAction: %#v\n", as)
 	for _, action := range as.Actions {
 		if err := action(as.Origins, as.Targets, as.Flags); err != nil {
 			return err
@@ -140,6 +140,89 @@ func ActionHit(novel *Novel) ActionCallback {
 		}
 		return nil
 	}
+}
+
+// ETime is ...
+type ETime uint
+
+const (
+	// ZeroTime is ...
+	ZeroTime ETime = 0
+)
+
+// Event is ...
+type Event struct {
+	Name   string
+	AtTime ETime
+}
+
+// Exec is ...
+func (ev *Event) Exec() error {
+	return nil
+}
+
+// NewEvent is ...
+func NewEvent(name string, attime ETime) *Event {
+	return &Event{
+		Name:   name,
+		AtTime: attime,
+	}
+}
+
+// Engine is ...
+type Engine struct {
+	Time   ETime
+	Events []*Event
+}
+
+// Start is ...
+func (eng *Engine) Start() error {
+	return nil
+}
+
+// Stop is ...
+func (eng *Engine) Stop() error {
+	return nil
+}
+
+// AddEvent is ...
+func (eng *Engine) AddEvent(ev *Event) error {
+	eng.Events = append(eng.Events, ev)
+	return nil
+}
+
+// AddEventFirst is ...
+func (eng *Engine) AddEventFirst(ev *Event) error {
+	ev.AtTime = ZeroTime
+	eng.Events = append([]*Event{ev}, eng.Events...)
+	return nil
+}
+
+// NextEvent is ...
+func (eng *Engine) NextEvent() *Event {
+	ev := eng.Events[0]
+	evLen := len(eng.Events)
+	eng.Events = eng.Events[1:evLen]
+	return ev
+}
+
+// Next is ...
+func (eng *Engine) Next() error {
+	if ev := eng.NextEvent(); ev != nil {
+		eng.Time = ev.AtTime
+		return eng.ExecEvent(ev)
+	}
+	return nil
+}
+
+// ExecEvent is ...
+func (eng *Engine) ExecEvent(ev *Event) error {
+	return ev.Exec()
+}
+
+// NewEngine is ...
+func NewEngine() *Engine {
+	return &Engine{}
 }
 
 // Novel represents the main object for the app.
@@ -237,22 +320,47 @@ func (novel *Novel) Compile(line string) *ActionNames {
 	return ae
 }
 
-// Execute is ...k
-func (novel *Novel) Execute(line string) error {
-	//tools.ToDisplay("Execute: %#v\n", line)
+// RunAction is ...k
+func (novel *Novel) RunAction(line string) error {
+	//tools.ToDisplay("RunAction: %#v\n", line)
 	if ae := novel.Compile(line); ae != nil {
 		as := &ActionSequence{}
 		as.Origins = novel.nameToActor(ae.Origins)
 		as.Targets = novel.nameToActor(ae.Targets)
 		as.Actions = novel.nameToActionCall(ae.Actions)
 		as.Flags = as.Flags
-		return as.Execute()
+		return as.RunAction()
 	}
 	return tools.ERROR(nil, false, "Invalid line: %#v\n", line)
 }
 
-// Run is ...
-func (novel *Novel) Run() {
+// Execute is ...
+func (novel *Novel) Execute(line string) error {
+	if err := novel.Execute(line); err != nil {
+		return err
+	}
+	novel.Update()
+	return nil
+}
+
+// Update is ...
+func (novel *Novel) Update() (bool, error) {
+	var actors []*Actor
+	isPlayerAlive := false
+	for _, actor := range novel.Actors {
+		if actor.Life > 0 {
+			actors = append(actors, actor)
+			if actor.IsPlayer {
+				isPlayerAlive = true
+			}
+		}
+	}
+	novel.Actors = actors
+	return isPlayerAlive, nil
+}
+
+// createActors is ...
+func (novel *Novel) createActors() {
 	novel.Actors = append(novel.Actors,
 		&Actor{
 			Name:     "Player",
@@ -268,6 +376,11 @@ func (novel *Novel) Run() {
 			IsEnemy:  true,
 		})
 	}
+}
+
+// Run is ...
+func (novel *Novel) Run() {
+	novel.createActors()
 }
 
 // SearchByName is ...
