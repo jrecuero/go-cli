@@ -171,17 +171,20 @@ func NewEvent(name string, attime ETime) *Event {
 
 // Engine is ...
 type Engine struct {
-	Time   ETime
-	Events []*Event
+	Time    ETime
+	Events  []*Event
+	Running bool
 }
 
 // Start is ...
 func (eng *Engine) Start() error {
+	eng.Running = true
 	return nil
 }
 
 // Stop is ...
 func (eng *Engine) Stop() error {
+	eng.Running = true
 	return nil
 }
 
@@ -218,6 +221,14 @@ func (eng *Engine) Next() error {
 // ExecEvent is ...
 func (eng *Engine) ExecEvent(ev *Event) error {
 	return ev.Exec()
+}
+
+// Run is ...
+func (eng *Engine) Run() error {
+	if eng.Running {
+		return eng.Next()
+	}
+	return nil
 }
 
 // NewEngine is ...
