@@ -48,27 +48,27 @@ func NewActor(name string, life int, strength int) *Actor {
 	}
 }
 
-// CompileStatus represents the compile status.
-type CompileStatus struct {
+// ProcessParseStatus represents the process parse  status.
+type ProcessParseStatus struct {
 	actual int
 }
 
 // Next moves to the next status if condition is true.
-func (cs *CompileStatus) Next(condition bool) *CompileStatus {
+func (cs *ProcessParseStatus) Next(condition bool) *ProcessParseStatus {
 	if condition {
 		cs.actual++
 	}
 	return cs
 }
 
-// Value returns compile status value.
-func (cs *CompileStatus) Value() int {
+// Value returns process parse  status value.
+func (cs *ProcessParseStatus) Value() int {
 	return cs.actual
 }
 
-// NewCompileStatus creates a new compile status instance.
-func NewCompileStatus(start int) *CompileStatus {
-	return &CompileStatus{start}
+// NewProcessParseStatus creates a new process parse  status instance.
+func NewProcessParseStatus(start int) *ProcessParseStatus {
+	return &ProcessParseStatus{start}
 }
 
 // Novel represents the main object for the app.
@@ -102,8 +102,8 @@ func (novel *Novel) Parse(line string) *lexnovel.Syntax {
 	return result.(*lexnovel.Syntax)
 }
 
-// Compile translate the parsing action to a struct.
-func (novel *Novel) Compile(line string) *ActionNames {
+// ProcessParse translate the parsing action to a struct.
+func (novel *Novel) ProcessParse(line string) *ActionNames {
 	defer func() {
 		if r := recover(); r != nil {
 			tools.ToDisplay("Error: %#v\n", r)
@@ -120,7 +120,7 @@ func (novel *Novel) Compile(line string) *ActionNames {
 	//tools.ToDisplay("%#v\n", parsed)
 	ae := &ActionNames{}
 	bracketed := false
-	status := NewCompileStatus(parsingOrigin)
+	status := NewProcessParseStatus(parsingOrigin)
 	for i, token := range parsed.Tokens {
 		str := parsed.Idents[i]
 		switch token {
@@ -169,7 +169,7 @@ func (novel *Novel) Compile(line string) *ActionNames {
 // RunAction is ...k
 func (novel *Novel) RunAction(line string) error {
 	//tools.ToDisplay("RunAction: %#v\n", line)
-	if ae := novel.Compile(line); ae != nil {
+	if ae := novel.ProcessParse(line); ae != nil {
 		as := &ActionSequence{}
 		as.Origins = novel.nameToActor(ae.Origins)
 		as.Targets = novel.nameToActor(ae.Targets)

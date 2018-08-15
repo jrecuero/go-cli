@@ -15,7 +15,7 @@ func (eng *Engine) Start() error {
 
 // Stop is ...
 func (eng *Engine) Stop() error {
-	eng.Running = true
+	eng.Running = false
 	return nil
 }
 
