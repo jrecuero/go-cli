@@ -9,7 +9,7 @@ import (
 
 // Test_Network is ...
 func Test_Network(t *testing.T) {
-	network := NewNetwork("network/1")
+	network := grafo.NewNetwork("network/1")
 	root := grafo.NewLeaf("origin/1")
 	node1 := grafo.NewLeaf("node/1")
 	node2 := grafo.NewLeaf("node/2")

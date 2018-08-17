@@ -3,12 +3,12 @@ package engine_test
 import (
 	"testing"
 
-	"github.com/jrecuero/go-cli/app/tnovel/novel"
+	"github.com/jrecuero/go-cli/engine"
 )
 
 // TestEngine_NewEngine is ...
 func TestEngine_NewEngine(t *testing.T) {
-	eng := novel.NewEngine()
+	eng := engine.NewEngine()
 	if eng.Time != 0 {
 		t.Errorf("NewEngine: Time mistmatch: exp: 0 got: %d\n", eng.Time)
 	}
@@ -22,7 +22,7 @@ func TestEngine_NewEngine(t *testing.T) {
 
 // TestEngine_StartStop is ...
 func TestEngine_StartStop(t *testing.T) {
-	eng := novel.NewEngine()
+	eng := engine.NewEngine()
 	eng.Start()
 	if !eng.Running {
 		t.Errorf("Start: Running flag mistmatch: exp: true got: %v\n", eng.Running)
@@ -35,11 +35,11 @@ func TestEngine_StartStop(t *testing.T) {
 
 // TestEngine_Events is ...
 func TestEngine_Events(t *testing.T) {
-	eng := novel.NewEngine()
-	if err := eng.AddEvent(novel.NewEvent("1", 1)); err != nil {
+	eng := engine.NewEngine()
+	if err := eng.AddEvent(engine.NewEvent("1", 1)); err != nil {
 		t.Errorf("AddEvent: return code error: %#v\n", err)
 	}
-	if err := eng.AddEvent(novel.NewEvent("2", 2)); err != nil {
+	if err := eng.AddEvent(engine.NewEvent("2", 2)); err != nil {
 		t.Errorf("AddEvent: return code error: %#v\n", err)
 	}
 	if len(eng.Events) != 2 {
@@ -55,7 +55,7 @@ func TestEngine_Events(t *testing.T) {
 			t.Errorf("NextEvent: Events name mismatch: exp: %#v got: %#v\n", "1", ev.Name)
 		}
 	}
-	eng.AddEventFirst(novel.NewEvent("first", 0))
+	eng.AddEventFirst(engine.NewEvent("first", 0))
 	if len(eng.Events) != 2 {
 		t.Errorf("AddEventFirst: Events length mismatch: exp: 2 got: %d\n", len(eng.Events))
 	}
@@ -68,7 +68,7 @@ func TestEngine_Events(t *testing.T) {
 func TestEngine_Run(t *testing.T) {
 	called := false
 	name := "test callback"
-	ev := novel.NewEvent("test-event", 1)
+	ev := engine.NewEvent("test-event", 1)
 	ev.SetCallback(func(params ...interface{}) error {
 		if len(params) != 1 {
 			t.Errorf("Callback: length params mismatch: exp: 1 got %#v\n", len(params))
@@ -79,9 +79,9 @@ func TestEngine_Run(t *testing.T) {
 		called = true
 		return nil
 	}, name)
-	eng := novel.NewEngine()
+	eng := engine.NewEngine()
 	eng.AddEvent(ev)
-	eng.AddEvent(novel.NewEvent("second", 1))
+	eng.AddEvent(engine.NewEvent("second", 1))
 	if err := eng.Run(); err != nil {
 		t.Errorf("Run: return code mistmatch: %#v\n", err)
 	} else {

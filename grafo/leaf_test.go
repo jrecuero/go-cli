@@ -3,7 +3,7 @@ package grafo_test
 import (
 	"testing"
 
-	"github.com/jrecuero/go-cli/app/tnovel/grafo"
+	"github.com/jrecuero/go-cli/grafo"
 )
 
 // TestLeaf_NewLeaf is ...

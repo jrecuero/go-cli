@@ -3,12 +3,12 @@ package engine_test
 import (
 	"testing"
 
-	"github.com/jrecuero/go-cli/app/tnovel/novel"
+	"github.com/jrecuero/go-cli/engine"
 )
 
 // TestEvent_NewEvent is ...
 func TestEvent_NewEvent(t *testing.T) {
-	ev := novel.NewEvent("test-event", 1)
+	ev := engine.NewEvent("test-event", 1)
 	if ev.Name != "test-event" {
 		t.Errorf("NewEvent: Name mistmatch: exp: \"test-event\" got: %#v\n", ev.Name)
 	}
@@ -21,7 +21,7 @@ func TestEvent_NewEvent(t *testing.T) {
 func TestEvent_Callback(t *testing.T) {
 	called := false
 	name := "test callback"
-	ev := novel.NewEvent("test-event", 1)
+	ev := engine.NewEvent("test-event", 1)
 	ev.SetCallback(func(params ...interface{}) error {
 		if len(params) != 1 {
 			t.Errorf("Callback: length params mismatch: exp: 1 got %#v\n", len(params))
