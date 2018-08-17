@@ -110,6 +110,38 @@ func TestTree_PathsFrom(t *testing.T) {
 	tree.AddChild(parent, child2)
 	paths := tree.PathsFrom(parent)
 	if len(paths) != 2 {
-		t.Errorf("Tree:PathsFrom: pathd length mismatch: exp: %d got: %d\n", 2, len(paths))
+		t.Errorf("Tree:PathsFrom: path length mismatch: exp: %d got: %d\n", 2, len(paths))
+	}
+}
+
+// TestTree_AddTraverse
+func TestTree_AddTraverse(t *testing.T) {
+	tree := grafo.NewTree("tree/1")
+	parent := grafo.NewLeaf("parent/1")
+	child1 := grafo.NewLeaf("child/1")
+	child2 := grafo.NewLeaf("child/2")
+	tree.AddChild(nil, parent)
+	tree.AddChild(parent, child1)
+	tree.AddChild(parent, child2)
+	if err := tree.AddTraverse(grafo.StaticBranch(nil, parent)); err != nil {
+		t.Errorf("Tree:AddTraverse: return error code: %#v\n", err)
+	}
+}
+
+// TestTree_SetAnchorTo
+func TestTree_SetAnchorTo(t *testing.T) {
+	tree := grafo.NewTree("tree/1")
+	parent := grafo.NewLeaf("parent/1")
+	child1 := grafo.NewLeaf("child/1")
+	child2 := grafo.NewLeaf("child/2")
+	tree.AddChild(nil, parent)
+	tree.AddChild(parent, child1)
+	tree.AddChild(parent, child2)
+	leaf := tree.SetAnchorTo(parent)
+	if leaf == nil {
+		t.Errorf("Tree:SetAnchorTo: anchor cannot be <nil>")
+	}
+	if leaf != parent {
+		t.Errorf("Tree:SetAnchorTo: anchor mismatch: exp: %#v got: %#v\n", parent, leaf)
 	}
 }

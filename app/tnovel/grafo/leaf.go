@@ -14,7 +14,10 @@ type IContent interface {
 // IBranch represents ...
 type IBranch interface {
 	GetParent() *Leaf
+	SetParent(*Leaf)
 	GetChild() *Leaf
+	SetChild(*Leaf)
+	GetTraverse() *Traverse
 	Check(params ...interface{}) (interface{}, bool)
 }
 
@@ -59,14 +62,29 @@ func (branch *Branch) GetParent() *Leaf {
 	return branch.Parent
 }
 
+// SetParent is ...
+func (branch *Branch) SetParent(parent *Leaf) {
+	branch.Parent = parent
+}
+
 // GetChild is ...
 func (branch *Branch) GetChild() *Leaf {
 	return branch.Child
 }
 
+// SetChild is ...
+func (branch *Branch) SetChild(child *Leaf) {
+	branch.Child = child
+}
+
+// GetTraverse is ...
+func (branch *Branch) GetTraverse() *Traverse {
+	return branch.Traverse
+}
+
 // Check is ...
 func (branch *Branch) Check(params ...interface{}) (interface{}, bool) {
-	return branch.clearance(branch.Parent, branch.Child, params...)
+	return branch.clearance(branch.GetParent(), branch.GetChild(), params...)
 }
 
 // NewBranch is ...
@@ -150,10 +168,10 @@ func (tree *Tree) GetAnchor() *Leaf {
 }
 
 // AddBranch is ...
-func (tree *Tree) AddBranch(parent *Leaf, branch *Branch) error {
+func (tree *Tree) AddBranch(parent *Leaf, branch IBranch) error {
 	if parent == nil {
 		parent = tree.GetRoot()
-		branch.Parent = parent
+		branch.SetParent(parent)
 	}
 	if !parent.hooked {
 		return tools.ERROR(nil, false, "Parent not found in tree: %#v\n", parent)
@@ -161,7 +179,7 @@ func (tree *Tree) AddBranch(parent *Leaf, branch *Branch) error {
 	if err := parent.AddBranch(branch); err != nil {
 		return err
 	}
-	child := branch.Child
+	child := branch.GetChild()
 	if err := child.AddParent(parent); err != nil {
 		return err
 	}
@@ -174,7 +192,7 @@ func (tree *Tree) AddChild(parent *Leaf, child *Leaf) error {
 	if parent == nil {
 		parent = tree.GetRoot()
 	}
-	branch := StaticBranch(parent, child)
+	var branch IBranch = StaticBranch(parent, child)
 	return tree.AddBranch(parent, branch)
 }
 
@@ -189,19 +207,35 @@ func (tree *Tree) PathsFrom(anchor *Leaf, params ...interface{}) []*Leaf {
 	return children
 }
 
-// SetAnchorTo is ..
-func (tree *Tree) SetAnchorTo(anchor *Leaf) *Leaf {
+// setAnchor is ..
+func (tree *Tree) setAnchor(anchor *Leaf) *Leaf {
 	tree.anchor = anchor
 	return tree.GetAnchor()
 }
 
 // AddTraverse is ...
-func (tree *Tree) AddTraverse(branch *Branch) error {
-	if tree.GetAnchor() != branch.Parent {
-		return tools.ERROR(nil, false, "parent is not the anchor: %#v\n", branch.Parent)
+func (tree *Tree) AddTraverse(branch IBranch) error {
+	if branch.GetParent() == nil {
+		branch.SetParent(tree.GetRoot())
 	}
-	tree.SetAnchorTo(branch.Child)
-	tree.path.Traversed = append(tree.path.Traversed, branch.Traverse)
+	if tree.GetAnchor() != branch.GetParent() {
+		return tools.ERROR(nil, false, "parent is not the anchor: %#v\n", branch.GetParent())
+	}
+	tree.setAnchor(branch.GetChild())
+	tree.path.Traversed = append(tree.path.Traversed, branch.GetTraverse())
+	return nil
+}
+
+// SetAnchorTo is ..
+func (tree *Tree) SetAnchorTo(anchor *Leaf) *Leaf {
+	for _, branch := range tree.anchor.Branches {
+		if branch.GetChild() == anchor {
+			if err := tree.AddTraverse(branch); err != nil {
+				return nil
+			}
+			return tree.GetAnchor()
+		}
+	}
 	return nil
 }
 
