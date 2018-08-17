@@ -11,6 +11,13 @@ type IContent interface {
 	GetLabel() string
 }
 
+// IBranch represents ...
+type IBranch interface {
+	GetParent() *Leaf
+	GetChild() *Leaf
+	Check(params ...interface{}) (interface{}, bool)
+}
+
 // ClearanceCb represents ...
 type ClearanceCb func(parent *Leaf, child *Leaf, params ...interface{}) (interface{}, bool)
 
@@ -44,19 +51,29 @@ func NewTraverse(parent *Leaf, child *Leaf) *Traverse {
 // Branch is ...
 type Branch struct {
 	*Traverse
-	Clearance ClearanceCb
+	clearance ClearanceCb
+}
+
+// GetParent is ...
+func (branch *Branch) GetParent() *Leaf {
+	return branch.Parent
+}
+
+// GetChild is ...
+func (branch *Branch) GetChild() *Leaf {
+	return branch.Child
 }
 
 // Check is ...
 func (branch *Branch) Check(params ...interface{}) (interface{}, bool) {
-	return branch.Clearance(branch.Parent, branch.Child, params...)
+	return branch.clearance(branch.Parent, branch.Child, params...)
 }
 
 // NewBranch is ...
 func NewBranch(parent *Leaf, child *Leaf, clearance ClearanceCb) *Branch {
 	return &Branch{
 		Traverse:  NewTraverse(parent, child),
-		Clearance: clearance,
+		clearance: clearance,
 	}
 }
 
@@ -72,7 +89,7 @@ type Leaf struct {
 	id        Ider
 	Label     string
 	Parents   []*Leaf
-	Branches  []*Branch
+	Branches  []IBranch
 	Traversed []*Traverse
 	Content   IContent
 	hooked    bool
@@ -85,7 +102,7 @@ func (leaf *Leaf) AddParent(parent *Leaf) error {
 }
 
 // AddBranch is ...
-func (leaf *Leaf) AddBranch(branch *Branch) error {
+func (leaf *Leaf) AddBranch(branch IBranch) error {
 	leaf.Branches = append(leaf.Branches, branch)
 	return nil
 }
@@ -166,7 +183,7 @@ func (tree *Tree) PathsFrom(anchor *Leaf, params ...interface{}) []*Leaf {
 	var children []*Leaf
 	for _, branch := range anchor.Branches {
 		if _, ok := branch.Check(params...); ok {
-			children = append(children, branch.Child)
+			children = append(children, branch.GetChild())
 		}
 	}
 	return children
