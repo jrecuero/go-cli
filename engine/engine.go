@@ -1,4 +1,4 @@
-package novel
+package engine
 
 // Engine is ...
 type Engine struct {

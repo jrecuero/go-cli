@@ -1,4 +1,4 @@
-package novel_test
+package engine_test
 
 import (
 	"testing"

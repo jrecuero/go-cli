@@ -1,4 +1,4 @@
-package novel
+package engine
 
 // ETime is ...
 type ETime uint
