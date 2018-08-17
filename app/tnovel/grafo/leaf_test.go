@@ -1,9 +1,12 @@
 package grafo_test
 
 import (
+	"bytes"
+	"fmt"
 	"testing"
 
 	"github.com/jrecuero/go-cli/app/tnovel/grafo"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 // TestLeaf_NewLeaf is ...
@@ -144,4 +147,78 @@ func TestTree_SetAnchorTo(t *testing.T) {
 	if leaf != parent {
 		t.Errorf("Tree:SetAnchorTo: anchor mismatch: exp: %#v got: %#v\n", parent, leaf)
 	}
+}
+
+// Weight represents ...
+type Weight struct {
+	*grafo.Branch
+	weight int
+}
+
+// GetWieight is ...
+func (w *Weight) GetWeight() int {
+	return w.weight
+}
+
+// ToMermaid is ...
+func (w *Weight) ToMermaid() string {
+	var buffer bytes.Buffer
+	buffer.WriteString(fmt.Sprintf("%s-- %d -->%s\n", w.GetParent().Label, w.GetWeight(), w.GetChild().Label))
+	return buffer.String()
+}
+
+// NewWeight is ...
+func NewWeight(parent *grafo.Leaf, child *grafo.Leaf, w int) *Weight {
+	return &Weight{
+		Branch: grafo.NewBranch(parent,
+			child,
+			func(parent *grafo.Leaf, child *grafo.Leaf, params ...interface{}) (interface{}, bool) {
+				return w, true
+			}),
+		weight: w,
+	}
+}
+
+// Network represents ...
+type Network struct {
+	*grafo.Tree
+}
+
+// AddNode is ...
+func (net *Network) AddNode(parent *grafo.Leaf, child *grafo.Leaf, weight int) error {
+	if parent == nil {
+		parent = net.GetRoot()
+	}
+	var branch grafo.IBranch = NewWeight(parent, child, weight)
+	return net.AddBranch(parent, branch)
+}
+
+//NewNetwork is ...
+func NewNetwork(label string) *Network {
+	return &Network{
+		grafo.NewTree(label),
+	}
+}
+
+// Test_Network is ...
+func Test_Network(t *testing.T) {
+	network := NewNetwork("network/1")
+	root := grafo.NewLeaf("origin/1")
+	node1 := grafo.NewLeaf("node/1")
+	node2 := grafo.NewLeaf("node/2")
+	node3 := grafo.NewLeaf("node/3")
+	node4 := grafo.NewLeaf("node/4")
+	node5 := grafo.NewLeaf("node/5")
+	network.AddNode(nil, root, 0)
+	network.AddNode(root, node1, 10)
+	network.AddNode(root, node2, 5)
+	network.AddNode(node2, node3, 3)
+	network.AddNode(node2, node4, 6)
+	network.AddNode(node1, node5, 1)
+	network.AddNode(node3, node5, 7)
+	network.AddNode(node4, node5, 11)
+	//for k, v := range network.GetLeafs() {
+	//    tools.ToDisplay("%d : %#v\n\n", k, v)
+	//}
+	tools.ToDisplay("%s\n", network.ToMermaid())
 }

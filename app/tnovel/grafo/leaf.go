@@ -1,6 +1,7 @@
 package grafo
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/jrecuero/go-cli/tools"
@@ -18,6 +19,7 @@ type IBranch interface {
 	GetChild() *Leaf
 	SetChild(*Leaf)
 	GetTraverse() *Traverse
+	ToMermaid() string
 	Check(params ...interface{}) (interface{}, bool)
 }
 
@@ -87,6 +89,13 @@ func (branch *Branch) Check(params ...interface{}) (interface{}, bool) {
 	return branch.clearance(branch.GetParent(), branch.GetChild(), params...)
 }
 
+// ToMermaid is ...
+func (branch *Branch) ToMermaid() string {
+	var buffer bytes.Buffer
+	buffer.WriteString(fmt.Sprintf("%s-->%s\n", branch.GetParent().Label, branch.GetChild().Label))
+	return buffer.String()
+}
+
 // NewBranch is ...
 func NewBranch(parent *Leaf, child *Leaf, clearance ClearanceCb) *Branch {
 	return &Branch{
@@ -111,6 +120,11 @@ type Leaf struct {
 	Traversed []*Traverse
 	Content   IContent
 	hooked    bool
+}
+
+// GetID is ...
+func (leaf *Leaf) GetID() Ider {
+	return leaf.id
 }
 
 // AddParent is ...
@@ -155,6 +169,7 @@ type Tree struct {
 	root   *Leaf
 	anchor *Leaf
 	path   *Path
+	leafs  map[Ider]*Leaf
 }
 
 // GetRoot is ...
@@ -165,6 +180,11 @@ func (tree *Tree) GetRoot() *Leaf {
 // GetAnchor is ...
 func (tree *Tree) GetAnchor() *Leaf {
 	return tree.anchor
+}
+
+// GetLeafs is ...
+func (tree *Tree) GetLeafs() map[Ider]*Leaf {
+	return tree.leafs
 }
 
 // AddBranch is ...
@@ -184,6 +204,7 @@ func (tree *Tree) AddBranch(parent *Leaf, branch IBranch) error {
 		return err
 	}
 	child.hooked = true
+	tree.leafs[child.GetID()] = child
 	return nil
 }
 
@@ -239,6 +260,18 @@ func (tree *Tree) SetAnchorTo(anchor *Leaf) *Leaf {
 	return nil
 }
 
+// ToMermaid is ...
+func (tree *Tree) ToMermaid() string {
+	var buffer bytes.Buffer
+	buffer.WriteString("graph LR\n")
+	for _, leaf := range tree.GetLeafs() {
+		for _, branch := range leaf.Branches {
+			buffer.WriteString(branch.ToMermaid())
+		}
+	}
+	return buffer.String()
+}
+
 // NewTree is ...
 func NewTree(label string) *Tree {
 	root := NewLeaf("root/0")
@@ -248,6 +281,7 @@ func NewTree(label string) *Tree {
 		Label: label,
 		root:  root,
 		path:  NewPath(fmt.Sprintf("%s/path", label)),
+		leafs: make(map[Ider]*Leaf),
 	}
 	tree.anchor = tree.GetRoot()
 	return tree
