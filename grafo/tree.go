@@ -32,7 +32,8 @@ func (tree *Tree) GetLeafs() map[Ider]*Leaf {
 	return tree.leafs
 }
 
-// AddBranch is ...
+// AddBranch adds the given branch to the given parent. If parent is nil, use
+// the tree root leaf. Parent attribute in the Child leaf is set properly.
 func (tree *Tree) AddBranch(parent *Leaf, branch IBranch) error {
 	if parent == nil {
 		parent = tree.GetRoot()
@@ -53,7 +54,7 @@ func (tree *Tree) AddBranch(parent *Leaf, branch IBranch) error {
 	return nil
 }
 
-// AddChild is ...
+// AddChild adds an static branch fromt the given parent to the given child.
 func (tree *Tree) AddChild(parent *Leaf, child *Leaf) error {
 	if parent == nil {
 		parent = tree.GetRoot()
@@ -62,9 +63,41 @@ func (tree *Tree) AddChild(parent *Leaf, child *Leaf) error {
 	return tree.AddBranch(parent, branch)
 }
 
-// PathsFrom is ...
+// ExistPathTo checks if there is branch from the given anchor to the given
+// child. If not anchor leaf is provided, the tree anchor is used instead of.
+func (tree *Tree) ExistPathTo(anchor *Leaf, dest *Leaf) (IBranch, bool) {
+	if anchor == nil {
+		anchor = tree.anchor
+	}
+	for _, branch := range anchor.Branches {
+		if branch.GetChild() == dest {
+			return branch, true
+		}
+	}
+	return nil, false
+}
+
+// IsPathTo check if there is a branch from the given anchor to the given child
+// ana if the path is possible. If not anchor is leaf is provided, the tree
+// anchor is used instead of.
+func (tree *Tree) IsPathTo(anchor *Leaf, dest *Leaf, params ...interface{}) (IBranch, bool) {
+	if anchor == nil {
+		anchor = tree.anchor
+	}
+	if branch, ok := tree.ExistPathTo(anchor, dest); ok {
+		if _, bok := branch.Check(params...); bok {
+			return branch, true
+		}
+	}
+	return nil, false
+}
+
+// PathsFrom returns all existance and possible branches from the given anchor.
 func (tree *Tree) PathsFrom(anchor *Leaf, params ...interface{}) []*Leaf {
 	var children []*Leaf
+	if anchor == nil {
+		anchor = tree.anchor
+	}
 	for _, branch := range anchor.Branches {
 		if _, ok := branch.Check(params...); ok {
 			children = append(children, branch.GetChild())
@@ -79,7 +112,7 @@ func (tree *Tree) setAnchor(anchor *Leaf) *Leaf {
 	return tree.GetAnchor()
 }
 
-// AddTraverse is ...
+// AddTraverse adds a branch to the tree traverse.
 func (tree *Tree) AddTraverse(branch IBranch) error {
 	if branch.GetParent() == nil {
 		branch.SetParent(tree.GetRoot())
@@ -92,10 +125,11 @@ func (tree *Tree) AddTraverse(branch IBranch) error {
 	return nil
 }
 
-// SetAnchorTo is ..
-func (tree *Tree) SetAnchorTo(anchor *Leaf) *Leaf {
+// SetAnchorTo moves the anchor to the destination leaf and adds the branch to
+// the tree traverse.
+func (tree *Tree) SetAnchorTo(dest *Leaf) *Leaf {
 	for _, branch := range tree.anchor.Branches {
-		if branch.GetChild() == anchor {
+		if branch.GetChild() == dest {
 			if err := tree.AddTraverse(branch); err != nil {
 				return nil
 			}

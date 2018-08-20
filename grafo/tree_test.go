@@ -79,18 +79,68 @@ func TestTree_AddChild(t *testing.T) {
 	}
 }
 
+// TestTree_ExistPathTo is ...
+func TestTree_ExistPathTo(t *testing.T) {
+	tree := grafo.NewTree("tree/1")
+	parent := grafo.NewLeaf("parent/1")
+	child1 := grafo.NewLeaf("child/1")
+	child2 := grafo.NewLeaf("child/2")
+	child3 := grafo.NewLeaf("child/3")
+	tree.AddChild(nil, parent)
+	tree.AddChild(parent, child1)
+	tree.AddChild(parent, child2)
+	tree.AddChild(child1, child3)
+	if branch, ok := tree.ExistPathTo(parent, child1); ok {
+		if branch != parent.Branches[0] {
+			t.Errorf("Tree:ExistPathTo: incorrect branch: exp: %#v got: %#v\n", parent.Branches[0], branch)
+		}
+	} else {
+		t.Errorf("Tree:ExistPathTo: branch not found from: %#v to %#v\n", parent, child1)
+	}
+	if _, ok := tree.ExistPathTo(parent, child3); ok {
+		t.Errorf("Tree:ExistPathTo: branch found from: %#v to %#v\n", parent, child3)
+	}
+}
+
+// TestTree_IsPathTo is ...
+func TestTree_IsPathTo(t *testing.T) {
+	tree := grafo.NewTree("tree/1")
+	parent := grafo.NewLeaf("parent/1")
+	child1 := grafo.NewLeaf("child/1")
+	child2 := grafo.NewLeaf("child/2")
+	child3 := grafo.NewLeaf("child/3")
+	tree.AddChild(nil, parent)
+	tree.AddChild(parent, child1)
+	tree.AddChild(parent, child2)
+	tree.AddChild(child1, child3)
+	if branch, ok := tree.IsPathTo(parent, child1); ok {
+		if branch != parent.Branches[0] {
+			t.Errorf("Tree:IsPathTo: incorrect branch: exp: %#v got: %#v\n", parent.Branches[0], branch)
+		}
+	} else {
+		t.Errorf("Tree:IsPathTo: branch not found from: %#v to %#v\n", parent, child1)
+	}
+	if _, ok := tree.IsPathTo(parent, child3); ok {
+		t.Errorf("Tree:IsPathTo: branch found from: %#v to %#v\n", parent, child3)
+	}
+}
+
 // TestTree_PathsFrom is ...
 func TestTree_PathsFrom(t *testing.T) {
 	tree := grafo.NewTree("tree/1")
 	parent := grafo.NewLeaf("parent/1")
 	child1 := grafo.NewLeaf("child/1")
 	child2 := grafo.NewLeaf("child/2")
+	child3 := grafo.NewLeaf("child/3")
 	tree.AddChild(nil, parent)
 	tree.AddChild(parent, child1)
 	tree.AddChild(parent, child2)
-	paths := tree.PathsFrom(parent)
-	if len(paths) != 2 {
+	tree.AddChild(child1, child3)
+	if paths := tree.PathsFrom(parent); len(paths) != 2 {
 		t.Errorf("Tree:PathsFrom: path length mismatch: exp: %d got: %d\n", 2, len(paths))
+	}
+	if paths := tree.PathsFrom(child3); len(paths) != 0 {
+		t.Errorf("Tree:PathsFrom: path length mismatch: exp: %d got: %d\n", 0, len(paths))
 	}
 }
 
