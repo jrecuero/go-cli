@@ -107,14 +107,14 @@ func (net *Network) pathsFromNodeToNode(anchor *Node, dest *Node, ids []Ider) []
 	for _, branch := range anchor.Branches {
 		if found := findIDInArray(branch.GetChild().GetID(), ids); !found {
 			if branch.GetChild() == ToLeaf(dest) {
-				p := NewPath(fmt.Sprintf("%s : %s", branch.GetParent().Label, branch.GetChild().Label))
-				p.Traversed = append(p.Traversed, branch.GetTraverse())
+				p := NewPath("")
+				p.Branches = append(p.Branches, branch)
 				paths = append(paths, p)
 			} else {
 				if childPaths := net.pathsFromNodeToNode(ToNode(branch.GetChild()), dest, ids); childPaths != nil {
 					for _, childPath := range childPaths {
-						traversed := []*Traverse{branch.GetTraverse()}
-						childPath.Traversed = append(traversed, childPath.Traversed...)
+						branches := []IBranch{branch}
+						childPath.Branches = append(branches, childPath.Branches...)
 						paths = append(paths, childPath)
 					}
 				}
@@ -127,6 +127,38 @@ func (net *Network) pathsFromNodeToNode(anchor *Node, dest *Node, ids []Ider) []
 // PathsFromNodeToNode is ...
 func (net *Network) PathsFromNodeToNode(anchor *Node, dest *Node) []*Path {
 	return net.pathsFromNodeToNode(anchor, dest, nil)
+}
+
+// TotalWeightInPath is ...
+func (net *Network) TotalWeightInPath(path *Path) int {
+	var weight int
+	for _, branch := range path.Branches {
+		if w, ok := branch.Check(); ok {
+			weight += w.(int)
+		}
+		weight += branch.GetChild().Content.(*NodeContent).GetWeight()
+	}
+	return weight
+}
+
+// isBetterPath is ...
+func (net *Network) isBetterPath(best *Path, bestWeight int, path *Path) (*Path, int) {
+	pathWeight := net.TotalWeightInPath(path)
+	if best == nil || pathWeight < bestWeight {
+		return path, pathWeight
+	}
+	return best, bestWeight
+}
+
+// BestPathFromNodeToNode is ...
+func (net *Network) BestPathFromNodeToNode(anchor *Node, dest *Node) (*Path, int) {
+	var bestPath *Path
+	var bestWeight int
+	paths := net.PathsFromNodeToNode(anchor, dest)
+	for _, path := range paths {
+		bestPath, bestWeight = net.isBetterPath(bestPath, bestWeight, path)
+	}
+	return bestPath, bestWeight
 }
 
 //NewNetwork is ...

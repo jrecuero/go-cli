@@ -121,7 +121,7 @@ func (tree *Tree) AddTraverse(branch IBranch) error {
 		return tools.ERROR(nil, false, "parent is not the anchor: %#v\n", branch.GetParent())
 	}
 	tree.setAnchor(branch.GetChild())
-	tree.path.Traversed = append(tree.path.Traversed, branch.GetTraverse())
+	tree.path.Branches = append(tree.path.Branches, branch)
 	return nil
 }
 
