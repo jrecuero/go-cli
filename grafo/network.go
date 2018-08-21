@@ -111,7 +111,7 @@ func (net *Network) pathsFromNodeToNode(anchor *Node, dest *Node, ids []Ider) []
 	//tools.ToDisplay("%#v\n", ids)
 	for _, branch := range anchor.Branches {
 		if found := findIDInArray(branch.GetChild().GetID(), ids); !found {
-			if branch.GetChild() == ToLeaf(dest) {
+			if branch.GetChild() == NodeToLeaf(dest) {
 				p := NewPath("")
 				p.Branches = append(p.Branches, branch)
 				paths = append(paths, p)
@@ -195,8 +195,8 @@ func NewNetwork(label string) *Network {
 	}
 }
 
-// ToLeaf is ...
-func ToLeaf(node *Node) *Leaf {
+// NodeToLeaf is ...
+func NodeToLeaf(node *Node) *Leaf {
 	return node.Leaf
 }
 

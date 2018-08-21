@@ -34,6 +34,11 @@ func (leaf *Leaf) AddBranch(branch IBranch) error {
 	return nil
 }
 
+// String is ...
+func (leaf *Leaf) String() string {
+	return leaf.Label
+}
+
 // NewLeaf is ...
 func NewLeaf(label string) *Leaf {
 	return &Leaf{
