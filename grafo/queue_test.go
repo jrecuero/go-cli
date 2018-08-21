@@ -49,3 +49,31 @@ func TestQueue_Check(t *testing.T) {
 	//    tools.ToDisplay("%#v\n", j)
 	//}
 }
+
+// TestQueue_Serve is ...
+func TestQueue_Serve(t *testing.T) {
+	system := grafo.NewSystem("system/1")
+	root := grafo.NewServer("root/1", nil)
+	queue1 := grafo.NewServer("queue/1", grafo.NewServerContent("queue/1", 5))
+	system.AddQueue(nil, grafo.ServerToLeaf(root), 0)
+	system.AddQueue(grafo.ServerToLeaf(root), grafo.ServerToLeaf(queue1), 10)
+	b := root.Branches[0]
+	b.Check(grafo.NewJob("job/1", 10))
+	b.Check(grafo.NewJob("job/2", 2))
+	//for _, j := range root.Branches[0].(*grafo.Queue).Jobs {
+	//    tools.ToDisplay("%#v\n", j)
+	//}
+	jobs := &root.Branches[0].(*grafo.Queue).Jobs
+	if job, ok := queue1.Content.(*grafo.ServerContent).Serve(jobs); ok {
+		t.Errorf("Queue:Serve: job can not completed: %#v\n", job)
+	}
+	//for _, j := range root.Branches[0].(*grafo.Queue).Jobs {
+	//    tools.ToDisplay("%#v\n", j)
+	//}
+	if job, ok := queue1.Content.(*grafo.ServerContent).Serve(jobs); !ok {
+		t.Errorf("Queue:Serve: job should completed: %#v\n", job)
+	}
+	//for _, j := range root.Branches[0].(*grafo.Queue).Jobs {
+	//    tools.ToDisplay("%#v\n", j)
+	//}
+}
