@@ -34,6 +34,11 @@ type Node struct {
 	*Leaf
 }
 
+// String is ...
+func (node *Node) String() string {
+	return node.Label
+}
+
 // NewNode is ...
 func NewNode(label string, nc *NodeContent) *Node {
 	node := &Node{
@@ -129,6 +134,28 @@ func (net *Network) PathsFromNodeToNode(anchor *Node, dest *Node) []*Path {
 	return net.pathsFromNodeToNode(anchor, dest, nil)
 }
 
+// FindLoops is ...
+func (net *Network) FindLoops(anchor *Node, ids []Ider) [][]*Node {
+	if index := indexOf(anchor.GetID(), ids); index != -1 {
+		//tools.ToDisplay("Loop at: %#v : %d\n", ids, index)
+		var nodes []*Node
+		for _, id := range ids[index:len(ids)] {
+			nodes = append(nodes, ToNode(net.GetLeafs()[id]))
+		}
+		return [][]*Node{nodes}
+	}
+	ids = append(ids, anchor.GetID())
+	var loops [][]*Node
+	for _, branch := range anchor.Branches {
+		if loop := net.FindLoops(ToNode(branch.GetChild()), ids); loop != nil {
+			for _, l := range loop {
+				loops = append(loops, l)
+			}
+		}
+	}
+	return loops
+}
+
 // TotalWeightInPath is ...
 func (net *Network) TotalWeightInPath(path *Path) int {
 	var weight int
@@ -182,10 +209,20 @@ func ToNode(leaf *Leaf) *Node {
 
 // findIDInArray is ...
 func findIDInArray(id Ider, lista []Ider) bool {
-	for _, i := range lista {
-		if i == id {
+	for _, val := range lista {
+		if val == id {
 			return true
 		}
 	}
 	return false
+}
+
+// indexOf is ...
+func indexOf(id Ider, lista []Ider) int {
+	for index, val := range lista {
+		if val == id {
+			return index
+		}
+	}
+	return -1
 }

@@ -168,3 +168,36 @@ func TestNetwork_BestPathFromNodeToNode(t *testing.T) {
 		}
 	}
 }
+
+// TestNetwork_FindLoops is ...
+func TestNetwork_FindLoops(t *testing.T) {
+	network := grafo.NewNetwork("network/1")
+	root := grafo.NewNode("root/1", grafo.NewNodeContent("root/1", 0))
+	node1 := grafo.NewNode("node/1", grafo.NewNodeContent("node/1", 2))
+	node2 := grafo.NewNode("node/2", grafo.NewNodeContent("node/2", 3))
+	node3 := grafo.NewNode("node/3", grafo.NewNodeContent("node/3", 4))
+	node4 := grafo.NewNode("node/4", grafo.NewNodeContent("node/4", 4))
+	node5 := grafo.NewNode("node/5", grafo.NewNodeContent("node/5", 5))
+	node6 := grafo.NewNode("node/6", grafo.NewNodeContent("node/6", 6))
+	network.AddNode(nil, grafo.ToLeaf(root), 0)
+	network.AddNode(grafo.ToLeaf(root), grafo.ToLeaf(node1), 10)
+	network.AddNode(grafo.ToLeaf(root), grafo.ToLeaf(node2), 5)
+	network.AddNode(grafo.ToLeaf(node1), grafo.ToLeaf(node3), 1)
+	network.AddNode(grafo.ToLeaf(node2), grafo.ToLeaf(node3), 1)
+	network.AddNode(grafo.ToLeaf(node3), grafo.ToLeaf(node4), 1)
+	network.AddNode(grafo.ToLeaf(node1), grafo.ToLeaf(node4), 1)
+	network.AddNode(grafo.ToLeaf(node1), grafo.ToLeaf(node5), 1)
+	network.AddNode(grafo.ToLeaf(node3), grafo.ToLeaf(root), 1)
+	network.AddNode(grafo.ToLeaf(node4), grafo.ToLeaf(root), 1)
+	network.AddNode(grafo.ToLeaf(node5), grafo.ToLeaf(node6), 1)
+	//tools.ToDisplay("%s\n", network.ToMermaid())
+	if loops := network.FindLoops(node5, nil); len(loops) != 0 {
+		t.Errorf("Tree:FindLoops: loops found mismatch: exp: %d got: %d\n", 0, len(loops))
+	}
+	if loops := network.FindLoops(root, nil); len(loops) != 5 {
+		t.Errorf("Tree:FindLoops: loops found mismatch: exp: %d got: %d\n", 5, len(loops))
+	}
+	//for _, loop := range loops {
+	//    tools.ToDisplay("%s\n", loop)
+	//}
+}
