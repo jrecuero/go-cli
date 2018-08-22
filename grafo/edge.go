@@ -24,7 +24,7 @@ func NewVtoV(parent *Vertex, child *Vertex) *VtoV {
 // Edge is ...
 type Edge struct {
 	*VtoV
-	clearance ClearanceCb
+	Clearance ClearanceCb
 }
 
 // GetParent is ...
@@ -54,7 +54,7 @@ func (edge *Edge) GetVtoV() *VtoV {
 
 // Check is ...
 func (edge *Edge) Check(params ...interface{}) (interface{}, bool) {
-	return edge.clearance(edge.GetParent(), edge.GetChild(), params...)
+	return edge.Clearance(edge.GetParent(), edge.GetChild(), params...)
 }
 
 // ToMermaid is ...
@@ -68,7 +68,7 @@ func (edge *Edge) ToMermaid() string {
 func NewEdge(parent *Vertex, child *Vertex, clearance ClearanceCb) *Edge {
 	return &Edge{
 		VtoV:      NewVtoV(parent, child),
-		clearance: clearance,
+		Clearance: clearance,
 	}
 }
 

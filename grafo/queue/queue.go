@@ -1,4 +1,6 @@
-package grafo
+package queue
+
+import "github.com/jrecuero/go-cli/grafo"
 
 // Job represents ...
 type Job struct {
@@ -16,7 +18,7 @@ func NewJob(label string, workout int) *Job {
 
 // Queue represents ...
 type Queue struct {
-	*Edge
+	*grafo.Edge
 	Jobs  []*Job
 	limit int
 }
@@ -25,15 +27,15 @@ type Queue struct {
 func (queue *Queue) Check(params ...interface{}) (interface{}, bool) {
 	var topass = []interface{}{queue}
 	topass = append(topass, params...)
-	return queue.clearance(queue.GetParent(), queue.GetChild(), topass...)
+	return queue.Clearance(queue.GetParent(), queue.GetChild(), topass...)
 }
 
 // NewQueue is ...
-func NewQueue(parent *Vertex, child *Vertex, limit int) *Queue {
+func NewQueue(parent *grafo.Vertex, child *grafo.Vertex, limit int) *Queue {
 	return &Queue{
-		Edge: NewEdge(parent,
+		Edge: grafo.NewEdge(parent,
 			child,
-			func(parent *Vertex, child *Vertex, params ...interface{}) (interface{}, bool) {
+			func(parent *grafo.Vertex, child *grafo.Vertex, params ...interface{}) (interface{}, bool) {
 				queue := params[0].(*Queue)
 				job := params[1].(*Job)
 				if len(queue.Jobs) > limit {
@@ -90,13 +92,13 @@ func NewServerContent(label string, worker int) *ServerContent {
 
 // Server represents ...
 type Server struct {
-	*Vertex
+	*grafo.Vertex
 }
 
 // NewServer is ...
 func NewServer(label string, sc *ServerContent) *Server {
 	server := &Server{
-		NewVertex(label),
+		grafo.NewVertex(label),
 	}
 	server.Content = sc
 	return server
@@ -104,32 +106,32 @@ func NewServer(label string, sc *ServerContent) *Server {
 
 // System represents ..
 type System struct {
-	*Grafo
+	*grafo.Grafo
 }
 
 // AddQueue is ...
-func (system *System) AddQueue(parent *Vertex, child *Vertex, limit int) error {
+func (system *System) AddQueue(parent *grafo.Vertex, child *grafo.Vertex, limit int) error {
 	if parent == nil {
 		parent = system.GetRoot()
 	}
-	var edge IEdge = NewQueue(parent, child, limit)
+	var edge grafo.IEdge = NewQueue(parent, child, limit)
 	return system.AddEdge(parent, edge)
 }
 
 // NewSystem is ...
 func NewSystem(label string) *System {
 	return &System{
-		NewGrafo(label),
+		grafo.NewGrafo(label),
 	}
 }
 
 // ServerToVertex is ...
-func ServerToVertex(server *Server) *Vertex {
+func ServerToVertex(server *Server) *grafo.Vertex {
 	return server.Vertex
 }
 
 // ToServer is ...
-func ToServer(vertex *Vertex) *Server {
+func ToServer(vertex *grafo.Vertex) *Server {
 	return &Server{
 		vertex,
 	}

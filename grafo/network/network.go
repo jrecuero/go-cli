@@ -1,8 +1,10 @@
-package grafo
+package network
 
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/jrecuero/go-cli/grafo"
 )
 
 // NodeContent represents ...
@@ -31,7 +33,7 @@ func NewNodeContent(label string, weight int) *NodeContent {
 
 // Node represents ...
 type Node struct {
-	*Vertex
+	*grafo.Vertex
 }
 
 // String is ...
@@ -42,7 +44,7 @@ func (node *Node) String() string {
 // NewNode is ...
 func NewNode(label string, nc *NodeContent) *Node {
 	node := &Node{
-		Vertex: NewVertex(label),
+		Vertex: grafo.NewVertex(label),
 	}
 	node.Content = nc
 	return node
@@ -50,7 +52,7 @@ func NewNode(label string, nc *NodeContent) *Node {
 
 // Weight represents ...
 type Weight struct {
-	*Edge
+	*grafo.Edge
 	weight int
 }
 
@@ -67,11 +69,11 @@ func (w *Weight) ToMermaid() string {
 }
 
 // NewWeight is ...
-func NewWeight(parent *Vertex, child *Vertex, w int) *Weight {
+func NewWeight(parent *grafo.Vertex, child *grafo.Vertex, w int) *Weight {
 	return &Weight{
-		Edge: NewEdge(parent,
+		Edge: grafo.NewEdge(parent,
 			child,
-			func(parent *Vertex, child *Vertex, params ...interface{}) (interface{}, bool) {
+			func(parent *grafo.Vertex, child *grafo.Vertex, params ...interface{}) (interface{}, bool) {
 				return w, true
 			}),
 		weight: w,
@@ -80,15 +82,15 @@ func NewWeight(parent *Vertex, child *Vertex, w int) *Weight {
 
 // Network represents ...
 type Network struct {
-	*Grafo
+	*grafo.Grafo
 }
 
 // AddNode is ...
-func (net *Network) AddNode(parent *Vertex, child *Vertex, weight int) error {
+func (net *Network) AddNode(parent *grafo.Vertex, child *grafo.Vertex, weight int) error {
 	if parent == nil {
 		parent = net.GetRoot()
 	}
-	var edge IEdge = NewWeight(parent, child, weight)
+	var edge grafo.IEdge = NewWeight(parent, child, weight)
 	return net.AddEdge(parent, edge)
 }
 
@@ -105,20 +107,20 @@ func (net *Network) CostToNode(dest *Node) (int, bool) {
 }
 
 // pathsFromNodeToNode is ...
-func (net *Network) pathsFromNodeToNode(anchor *Node, dest *Node, ids []Ider) []*Path {
-	var paths []*Path
+func (net *Network) pathsFromNodeToNode(anchor *Node, dest *Node, ids []grafo.Ider) []*grafo.Path {
+	var paths []*grafo.Path
 	ids = append(ids, anchor.GetID())
 	//tools.ToDisplay("%#v\n", ids)
 	for _, edge := range anchor.Edges {
 		if found := findIDInArray(edge.GetChild().GetID(), ids); !found {
 			if edge.GetChild() == NodeToVertex(dest) {
-				p := NewPath("")
+				p := grafo.NewPath("")
 				p.Edges = append(p.Edges, edge)
 				paths = append(paths, p)
 			} else {
 				if childPaths := net.pathsFromNodeToNode(ToNode(edge.GetChild()), dest, ids); childPaths != nil {
 					for _, childPath := range childPaths {
-						edgees := []IEdge{edge}
+						edgees := []grafo.IEdge{edge}
 						childPath.Edges = append(edgees, childPath.Edges...)
 						paths = append(paths, childPath)
 					}
@@ -130,12 +132,12 @@ func (net *Network) pathsFromNodeToNode(anchor *Node, dest *Node, ids []Ider) []
 }
 
 // PathsFromNodeToNode is ...
-func (net *Network) PathsFromNodeToNode(anchor *Node, dest *Node) []*Path {
+func (net *Network) PathsFromNodeToNode(anchor *Node, dest *Node) []*grafo.Path {
 	return net.pathsFromNodeToNode(anchor, dest, nil)
 }
 
 // FindLoops is ...
-func (net *Network) FindLoops(anchor *Node, ids []Ider) [][]*Node {
+func (net *Network) FindLoops(anchor *Node, ids []grafo.Ider) [][]*Node {
 	if index := indexOf(anchor.GetID(), ids); index != -1 {
 		//tools.ToDisplay("Loop at: %#v : %d\n", ids, index)
 		var nodes []*Node
@@ -157,7 +159,7 @@ func (net *Network) FindLoops(anchor *Node, ids []Ider) [][]*Node {
 }
 
 // TotalWeightInPath is ...
-func (net *Network) TotalWeightInPath(path *Path) int {
+func (net *Network) TotalWeightInPath(path *grafo.Path) int {
 	var weight int
 	for _, edge := range path.Edges {
 		if w, ok := edge.Check(); ok {
@@ -169,7 +171,7 @@ func (net *Network) TotalWeightInPath(path *Path) int {
 }
 
 // isBetterPath is ...
-func (net *Network) isBetterPath(best *Path, bestWeight int, path *Path) (*Path, int) {
+func (net *Network) isBetterPath(best *grafo.Path, bestWeight int, path *grafo.Path) (*grafo.Path, int) {
 	pathWeight := net.TotalWeightInPath(path)
 	if best == nil || pathWeight < bestWeight {
 		return path, pathWeight
@@ -178,8 +180,8 @@ func (net *Network) isBetterPath(best *Path, bestWeight int, path *Path) (*Path,
 }
 
 // BestPathFromNodeToNode is ...
-func (net *Network) BestPathFromNodeToNode(anchor *Node, dest *Node) (*Path, int) {
-	var bestPath *Path
+func (net *Network) BestPathFromNodeToNode(anchor *Node, dest *Node) (*grafo.Path, int) {
+	var bestPath *grafo.Path
 	var bestWeight int
 	paths := net.PathsFromNodeToNode(anchor, dest)
 	for _, path := range paths {
@@ -191,24 +193,24 @@ func (net *Network) BestPathFromNodeToNode(anchor *Node, dest *Node) (*Path, int
 //NewNetwork is ...
 func NewNetwork(label string) *Network {
 	return &Network{
-		Grafo: NewGrafo(label),
+		Grafo: grafo.NewGrafo(label),
 	}
 }
 
 // NodeToVertex is ...
-func NodeToVertex(node *Node) *Vertex {
+func NodeToVertex(node *Node) *grafo.Vertex {
 	return node.Vertex
 }
 
 // ToNode is ...
-func ToNode(vertex *Vertex) *Node {
+func ToNode(vertex *grafo.Vertex) *Node {
 	return &Node{
 		vertex,
 	}
 }
 
 // findIDInArray is ...
-func findIDInArray(id Ider, lista []Ider) bool {
+func findIDInArray(id grafo.Ider, lista []grafo.Ider) bool {
 	for _, val := range lista {
 		if val == id {
 			return true
@@ -218,7 +220,7 @@ func findIDInArray(id Ider, lista []Ider) bool {
 }
 
 // indexOf is ...
-func indexOf(id Ider, lista []Ider) int {
+func indexOf(id grafo.Ider, lista []grafo.Ider) int {
 	for index, val := range lista {
 		if val == id {
 			return index
