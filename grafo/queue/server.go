@@ -27,3 +27,8 @@ func ToServer(vertex *grafo.Vertex) *Server {
 		vertex,
 	}
 }
+
+// GetServerContent is ...
+func GetServerContent(server *Server) *ServerContent {
+	return server.Content.(*ServerContent)
+}

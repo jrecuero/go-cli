@@ -64,14 +64,14 @@ func TestQueue_Serve(t *testing.T) {
 	//    tools.ToDisplay("%#v\n", j)
 	//}
 	jobs := &root.Edges[0].(*queue.Queue).Jobs
-	if job, ok := queue1.Content.(*queue.ServerContent).Serve(jobs); ok {
+	if job, ok := queue.GetServerContent(queue1).Serve(jobs); ok {
 		t.Errorf("Queue:Serve: job can not completed: %#v\n", job)
 	}
 	//for _, j := range root.Edges[0].(*queue.Queue).Jobs {
 	//    tools.ToDisplay("%#v\n", j)
 	//}
-	if job, ok := queue1.Content.(*queue.ServerContent).Serve(jobs); !ok {
-		t.Errorf("Queue:Serve: job should completed: %#v\n", job)
+	if job, ok := queue.GetServerContent(queue1).Serve(jobs); !ok {
+		t.Errorf("Queue:Serve: job should be completed: %#v\n", job)
 	}
 	//for _, j := range root.Edges[0].(*queue.Queue).Jobs {
 	//    tools.ToDisplay("%#v\n", j)
