@@ -1,84 +1,8 @@
 package network
 
 import (
-	"bytes"
-	"fmt"
-
 	"github.com/jrecuero/go-cli/grafo"
 )
-
-// NodeContent represents ...
-type NodeContent struct {
-	label  string
-	weight int
-}
-
-// GetLabel is ...
-func (nc *NodeContent) GetLabel() string {
-	return nc.label
-}
-
-// GetWeight is ...
-func (nc *NodeContent) GetWeight() int {
-	return nc.weight
-}
-
-// NewNodeContent is ...
-func NewNodeContent(label string, weight int) *NodeContent {
-	return &NodeContent{
-		label:  label,
-		weight: weight,
-	}
-}
-
-// Node represents ...
-type Node struct {
-	*grafo.Vertex
-}
-
-// String is ...
-func (node *Node) String() string {
-	return node.Label
-}
-
-// NewNode is ...
-func NewNode(label string, nc *NodeContent) *Node {
-	node := &Node{
-		Vertex: grafo.NewVertex(label),
-	}
-	node.Content = nc
-	return node
-}
-
-// Weight represents ...
-type Weight struct {
-	*grafo.Edge
-	weight int
-}
-
-// GetWeight is ...
-func (w *Weight) GetWeight() int {
-	return w.weight
-}
-
-// ToMermaid is ...
-func (w *Weight) ToMermaid() string {
-	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("%s-- %d -->%s\n", w.GetParent().Label, w.GetWeight(), w.GetChild().Label))
-	return buffer.String()
-}
-
-// NewWeight is ...
-func NewWeight(parent *grafo.Vertex, child *grafo.Vertex, w int) *Weight {
-	return &Weight{
-		Edge: grafo.NewEdge(parent,
-			child,
-			func(parent *grafo.Vertex, child *grafo.Vertex, params ...interface{}) (interface{}, bool) {
-				return w, true
-			}),
-		weight: w,
-	}
-}
 
 // Network represents ...
 type Network struct {
@@ -194,18 +118,6 @@ func (net *Network) BestPathFromNodeToNode(anchor *Node, dest *Node) (*grafo.Pat
 func NewNetwork(label string) *Network {
 	return &Network{
 		Grafo: grafo.NewGrafo(label),
-	}
-}
-
-// NodeToVertex is ...
-func NodeToVertex(node *Node) *grafo.Vertex {
-	return node.Vertex
-}
-
-// ToNode is ...
-func ToNode(vertex *grafo.Vertex) *Node {
-	return &Node{
-		vertex,
 	}
 }
 
