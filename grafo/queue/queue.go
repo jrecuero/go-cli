@@ -1,6 +1,8 @@
 package queue
 
-import "github.com/jrecuero/go-cli/grafo"
+import (
+	"github.com/jrecuero/go-cli/grafo"
+)
 
 // Queue represents ...
 type Queue struct {

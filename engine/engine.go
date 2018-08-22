@@ -21,6 +21,7 @@ func (eng *Engine) Stop() error {
 
 // AddEvent is ...
 func (eng *Engine) AddEvent(ev *Event) error {
+	//tools.ToDisplay("Add event: %#v\n", ev)
 	eng.Events = append(eng.Events, ev)
 	return nil
 }
@@ -58,6 +59,18 @@ func (eng *Engine) ExecEvent(ev *Event) error {
 func (eng *Engine) Run() error {
 	if eng.Running {
 		return eng.Next()
+	}
+	return nil
+}
+
+// Loop is ...
+func (eng *Engine) Loop() error {
+	eng.Start()
+	defer eng.Stop()
+	for len(eng.Events) != 0 {
+		if err := eng.Run(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
