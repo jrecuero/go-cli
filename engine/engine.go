@@ -5,6 +5,8 @@ type Engine struct {
 	Time    ETime
 	Events  []*Event
 	Running bool
+	pipe    chan bool
+	waiting bool
 }
 
 // Start is ...
@@ -21,7 +23,10 @@ func (eng *Engine) Stop() error {
 
 // AddEvent is ...
 func (eng *Engine) AddEvent(ev *Event) error {
-	//tools.ToDisplay("Add event: %#v\n", ev)
+	//tools.ToDisplay("Add event: %s\n", ev)
+	if eng.waiting {
+		eng.pipe <- true
+	}
 	eng.Events = append(eng.Events, ev)
 	return nil
 }
@@ -30,6 +35,9 @@ func (eng *Engine) AddEvent(ev *Event) error {
 func (eng *Engine) AddEventFirst(ev *Event) error {
 	ev.AtTime = ZeroTime
 	eng.Events = append([]*Event{ev}, eng.Events...)
+	if eng.waiting {
+		eng.pipe <- true
+	}
 	return nil
 }
 
@@ -63,19 +71,52 @@ func (eng *Engine) Run() error {
 	return nil
 }
 
-// Loop is ...
-func (eng *Engine) Loop() error {
+// loop is ...
+func (eng *Engine) loop(done chan bool) {
 	eng.Start()
-	defer eng.Stop()
-	for len(eng.Events) != 0 {
-		if err := eng.Run(); err != nil {
-			return err
+	for eng.Running {
+		//tools.ToDisplay("looping here... %#v\n", len(eng.Events))
+		if len(eng.Events) == 0 {
+			//tools.ToDisplay("waiting here...\n")
+			eng.waiting = true
+			<-eng.pipe
+			eng.waiting = false
+			//tools.ToDisplay("wake up here...\n")
+		} else {
+			//tools.ToDisplay("running here... %d\n", len(eng.Events))
+			if err := eng.Run(); err != nil {
+				break
+			}
 		}
+
 	}
-	return nil
+	//tools.ToDisplay("exit here...\n")
+	eng.endloop()
+	done <- true
+}
+
+// endloop is ...
+func (eng *Engine) endloop() {
+	eng.waiting = false
+	eng.Stop()
+}
+
+// Loop is ...
+func (eng *Engine) Loop() {
+	done := make(chan bool, 1)
+	go eng.loop(done)
+	<-done
+}
+
+// EndLoop is ...
+func (eng *Engine) EndLoop() {
+	eng.pipe <- true
+	eng.Stop()
 }
 
 // NewEngine is ...
 func NewEngine() *Engine {
-	return &Engine{}
+	return &Engine{
+		pipe: make(chan bool),
+	}
 }

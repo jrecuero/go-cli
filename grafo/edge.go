@@ -27,6 +27,11 @@ type Edge struct {
 	Clearance ClearanceCb
 }
 
+// String is ...
+func (edge *Edge) String() string {
+	return fmt.Sprintf("%s -> %s\n", edge.GetParent().Label, edge.GetChild().Label)
+}
+
 // GetParent is ...
 func (edge *Edge) GetParent() *Vertex {
 	return edge.Parent

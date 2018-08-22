@@ -6,6 +6,18 @@ import (
 	"strconv"
 )
 
+// IVertex represents ...
+type IVertex interface {
+	GetID() Ider
+	GetLabel() string
+	GetParents() []IVertex
+	GetEdges() []IEdge
+	GetTraversed() []*VtoV
+	GetContent() IContent
+	AddParent(IVertex) error
+	AddEdge(IEdge) error
+}
+
 // Vertex represents ...
 type Vertex struct {
 	id        Ider

@@ -1,10 +1,31 @@
 package queue
 
-import "github.com/jrecuero/go-cli/grafo"
+import (
+	"github.com/jrecuero/go-cli/engine"
+	"github.com/jrecuero/go-cli/grafo"
+	"github.com/jrecuero/go-cli/tools"
+)
+
+// GenFollowUp represents ...
+type GenFollowUp func(job *Job)
 
 // Generator represents ...
 type Generator struct {
 	*grafo.Vertex
+}
+
+//GenEvent is ..
+func (gen *Generator) GenEvent(attime engine.ETime, followUp GenFollowUp) *engine.Event {
+	ev := engine.NewEvent("event/gen/0", attime)
+	ev.SetCallback(func(params ...interface{}) error {
+		//tools.ToDisplay("generator event callback\n")
+		if job, ok := GetGeneratorContent(gen).Generate(); ok {
+			followUp(job.(*Job))
+			return nil
+		}
+		return tools.ERROR(nil, false, "Generator error")
+	}, nil)
+	return ev
 }
 
 // NewGenerator is ...

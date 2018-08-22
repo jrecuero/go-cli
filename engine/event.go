@@ -19,6 +19,11 @@ type Event struct {
 	params   []interface{}
 }
 
+// String is ...
+func (ev *Event) String() string {
+	return ev.Name
+}
+
 // SetCallback is ...
 func (ev *Event) SetCallback(cb EventCallback, params ...interface{}) error {
 	ev.callback = cb
