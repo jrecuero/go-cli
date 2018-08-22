@@ -6,22 +6,22 @@ import (
 	"github.com/jrecuero/go-cli/grafo"
 )
 
-// TestLeaf_NewLeaf is ...
-func TestLeaf_NewLeaf(t *testing.T) {
-	if leaf := grafo.NewLeaf("leaf/0"); leaf == nil {
-		t.Errorf("NewLeaf: leaf can not be <nil>")
+// TestVertex_NewVertex is ...
+func TestVertex_NewVertex(t *testing.T) {
+	if vertex := grafo.NewVertex("vertex/0"); vertex == nil {
+		t.Errorf("NewVertex: vertex can not be <nil>")
 	}
 }
 
-// TestLeaf_AddBranch is ...
-func TestLeaf_AddBranch(t *testing.T) {
-	parentLeaf := grafo.NewLeaf("root/1")
-	childLeaf := grafo.NewLeaf("child/1")
-	branch := grafo.StaticBranch(parentLeaf, childLeaf)
-	if err := parentLeaf.AddBranch(branch); err != nil {
-		t.Errorf("Leaf:AddBranch: return code error: %#v\n", err)
+// TestVertex_AddEdge is ...
+func TestVertex_AddEdge(t *testing.T) {
+	parentVertex := grafo.NewVertex("root/1")
+	childVertex := grafo.NewVertex("child/1")
+	edge := grafo.StaticEdge(parentVertex, childVertex)
+	if err := parentVertex.AddEdge(edge); err != nil {
+		t.Errorf("Vertex:AddEdge: return code error: %#v\n", err)
 	}
-	if len(parentLeaf.Branches) != 1 {
-		t.Errorf("Leaf:AddBranch: branches length mismatch: exp %d got: %d\n", 1, len(parentLeaf.Branches))
+	if len(parentVertex.Edges) != 1 {
+		t.Errorf("Vertex:AddEdge: edges length mismatch: exp %d got: %d\n", 1, len(parentVertex.Edges))
 	}
 }

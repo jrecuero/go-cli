@@ -5,76 +5,76 @@ import (
 	"fmt"
 )
 
-// Traverse represents ...
-type Traverse struct {
+// VtoV represents ...
+type VtoV struct {
 	id     Ider
-	Parent *Leaf
-	Child  *Leaf
+	Parent *Vertex
+	Child  *Vertex
 }
 
-// NewTraverse is ...
-func NewTraverse(parent *Leaf, child *Leaf) *Traverse {
-	return &Traverse{
+// NewVtoV is ...
+func NewVtoV(parent *Vertex, child *Vertex) *VtoV {
+	return &VtoV{
 		id:     nextIder(),
 		Parent: parent,
 		Child:  child,
 	}
 }
 
-// Branch is ...
-type Branch struct {
-	*Traverse
+// Edge is ...
+type Edge struct {
+	*VtoV
 	clearance ClearanceCb
 }
 
 // GetParent is ...
-func (branch *Branch) GetParent() *Leaf {
-	return branch.Parent
+func (edge *Edge) GetParent() *Vertex {
+	return edge.Parent
 }
 
 // SetParent is ...
-func (branch *Branch) SetParent(parent *Leaf) {
-	branch.Parent = parent
+func (edge *Edge) SetParent(parent *Vertex) {
+	edge.Parent = parent
 }
 
 // GetChild is ...
-func (branch *Branch) GetChild() *Leaf {
-	return branch.Child
+func (edge *Edge) GetChild() *Vertex {
+	return edge.Child
 }
 
 // SetChild is ...
-func (branch *Branch) SetChild(child *Leaf) {
-	branch.Child = child
+func (edge *Edge) SetChild(child *Vertex) {
+	edge.Child = child
 }
 
-// GetTraverse is ...
-func (branch *Branch) GetTraverse() *Traverse {
-	return branch.Traverse
+// GetVtoV is ...
+func (edge *Edge) GetVtoV() *VtoV {
+	return edge.VtoV
 }
 
 // Check is ...
-func (branch *Branch) Check(params ...interface{}) (interface{}, bool) {
-	return branch.clearance(branch.GetParent(), branch.GetChild(), params...)
+func (edge *Edge) Check(params ...interface{}) (interface{}, bool) {
+	return edge.clearance(edge.GetParent(), edge.GetChild(), params...)
 }
 
 // ToMermaid is ...
-func (branch *Branch) ToMermaid() string {
+func (edge *Edge) ToMermaid() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("%s-->%s\n", branch.GetParent().Label, branch.GetChild().Label))
+	buffer.WriteString(fmt.Sprintf("%s-->%s\n", edge.GetParent().Label, edge.GetChild().Label))
 	return buffer.String()
 }
 
-// NewBranch is ...
-func NewBranch(parent *Leaf, child *Leaf, clearance ClearanceCb) *Branch {
-	return &Branch{
-		Traverse:  NewTraverse(parent, child),
+// NewEdge is ...
+func NewEdge(parent *Vertex, child *Vertex, clearance ClearanceCb) *Edge {
+	return &Edge{
+		VtoV:      NewVtoV(parent, child),
 		clearance: clearance,
 	}
 }
 
-// StaticBranch is ...
-func StaticBranch(parent *Leaf, child *Leaf) *Branch {
-	return NewBranch(parent, child, func(parent *Leaf, child *Leaf, params ...interface{}) (interface{}, bool) {
+// StaticEdge is ...
+func StaticEdge(parent *Vertex, child *Vertex) *Edge {
+	return NewEdge(parent, child, func(parent *Vertex, child *Vertex, params ...interface{}) (interface{}, bool) {
 		return nil, true
 	})
 }

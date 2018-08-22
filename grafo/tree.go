@@ -7,161 +7,161 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
-// Tree represents ...
-type Tree struct {
-	id     Ider
-	Label  string
-	root   *Leaf
-	anchor *Leaf
-	path   *Path
-	leafs  map[Ider]*Leaf
+// Grafo represents ...
+type Grafo struct {
+	id       Ider
+	Label    string
+	root     *Vertex
+	anchor   *Vertex
+	path     *Path
+	vertices map[Ider]*Vertex
 }
 
 // GetRoot is ...
-func (tree *Tree) GetRoot() *Leaf {
-	return tree.root
+func (grafo *Grafo) GetRoot() *Vertex {
+	return grafo.root
 }
 
 // GetAnchor is ...
-func (tree *Tree) GetAnchor() *Leaf {
-	return tree.anchor
+func (grafo *Grafo) GetAnchor() *Vertex {
+	return grafo.anchor
 }
 
-// GetLeafs is ...
-func (tree *Tree) GetLeafs() map[Ider]*Leaf {
-	return tree.leafs
+// GetVertices is ...
+func (grafo *Grafo) GetVertices() map[Ider]*Vertex {
+	return grafo.vertices
 }
 
-// AddBranch adds the given branch to the given parent. If parent is nil, use
-// the tree root leaf. Parent attribute in the Child leaf is set properly.
-func (tree *Tree) AddBranch(parent *Leaf, branch IBranch) error {
+// AddEdge adds the given edge to the given parent. If parent is nil, use
+// the grafo root vertex. Parent attribute in the Child vertex is set properly.
+func (grafo *Grafo) AddEdge(parent *Vertex, edge IEdge) error {
 	if parent == nil {
-		parent = tree.GetRoot()
-		branch.SetParent(parent)
+		parent = grafo.GetRoot()
+		edge.SetParent(parent)
 	}
 	if !parent.hooked {
-		return tools.ERROR(nil, false, "Parent not found in tree: %#v\n", parent)
+		return tools.ERROR(nil, false, "Parent not found in grafo: %#v\n", parent)
 	}
-	if err := parent.AddBranch(branch); err != nil {
+	if err := parent.AddEdge(edge); err != nil {
 		return err
 	}
-	child := branch.GetChild()
+	child := edge.GetChild()
 	if err := child.AddParent(parent); err != nil {
 		return err
 	}
 	child.hooked = true
-	tree.leafs[child.GetID()] = child
+	grafo.vertices[child.GetID()] = child
 	return nil
 }
 
-// AddChild adds an static branch fromt the given parent to the given child.
-func (tree *Tree) AddChild(parent *Leaf, child *Leaf) error {
+// AddVertex adds an static edge fromt the given parent to the given child.
+func (grafo *Grafo) AddVertex(parent *Vertex, child *Vertex) error {
 	if parent == nil {
-		parent = tree.GetRoot()
+		parent = grafo.GetRoot()
 	}
-	var branch IBranch = StaticBranch(parent, child)
-	return tree.AddBranch(parent, branch)
+	var edge IEdge = StaticEdge(parent, child)
+	return grafo.AddEdge(parent, edge)
 }
 
-// ExistPathTo checks if there is branch from the given anchor to the given
-// child. If not anchor leaf is provided, the tree anchor is used instead of.
-func (tree *Tree) ExistPathTo(anchor *Leaf, dest *Leaf) (IBranch, bool) {
+// ExistPathTo checks if there is edge from the given anchor to the given
+// child. If not anchor vertex is provided, the grafo anchor is used instead of.
+func (grafo *Grafo) ExistPathTo(anchor *Vertex, dest *Vertex) (IEdge, bool) {
 	if anchor == nil {
-		anchor = tree.anchor
+		anchor = grafo.anchor
 	}
-	for _, branch := range anchor.Branches {
-		if branch.GetChild() == dest {
-			return branch, true
+	for _, edge := range anchor.Edges {
+		if edge.GetChild() == dest {
+			return edge, true
 		}
 	}
 	return nil, false
 }
 
-// IsPathTo check if there is a branch from the given anchor to the given child
-// ana if the path is possible. If not anchor is leaf is provided, the tree
+// IsPathTo check if there is a edge from the given anchor to the given child
+// ana if the path is possible. If not anchor is vertex is provided, the grafo
 // anchor is used instead of.
-func (tree *Tree) IsPathTo(anchor *Leaf, dest *Leaf, params ...interface{}) (IBranch, bool) {
+func (grafo *Grafo) IsPathTo(anchor *Vertex, dest *Vertex, params ...interface{}) (IEdge, bool) {
 	if anchor == nil {
-		anchor = tree.anchor
+		anchor = grafo.anchor
 	}
-	if branch, ok := tree.ExistPathTo(anchor, dest); ok {
-		if _, bok := branch.Check(params...); bok {
-			return branch, true
+	if edge, ok := grafo.ExistPathTo(anchor, dest); ok {
+		if _, bok := edge.Check(params...); bok {
+			return edge, true
 		}
 	}
 	return nil, false
 }
 
-// PathsFrom returns all existance and possible branches from the given anchor.
-func (tree *Tree) PathsFrom(anchor *Leaf, params ...interface{}) []*Leaf {
-	var children []*Leaf
+// PathsFrom returns all existance and possible Edges from the given anchor.
+func (grafo *Grafo) PathsFrom(anchor *Vertex, params ...interface{}) []*Vertex {
+	var children []*Vertex
 	if anchor == nil {
-		anchor = tree.anchor
+		anchor = grafo.anchor
 	}
-	for _, branch := range anchor.Branches {
-		if _, ok := branch.Check(params...); ok {
-			children = append(children, branch.GetChild())
+	for _, edge := range anchor.Edges {
+		if _, ok := edge.Check(params...); ok {
+			children = append(children, edge.GetChild())
 		}
 	}
 	return children
 }
 
 // setAnchor is ..
-func (tree *Tree) setAnchor(anchor *Leaf) *Leaf {
-	tree.anchor = anchor
-	return tree.GetAnchor()
+func (grafo *Grafo) setAnchor(anchor *Vertex) *Vertex {
+	grafo.anchor = anchor
+	return grafo.GetAnchor()
 }
 
-// AddTraverse adds a branch to the tree traverse.
-func (tree *Tree) AddTraverse(branch IBranch) error {
-	if branch.GetParent() == nil {
-		branch.SetParent(tree.GetRoot())
+// AddVtoV adds a edge to the grafo traverse.
+func (grafo *Grafo) AddVtoV(edge IEdge) error {
+	if edge.GetParent() == nil {
+		edge.SetParent(grafo.GetRoot())
 	}
-	if tree.GetAnchor() != branch.GetParent() {
-		return tools.ERROR(nil, false, "parent is not the anchor: %#v\n", branch.GetParent())
+	if grafo.GetAnchor() != edge.GetParent() {
+		return tools.ERROR(nil, false, "parent is not the anchor: %#v\n", edge.GetParent())
 	}
-	tree.setAnchor(branch.GetChild())
-	tree.path.Branches = append(tree.path.Branches, branch)
+	grafo.setAnchor(edge.GetChild())
+	grafo.path.Edges = append(grafo.path.Edges, edge)
 	return nil
 }
 
-// SetAnchorTo moves the anchor to the destination leaf and adds the branch to
-// the tree traverse.
-func (tree *Tree) SetAnchorTo(dest *Leaf) *Leaf {
-	for _, branch := range tree.anchor.Branches {
-		if branch.GetChild() == dest {
-			if err := tree.AddTraverse(branch); err != nil {
+// SetAnchorTo moves the anchor to the destination vertex and adds the edge to
+// the grafo traverse.
+func (grafo *Grafo) SetAnchorTo(dest *Vertex) *Vertex {
+	for _, edge := range grafo.anchor.Edges {
+		if edge.GetChild() == dest {
+			if err := grafo.AddVtoV(edge); err != nil {
 				return nil
 			}
-			return tree.GetAnchor()
+			return grafo.GetAnchor()
 		}
 	}
 	return nil
 }
 
 // ToMermaid is ...
-func (tree *Tree) ToMermaid() string {
+func (grafo *Grafo) ToMermaid() string {
 	var buffer bytes.Buffer
 	buffer.WriteString("graph LR\n")
-	for _, leaf := range tree.GetLeafs() {
-		for _, branch := range leaf.Branches {
-			buffer.WriteString(branch.ToMermaid())
+	for _, vertex := range grafo.GetVertices() {
+		for _, edge := range vertex.Edges {
+			buffer.WriteString(edge.ToMermaid())
 		}
 	}
 	return buffer.String()
 }
 
-// NewTree is ...
-func NewTree(label string) *Tree {
-	root := NewLeaf("root/0")
+// NewGrafo is ...
+func NewGrafo(label string) *Grafo {
+	root := NewVertex("root/0")
 	root.hooked = true
-	tree := &Tree{
-		id:    nextIder(),
-		Label: label,
-		root:  root,
-		path:  NewPath(fmt.Sprintf("%s/path", label)),
-		leafs: make(map[Ider]*Leaf),
+	grafo := &Grafo{
+		id:       nextIder(),
+		Label:    label,
+		root:     root,
+		path:     NewPath(fmt.Sprintf("%s/path", label)),
+		vertices: make(map[Ider]*Vertex),
 	}
-	tree.anchor = tree.GetRoot()
-	return tree
+	grafo.anchor = grafo.GetRoot()
+	return grafo
 }

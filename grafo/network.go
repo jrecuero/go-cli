@@ -31,7 +31,7 @@ func NewNodeContent(label string, weight int) *NodeContent {
 
 // Node represents ...
 type Node struct {
-	*Leaf
+	*Vertex
 }
 
 // String is ...
@@ -42,7 +42,7 @@ func (node *Node) String() string {
 // NewNode is ...
 func NewNode(label string, nc *NodeContent) *Node {
 	node := &Node{
-		Leaf: NewLeaf(label),
+		Vertex: NewVertex(label),
 	}
 	node.Content = nc
 	return node
@@ -50,7 +50,7 @@ func NewNode(label string, nc *NodeContent) *Node {
 
 // Weight represents ...
 type Weight struct {
-	*Branch
+	*Edge
 	weight int
 }
 
@@ -67,11 +67,11 @@ func (w *Weight) ToMermaid() string {
 }
 
 // NewWeight is ...
-func NewWeight(parent *Leaf, child *Leaf, w int) *Weight {
+func NewWeight(parent *Vertex, child *Vertex, w int) *Weight {
 	return &Weight{
-		Branch: NewBranch(parent,
+		Edge: NewEdge(parent,
 			child,
-			func(parent *Leaf, child *Leaf, params ...interface{}) (interface{}, bool) {
+			func(parent *Vertex, child *Vertex, params ...interface{}) (interface{}, bool) {
 				return w, true
 			}),
 		weight: w,
@@ -80,23 +80,23 @@ func NewWeight(parent *Leaf, child *Leaf, w int) *Weight {
 
 // Network represents ...
 type Network struct {
-	*Tree
+	*Grafo
 }
 
 // AddNode is ...
-func (net *Network) AddNode(parent *Leaf, child *Leaf, weight int) error {
+func (net *Network) AddNode(parent *Vertex, child *Vertex, weight int) error {
 	if parent == nil {
 		parent = net.GetRoot()
 	}
-	var branch IBranch = NewWeight(parent, child, weight)
-	return net.AddBranch(parent, branch)
+	var edge IEdge = NewWeight(parent, child, weight)
+	return net.AddEdge(parent, edge)
 }
 
 // CostToNode returns how much weight is required to move fromt the network
 // anchor to the destination node.
 func (net *Network) CostToNode(dest *Node) (int, bool) {
-	if branch, ok := net.ExistPathTo(nil, dest.Leaf); ok {
-		if w, bok := branch.Check(); bok {
+	if edge, ok := net.ExistPathTo(nil, dest.Vertex); ok {
+		if w, bok := edge.Check(); bok {
 			weight := w.(int) + dest.Content.(*NodeContent).GetWeight()
 			return weight, true
 		}
@@ -109,17 +109,17 @@ func (net *Network) pathsFromNodeToNode(anchor *Node, dest *Node, ids []Ider) []
 	var paths []*Path
 	ids = append(ids, anchor.GetID())
 	//tools.ToDisplay("%#v\n", ids)
-	for _, branch := range anchor.Branches {
-		if found := findIDInArray(branch.GetChild().GetID(), ids); !found {
-			if branch.GetChild() == NodeToLeaf(dest) {
+	for _, edge := range anchor.Edges {
+		if found := findIDInArray(edge.GetChild().GetID(), ids); !found {
+			if edge.GetChild() == NodeToVertex(dest) {
 				p := NewPath("")
-				p.Branches = append(p.Branches, branch)
+				p.Edges = append(p.Edges, edge)
 				paths = append(paths, p)
 			} else {
-				if childPaths := net.pathsFromNodeToNode(ToNode(branch.GetChild()), dest, ids); childPaths != nil {
+				if childPaths := net.pathsFromNodeToNode(ToNode(edge.GetChild()), dest, ids); childPaths != nil {
 					for _, childPath := range childPaths {
-						branches := []IBranch{branch}
-						childPath.Branches = append(branches, childPath.Branches...)
+						edgees := []IEdge{edge}
+						childPath.Edges = append(edgees, childPath.Edges...)
 						paths = append(paths, childPath)
 					}
 				}
@@ -140,14 +140,14 @@ func (net *Network) FindLoops(anchor *Node, ids []Ider) [][]*Node {
 		//tools.ToDisplay("Loop at: %#v : %d\n", ids, index)
 		var nodes []*Node
 		for _, id := range ids[index:len(ids)] {
-			nodes = append(nodes, ToNode(net.GetLeafs()[id]))
+			nodes = append(nodes, ToNode(net.GetVertices()[id]))
 		}
 		return [][]*Node{nodes}
 	}
 	ids = append(ids, anchor.GetID())
 	var loops [][]*Node
-	for _, branch := range anchor.Branches {
-		if loop := net.FindLoops(ToNode(branch.GetChild()), ids); loop != nil {
+	for _, edge := range anchor.Edges {
+		if loop := net.FindLoops(ToNode(edge.GetChild()), ids); loop != nil {
 			for _, l := range loop {
 				loops = append(loops, l)
 			}
@@ -159,11 +159,11 @@ func (net *Network) FindLoops(anchor *Node, ids []Ider) [][]*Node {
 // TotalWeightInPath is ...
 func (net *Network) TotalWeightInPath(path *Path) int {
 	var weight int
-	for _, branch := range path.Branches {
-		if w, ok := branch.Check(); ok {
+	for _, edge := range path.Edges {
+		if w, ok := edge.Check(); ok {
 			weight += w.(int)
 		}
-		weight += branch.GetChild().Content.(*NodeContent).GetWeight()
+		weight += edge.GetChild().Content.(*NodeContent).GetWeight()
 	}
 	return weight
 }
@@ -191,19 +191,19 @@ func (net *Network) BestPathFromNodeToNode(anchor *Node, dest *Node) (*Path, int
 //NewNetwork is ...
 func NewNetwork(label string) *Network {
 	return &Network{
-		Tree: NewTree(label),
+		Grafo: NewGrafo(label),
 	}
 }
 
-// NodeToLeaf is ...
-func NodeToLeaf(node *Node) *Leaf {
-	return node.Leaf
+// NodeToVertex is ...
+func NodeToVertex(node *Node) *Vertex {
+	return node.Vertex
 }
 
 // ToNode is ...
-func ToNode(leaf *Leaf) *Node {
+func ToNode(vertex *Vertex) *Node {
 	return &Node{
-		leaf,
+		vertex,
 	}
 }
 

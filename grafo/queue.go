@@ -16,7 +16,7 @@ func NewJob(label string, workout int) *Job {
 
 // Queue represents ...
 type Queue struct {
-	*Branch
+	*Edge
 	Jobs  []*Job
 	limit int
 }
@@ -29,11 +29,11 @@ func (queue *Queue) Check(params ...interface{}) (interface{}, bool) {
 }
 
 // NewQueue is ...
-func NewQueue(parent *Leaf, child *Leaf, limit int) *Queue {
+func NewQueue(parent *Vertex, child *Vertex, limit int) *Queue {
 	return &Queue{
-		Branch: NewBranch(parent,
+		Edge: NewEdge(parent,
 			child,
-			func(parent *Leaf, child *Leaf, params ...interface{}) (interface{}, bool) {
+			func(parent *Vertex, child *Vertex, params ...interface{}) (interface{}, bool) {
 				queue := params[0].(*Queue)
 				job := params[1].(*Job)
 				if len(queue.Jobs) > limit {
@@ -90,13 +90,13 @@ func NewServerContent(label string, worker int) *ServerContent {
 
 // Server represents ...
 type Server struct {
-	*Leaf
+	*Vertex
 }
 
 // NewServer is ...
 func NewServer(label string, sc *ServerContent) *Server {
 	server := &Server{
-		NewLeaf(label),
+		NewVertex(label),
 	}
 	server.Content = sc
 	return server
@@ -104,33 +104,33 @@ func NewServer(label string, sc *ServerContent) *Server {
 
 // System represents ..
 type System struct {
-	*Tree
+	*Grafo
 }
 
 // AddQueue is ...
-func (system *System) AddQueue(parent *Leaf, child *Leaf, limit int) error {
+func (system *System) AddQueue(parent *Vertex, child *Vertex, limit int) error {
 	if parent == nil {
 		parent = system.GetRoot()
 	}
-	var branch IBranch = NewQueue(parent, child, limit)
-	return system.AddBranch(parent, branch)
+	var edge IEdge = NewQueue(parent, child, limit)
+	return system.AddEdge(parent, edge)
 }
 
 // NewSystem is ...
 func NewSystem(label string) *System {
 	return &System{
-		NewTree(label),
+		NewGrafo(label),
 	}
 }
 
-// ServerToLeaf is ...
-func ServerToLeaf(server *Server) *Leaf {
-	return server.Leaf
+// ServerToVertex is ...
+func ServerToVertex(server *Server) *Vertex {
+	return server.Vertex
 }
 
 // ToServer is ...
-func ToServer(leaf *Leaf) *Server {
+func ToServer(vertex *Vertex) *Server {
 	return &Server{
-		leaf,
+		vertex,
 	}
 }

@@ -12,12 +12,12 @@ func TestNetwork_Network(t *testing.T) {
 	if network == nil {
 		t.Errorf("Network:NewNetwork: network can not be <nil>")
 	}
-	root := grafo.NewLeaf("origin/1")
-	node1 := grafo.NewLeaf("node/1")
-	node2 := grafo.NewLeaf("node/2")
-	node3 := grafo.NewLeaf("node/3")
-	node4 := grafo.NewLeaf("node/4")
-	node5 := grafo.NewLeaf("node/5")
+	root := grafo.NewVertex("origin/1")
+	node1 := grafo.NewVertex("node/1")
+	node2 := grafo.NewVertex("node/2")
+	node3 := grafo.NewVertex("node/3")
+	node4 := grafo.NewVertex("node/4")
+	node5 := grafo.NewVertex("node/5")
 	if err := network.AddNode(nil, root, 0); err != nil {
 		t.Errorf("Network:AddNode: return error code: %#v\n", err)
 	}
@@ -52,20 +52,20 @@ func TestNetwork_CostToNode(t *testing.T) {
 	node1 := grafo.NewNode("node/1", grafo.NewNodeContent("node/1", 2))
 	node2 := grafo.NewNode("node/2", grafo.NewNodeContent("node/2", 3))
 	node3 := grafo.NewNode("node/3", grafo.NewNodeContent("node/3", 4))
-	network.AddNode(nil, grafo.NodeToLeaf(root), 0)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node1), 10)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node2), 5)
-	network.AddNode(grafo.NodeToLeaf(node2), grafo.NodeToLeaf(node3), 1)
-	network.SetAnchorTo(grafo.NodeToLeaf(root))
+	network.AddNode(nil, grafo.NodeToVertex(root), 0)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node1), 10)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node2), 5)
+	network.AddNode(grafo.NodeToVertex(node2), grafo.NodeToVertex(node3), 1)
+	network.SetAnchorTo(grafo.NodeToVertex(root))
 	if w, ok := network.CostToNode(node1); ok {
 		if w != 12 {
 			t.Errorf("Network:CostToNode: incorrect weight mismatch: exp: %d got %d\n", 12, w)
 		}
 	} else {
-		t.Errorf("Network:CostToNode: branch not available from: %#v to %#v\n", root.Label, node1.Label)
+		t.Errorf("Network:CostToNode: edge not available from: %#v to %#v\n", root.Label, node1.Label)
 	}
 	if _, ok := network.CostToNode(node3); ok {
-		t.Errorf("Network:CostToNode: branch available from: %#v to %#v\n", root.Label, node3.Label)
+		t.Errorf("Network:CostToNode: edge available from: %#v to %#v\n", root.Label, node3.Label)
 	}
 }
 
@@ -78,14 +78,14 @@ func TestNetwork_PathsFromNodeToNode(t *testing.T) {
 	node3 := grafo.NewNode("node/3", grafo.NewNodeContent("node/3", 4))
 	node4 := grafo.NewNode("node/4", grafo.NewNodeContent("node/4", 4))
 	node5 := grafo.NewNode("node/5", grafo.NewNodeContent("node/5", 5))
-	network.AddNode(nil, grafo.NodeToLeaf(root), 0)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node1), 10)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node2), 5)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node2), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node3), grafo.NodeToLeaf(node4), 1)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node4), 1)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node5), 1)
+	network.AddNode(nil, grafo.NodeToVertex(root), 0)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node1), 10)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node2), 5)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node2), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node3), grafo.NodeToVertex(node4), 1)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node4), 1)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node5), 1)
 	if paths := network.PathsFromNodeToNode(root, node3); paths == nil {
 		t.Errorf("Network:PathsFromNodeToNode: no paths found from: %#v to %#v\n", root.Label, node3.Label)
 	} else {
@@ -107,7 +107,7 @@ func TestNetwork_PathsFromNodeToNode(t *testing.T) {
 		t.Errorf("Network:PathsFromNodeToNode: paths found from: %#v to %#v\n", node2.Label, node5.Label)
 	}
 
-	network.AddNode(grafo.NodeToLeaf(node3), grafo.NodeToLeaf(root), 1)
+	network.AddNode(grafo.NodeToVertex(node3), grafo.NodeToVertex(root), 1)
 	//tools.ToDisplay("%s\n", network.ToMermaid())
 	if paths := network.PathsFromNodeToNode(node1, root); paths == nil {
 		t.Errorf("Network:PathsFromNodeToNode: no paths found from: %#v to %#v\n", node1.Label, root.Label)
@@ -126,13 +126,13 @@ func TestNetwork_TotalWeightInPath(t *testing.T) {
 	node2 := grafo.NewNode("node/2", grafo.NewNodeContent("node/2", 2))
 	node3 := grafo.NewNode("node/3", grafo.NewNodeContent("node/3", 3))
 	node4 := grafo.NewNode("node/4", grafo.NewNodeContent("node/4", 4))
-	network.AddNode(nil, grafo.NodeToLeaf(root), 0)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node1), 10)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node2), 5)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node2), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node3), grafo.NodeToLeaf(node4), 1)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node4), 1)
+	network.AddNode(nil, grafo.NodeToVertex(root), 0)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node1), 10)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node2), 5)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node2), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node3), grafo.NodeToVertex(node4), 1)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node4), 1)
 	if paths := network.PathsFromNodeToNode(root, node4); paths == nil {
 		for _, p := range paths {
 			if weight := network.TotalWeightInPath(p); weight == 0 {
@@ -150,18 +150,18 @@ func TestNetwork_BestPathFromNodeToNode(t *testing.T) {
 	node2 := grafo.NewNode("node/2", grafo.NewNodeContent("node/2", 3))
 	node3 := grafo.NewNode("node/3", grafo.NewNodeContent("node/3", 4))
 	node4 := grafo.NewNode("node/4", grafo.NewNodeContent("node/4", 4))
-	network.AddNode(nil, grafo.NodeToLeaf(root), 0)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node1), 10)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node2), 5)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node2), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node3), grafo.NodeToLeaf(node4), 1)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node4), 1)
+	network.AddNode(nil, grafo.NodeToVertex(root), 0)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node1), 10)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node2), 5)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node2), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node3), grafo.NodeToVertex(node4), 1)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node4), 1)
 	if best, weight := network.BestPathFromNodeToNode(root, node4); best == nil {
 		t.Errorf("Network:BestPathFromNodeToNode: no best path found from: %#v to %#v\n", root, node3)
 	} else {
-		if len(best.Branches) != 2 {
-			t.Errorf("Network:BestPathFromNodeToNode: best length mismatch: exp: %d got: %d\n", 2, len(best.Branches))
+		if len(best.Edges) != 2 {
+			t.Errorf("Network:BestPathFromNodeToNode: best length mismatch: exp: %d got: %d\n", 2, len(best.Edges))
 		}
 		if weight != 17 {
 			t.Errorf("Network:BestPathFromNodeToNode: weight mismatch: exp: %d got: %d\n", 17, weight)
@@ -179,17 +179,17 @@ func TestNetwork_FindLoops(t *testing.T) {
 	node4 := grafo.NewNode("node/4", grafo.NewNodeContent("node/4", 4))
 	node5 := grafo.NewNode("node/5", grafo.NewNodeContent("node/5", 5))
 	node6 := grafo.NewNode("node/6", grafo.NewNodeContent("node/6", 6))
-	network.AddNode(nil, grafo.NodeToLeaf(root), 0)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node1), 10)
-	network.AddNode(grafo.NodeToLeaf(root), grafo.NodeToLeaf(node2), 5)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node2), grafo.NodeToLeaf(node3), 1)
-	network.AddNode(grafo.NodeToLeaf(node3), grafo.NodeToLeaf(node4), 1)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node4), 1)
-	network.AddNode(grafo.NodeToLeaf(node1), grafo.NodeToLeaf(node5), 1)
-	network.AddNode(grafo.NodeToLeaf(node3), grafo.NodeToLeaf(root), 1)
-	network.AddNode(grafo.NodeToLeaf(node4), grafo.NodeToLeaf(root), 1)
-	network.AddNode(grafo.NodeToLeaf(node5), grafo.NodeToLeaf(node6), 1)
+	network.AddNode(nil, grafo.NodeToVertex(root), 0)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node1), 10)
+	network.AddNode(grafo.NodeToVertex(root), grafo.NodeToVertex(node2), 5)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node2), grafo.NodeToVertex(node3), 1)
+	network.AddNode(grafo.NodeToVertex(node3), grafo.NodeToVertex(node4), 1)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node4), 1)
+	network.AddNode(grafo.NodeToVertex(node1), grafo.NodeToVertex(node5), 1)
+	network.AddNode(grafo.NodeToVertex(node3), grafo.NodeToVertex(root), 1)
+	network.AddNode(grafo.NodeToVertex(node4), grafo.NodeToVertex(root), 1)
+	network.AddNode(grafo.NodeToVertex(node5), grafo.NodeToVertex(node6), 1)
 	//tools.ToDisplay("%s\n", network.ToMermaid())
 	if loops := network.FindLoops(node5, nil); len(loops) != 0 {
 		t.Errorf("Network:FindLoops: loops found mismatch: exp: %d got: %d\n", 0, len(loops))

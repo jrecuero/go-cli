@@ -6,42 +6,42 @@ import (
 	"strconv"
 )
 
-// Leaf represents ...
-type Leaf struct {
+// Vertex represents ...
+type Vertex struct {
 	id        Ider
 	Label     string
-	Parents   []*Leaf
-	Branches  []IBranch
-	Traversed []*Traverse
+	Parents   []*Vertex
+	Edges     []IEdge
+	Traversed []*VtoV
 	Content   IContent
 	hooked    bool
 }
 
 // GetID is ...
-func (leaf *Leaf) GetID() Ider {
-	return leaf.id
+func (vertex *Vertex) GetID() Ider {
+	return vertex.id
 }
 
 // AddParent is ...
-func (leaf *Leaf) AddParent(parent *Leaf) error {
-	leaf.Parents = append(leaf.Parents, parent)
+func (vertex *Vertex) AddParent(parent *Vertex) error {
+	vertex.Parents = append(vertex.Parents, parent)
 	return nil
 }
 
-// AddBranch is ...
-func (leaf *Leaf) AddBranch(branch IBranch) error {
-	leaf.Branches = append(leaf.Branches, branch)
+// AddEdge is ...
+func (vertex *Vertex) AddEdge(edge IEdge) error {
+	vertex.Edges = append(vertex.Edges, edge)
 	return nil
 }
 
 // String is ...
-func (leaf *Leaf) String() string {
-	return leaf.Label
+func (vertex *Vertex) String() string {
+	return vertex.Label
 }
 
-// NewLeaf is ...
-func NewLeaf(label string) *Leaf {
-	return &Leaf{
+// NewVertex is ...
+func NewVertex(label string) *Vertex {
+	return &Vertex{
 		id:    nextIder(),
 		Label: label,
 	}
@@ -49,19 +49,19 @@ func NewLeaf(label string) *Leaf {
 
 // Path represents ...
 type Path struct {
-	id       Ider
-	Label    string
-	Branches []IBranch
+	id    Ider
+	Label string
+	Edges []IEdge
 }
 
 // String is ...
 func (path *Path) String() string {
 	var buffer bytes.Buffer
-	if len(path.Branches) != 0 {
-		for _, b := range path.Branches {
+	if len(path.Edges) != 0 {
+		for _, b := range path.Edges {
 			buffer.WriteString(fmt.Sprintf("%s : ", b.GetParent().Label))
 		}
-		buffer.WriteString(fmt.Sprintf("%s", path.Branches[len(path.Branches)-1].GetChild().Label))
+		buffer.WriteString(fmt.Sprintf("%s", path.Edges[len(path.Edges)-1].GetChild().Label))
 	}
 	return buffer.String()
 }
