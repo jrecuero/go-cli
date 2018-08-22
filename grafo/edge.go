@@ -8,12 +8,12 @@ import (
 // VtoV represents ...
 type VtoV struct {
 	id     Ider
-	Parent *Vertex
-	Child  *Vertex
+	Parent IVertex
+	Child  IVertex
 }
 
 // NewVtoV is ...
-func NewVtoV(parent *Vertex, child *Vertex) *VtoV {
+func NewVtoV(parent IVertex, child IVertex) *VtoV {
 	return &VtoV{
 		id:     nextIder(),
 		Parent: parent,
@@ -29,26 +29,26 @@ type Edge struct {
 
 // String is ...
 func (edge *Edge) String() string {
-	return fmt.Sprintf("%s -> %s\n", edge.GetParent().Label, edge.GetChild().Label)
+	return fmt.Sprintf("%s -> %s\n", edge.GetParent().GetLabel(), edge.GetChild().GetLabel())
 }
 
 // GetParent is ...
-func (edge *Edge) GetParent() *Vertex {
+func (edge *Edge) GetParent() IVertex {
 	return edge.Parent
 }
 
 // SetParent is ...
-func (edge *Edge) SetParent(parent *Vertex) {
+func (edge *Edge) SetParent(parent IVertex) {
 	edge.Parent = parent
 }
 
 // GetChild is ...
-func (edge *Edge) GetChild() *Vertex {
+func (edge *Edge) GetChild() IVertex {
 	return edge.Child
 }
 
 // SetChild is ...
-func (edge *Edge) SetChild(child *Vertex) {
+func (edge *Edge) SetChild(child IVertex) {
 	edge.Child = child
 }
 
@@ -65,12 +65,12 @@ func (edge *Edge) Check(params ...interface{}) (interface{}, bool) {
 // ToMermaid is ...
 func (edge *Edge) ToMermaid() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("%s-->%s\n", edge.GetParent().Label, edge.GetChild().Label))
+	buffer.WriteString(fmt.Sprintf("%s-->%s\n", edge.GetParent().GetLabel(), edge.GetChild().GetLabel()))
 	return buffer.String()
 }
 
 // NewEdge is ...
-func NewEdge(parent *Vertex, child *Vertex, clearance ClearanceCb) *Edge {
+func NewEdge(parent IVertex, child IVertex, clearance ClearanceCb) *Edge {
 	return &Edge{
 		VtoV:      NewVtoV(parent, child),
 		Clearance: clearance,
@@ -78,8 +78,8 @@ func NewEdge(parent *Vertex, child *Vertex, clearance ClearanceCb) *Edge {
 }
 
 // StaticEdge is ...
-func StaticEdge(parent *Vertex, child *Vertex) *Edge {
-	return NewEdge(parent, child, func(parent *Vertex, child *Vertex, params ...interface{}) (interface{}, bool) {
+func StaticEdge(parent IVertex, child IVertex) *Edge {
+	return NewEdge(parent, child, func(parent IVertex, child IVertex, params ...interface{}) (interface{}, bool) {
 		return nil, true
 	})
 }

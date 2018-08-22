@@ -18,14 +18,14 @@ func nextIder() Ider {
 
 // IEdge represents ...
 type IEdge interface {
-	GetParent() *Vertex
-	SetParent(*Vertex)
-	GetChild() *Vertex
-	SetChild(*Vertex)
+	GetParent() IVertex
+	SetParent(IVertex)
+	GetChild() IVertex
+	SetChild(IVertex)
 	GetVtoV() *VtoV
 	ToMermaid() string
 	Check(params ...interface{}) (interface{}, bool)
 }
 
 // ClearanceCb represents ...
-type ClearanceCb func(parent *Vertex, child *Vertex, params ...interface{}) (interface{}, bool)
+type ClearanceCb func(parent IVertex, child IVertex, params ...interface{}) (interface{}, bool)

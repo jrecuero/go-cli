@@ -8,7 +8,7 @@ type System struct {
 }
 
 // AddQueue is ...
-func (system *System) AddQueue(parent *grafo.Vertex, child *grafo.Vertex, limit int) error {
+func (system *System) AddQueue(parent grafo.IVertex, child grafo.IVertex, limit int) error {
 	if parent == nil {
 		parent = system.GetRoot()
 	}

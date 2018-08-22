@@ -35,11 +35,11 @@ func (queue *Queue) QueueEvent(job *Job, followUp ServerFollowUp) *engine.Event 
 }
 
 // NewQueue is ...
-func NewQueue(parent *grafo.Vertex, child *grafo.Vertex, limit int) *Queue {
+func NewQueue(parent grafo.IVertex, child grafo.IVertex, limit int) *Queue {
 	return &Queue{
 		Edge: grafo.NewEdge(parent,
 			child,
-			func(parent *grafo.Vertex, child *grafo.Vertex, params ...interface{}) (interface{}, bool) {
+			func(parent grafo.IVertex, child grafo.IVertex, params ...interface{}) (interface{}, bool) {
 				queue := params[0].(*Queue)
 				job := params[1].(*Job)
 				if len(queue.Jobs) > limit {

@@ -10,7 +10,7 @@ type Network struct {
 }
 
 // AddNode is ...
-func (net *Network) AddNode(parent *grafo.Vertex, child *grafo.Vertex, weight int) error {
+func (net *Network) AddNode(parent grafo.IVertex, child grafo.IVertex, weight int) error {
 	if parent == nil {
 		parent = net.GetRoot()
 	}
@@ -89,7 +89,7 @@ func (net *Network) TotalWeightInPath(path *grafo.Path) int {
 		if w, ok := edge.Check(); ok {
 			weight += w.(int)
 		}
-		weight += edge.GetChild().Content.(*NodeContent).GetWeight()
+		weight += edge.GetChild().GetContent().(*NodeContent).GetWeight()
 	}
 	return weight
 }

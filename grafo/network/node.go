@@ -22,13 +22,13 @@ func NewNode(label string, nc *NodeContent) *Node {
 }
 
 // NodeToVertex is ...
-func NodeToVertex(node *Node) *grafo.Vertex {
+func NodeToVertex(node *Node) grafo.IVertex {
 	return node.Vertex
 }
 
 // ToNode is ...
-func ToNode(vertex *grafo.Vertex) *Node {
+func ToNode(vertex grafo.IVertex) *Node {
 	return &Node{
-		vertex,
+		vertex.(*grafo.Vertex),
 	}
 }

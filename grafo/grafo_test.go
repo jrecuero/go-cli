@@ -35,17 +35,17 @@ func TestGrafo_AddEdge(t *testing.T) {
 	if err := tree.AddEdge(nil, rootEdge); err != nil {
 		t.Errorf("AddEdge: return code error: %#v\n", err)
 	}
-	if rootEdge.Parent == nil {
+	if rootEdge.GetParent() == nil {
 		t.Errorf("Grafo:AddEdge: edge parent mismatch: exp not <nil>")
 	}
-	if rootEdge.Parent != root {
-		t.Errorf("Grafo:AddEdge: edge parent label mismatch: exp: %v got: %v\n", root, rootEdge.Parent)
+	if rootEdge.GetParent() != root {
+		t.Errorf("Grafo:AddEdge: edge parent label mismatch: exp: %v got: %v\n", root, rootEdge.GetParent())
 	}
-	if len(parent.Parents) != 1 {
-		t.Errorf("Grafo:AddEdge: child parents length mismatch: exp %d got: %d\n", 1, len(parent.Parents))
+	if len(parent.GetParents()) != 1 {
+		t.Errorf("Grafo:AddEdge: child parents length mismatch: exp %d got: %d\n", 1, len(parent.GetParents()))
 	}
-	if parent.Parents[0] != root {
-		t.Errorf("Grafo:AddEdge: child parent mismatch: exp %v got: %v\n", root, parent.Parents[0])
+	if parent.GetParents()[0] != root {
+		t.Errorf("Grafo:AddEdge: child parent mismatch: exp %v got: %v\n", root, parent.GetParents()[0])
 	}
 }
 
@@ -57,25 +57,25 @@ func TestGrafo_AddChild(t *testing.T) {
 	if err := tree.AddVertex(nil, child1); err != nil {
 		t.Errorf("Grafo:AddVertex: return code error: %#v\n", err)
 	}
-	if len(child1.Parents) != 1 {
-		t.Errorf("Grafo:AddVertex: child parents length mismatch: exp %d got: %d\n", 1, len(child1.Parents))
+	if len(child1.GetParents()) != 1 {
+		t.Errorf("Grafo:AddVertex: child parents length mismatch: exp %d got: %d\n", 1, len(child1.GetParents()))
 	}
-	if child1.Parents[0] != root {
-		t.Errorf("Grafo:AddVertex: child mismatch: exp %v got: %v\n", root, child1.Parents[0])
+	if child1.GetParents()[0] != root {
+		t.Errorf("Grafo:AddVertex: child mismatch: exp %v got: %v\n", root, child1.GetParents()[0])
 	}
 
 	child2 := grafo.NewVertex("child/2")
 	if err := tree.AddVertex(nil, child2); err != nil {
 		t.Errorf("Grafo:AddVertex: return code error: %#v\n", err)
 	}
-	if len(child2.Parents) != 1 {
-		t.Errorf("Grafo:AddVertex: child parents length mismatch: exp %d got: %d\n", 1, len(child2.Parents))
+	if len(child2.GetParents()) != 1 {
+		t.Errorf("Grafo:AddVertex: child parents length mismatch: exp %d got: %d\n", 1, len(child2.GetParents()))
 	}
-	if child2.Parents[0] != root {
-		t.Errorf("Grafo:AddVertex: child mismatch: exp %v got: %v\n", root, child2.Parents[0])
+	if child2.GetParents()[0] != root {
+		t.Errorf("Grafo:AddVertex: child mismatch: exp %v got: %v\n", root, child2.GetParents()[0])
 	}
-	if len(root.Edges) != 2 {
-		t.Errorf("Grafo:AdChild: root edges length mismatch: exp: %d got: %d\n", 2, len(root.Edges))
+	if len(root.GetEdges()) != 2 {
+		t.Errorf("Grafo:AdChild: root edges length mismatch: exp: %d got: %d\n", 2, len(root.GetEdges()))
 	}
 }
 

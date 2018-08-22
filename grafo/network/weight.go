@@ -21,16 +21,16 @@ func (w *Weight) GetWeight() int {
 // ToMermaid is ...
 func (w *Weight) ToMermaid() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("%s-- %d -->%s\n", w.GetParent().Label, w.GetWeight(), w.GetChild().Label))
+	buffer.WriteString(fmt.Sprintf("%s-- %d -->%s\n", w.GetParent().GetLabel(), w.GetWeight(), w.GetChild().GetLabel()))
 	return buffer.String()
 }
 
 // NewWeight is ...
-func NewWeight(parent *grafo.Vertex, child *grafo.Vertex, w int) *Weight {
+func NewWeight(parent grafo.IVertex, child grafo.IVertex, w int) *Weight {
 	return &Weight{
 		Edge: grafo.NewEdge(parent,
 			child,
-			func(parent *grafo.Vertex, child *grafo.Vertex, params ...interface{}) (interface{}, bool) {
+			func(parent grafo.IVertex, child grafo.IVertex, params ...interface{}) (interface{}, bool) {
 				return w, true
 			}),
 		weight: w,
