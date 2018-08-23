@@ -106,6 +106,7 @@ func (eng *Engine) loop(done chan bool) {
 				}
 			} else {
 				eng.tick()
+				eng.Time = next.GetAtTime()
 			}
 		}
 
