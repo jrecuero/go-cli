@@ -5,9 +5,6 @@ import (
 	"github.com/jrecuero/go-cli/grafo"
 )
 
-// ServerFollowUp represents ...
-type ServerFollowUp func(jobs *[]*Job)
-
 // Queue represents ...
 type Queue struct {
 	*grafo.Edge
@@ -23,7 +20,7 @@ func (queue *Queue) Check(params ...interface{}) (interface{}, bool) {
 }
 
 // QueueEvent is ...
-func (queue *Queue) QueueEvent(job *Job, followUp ServerFollowUp) *engine.Event {
+func (queue *Queue) QueueEvent(job *Job, followUp func(*[]*Job)) *engine.Event {
 	ev := engine.NewEvent("event/gen-to-que/0", 2)
 	ev.SetCallback(func(params ...interface{}) error {
 		//tools.ToDisplay("queue event callback\n")

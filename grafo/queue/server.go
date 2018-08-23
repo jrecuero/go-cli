@@ -1,10 +1,27 @@
 package queue
 
-import "github.com/jrecuero/go-cli/grafo"
+import (
+	"github.com/jrecuero/go-cli/engine"
+	"github.com/jrecuero/go-cli/grafo"
+)
 
 // Server represents ...
 type Server struct {
 	*grafo.Vertex
+}
+
+// ServerEvent is ...
+func (server *Server) ServerEvent(jobs *[]*Job, followUp func(*Job)) *engine.Event {
+	ev := engine.NewEvent("server/1", 0)
+	ev.SetCallback(func(params ...interface{}) error {
+		//tools.ToDisplay("que1Event callback\n")
+		if j, ok := GetServerContent(server).Serve(jobs); !ok {
+			followUp(j.(*Job))
+		}
+		return nil
+	}, nil)
+	return ev
+
 }
 
 // NewServer is ...

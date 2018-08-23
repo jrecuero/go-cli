@@ -6,16 +6,13 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
-// GenFollowUp represents ...
-type GenFollowUp func(job *Job)
-
 // Generator represents ...
 type Generator struct {
 	*grafo.Vertex
 }
 
 //GenEvent is ..
-func (gen *Generator) GenEvent(attime engine.ETime, followUp GenFollowUp) *engine.Event {
+func (gen *Generator) GenEvent(attime engine.ETime, followUp func(*Job)) *engine.Event {
 	ev := engine.NewEvent("event/gen/0", attime)
 	ev.SetCallback(func(params ...interface{}) error {
 		//tools.ToDisplay("generator event callback\n")
