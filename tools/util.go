@@ -184,3 +184,29 @@ func GetString(first string, second string) string {
 	}
 	return first
 }
+
+// Sorting is ...
+func Sorting(array []interface{}, elem interface{}, compa func(interface{}, interface{}) int) int {
+	var ret int
+	var index int
+	var length = len(array)
+	if length == 0 {
+		ret = 0
+	} else {
+		index = length / 2
+		if result := compa(array[index], elem); result > 0 {
+			if length == 1 {
+				ret = 0
+			} else {
+				ret = Sorting(array[0:index], elem, compa)
+			}
+		} else if result <= 0 {
+			if length == 1 {
+				ret = 1
+			} else {
+				ret = index + Sorting(array[index:length], elem, compa)
+			}
+		}
+	}
+	return ret
+}
