@@ -21,6 +21,24 @@ type IEvent interface {
 	Exec() error
 }
 
+// SortIEvent represents ...
+type SortIEvent []IEvent
+
+// Len is ...
+func (s SortIEvent) Len() int {
+	return len(s)
+}
+
+// Swap is ...
+func (s SortIEvent) Swap(i int, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+// Less is ...
+func (s SortIEvent) Less(i int, j int) bool {
+	return s[i].GetAtTime() < s[j].GetAtTime()
+}
+
 const (
 	// ZeroTime is ...
 	ZeroTime ETime = 0

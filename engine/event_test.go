@@ -1,6 +1,7 @@
 package engine_test
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/jrecuero/go-cli/engine"
@@ -37,5 +38,22 @@ func TestEvent_Callback(t *testing.T) {
 	}
 	if !called {
 		t.Errorf("Callback: Exec called is false\n")
+	}
+}
+
+// TestEvent_Sort
+func TestEvent_Sort(t *testing.T) {
+	//events := engine.SortIEvent{engine.NewEvent("a", 100), engine.NewEvent("b", 10), engine.NewEvent("c", 5)}
+	events := []engine.IEvent{
+		engine.NewEvent("a", 100),
+		engine.NewEvent("b", 10),
+		engine.NewEvent("c", 5),
+	}
+	exp := []string{"c", "b", "a"}
+	sort.Sort(engine.SortIEvent(events))
+	for i, ev := range events {
+		if ev.GetName() != exp[i] {
+			t.Errorf("Event:Sort: mistmach for index %d: exp: %s got: %s\n", i, exp[i], ev.GetName())
+		}
 	}
 }
