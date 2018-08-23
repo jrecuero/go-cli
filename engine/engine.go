@@ -3,7 +3,7 @@ package engine
 // Engine is ...
 type Engine struct {
 	Time    ETime
-	Events  []*Event
+	Events  []IEvent
 	Running bool
 	pipe    chan bool
 	waiting bool
@@ -21,28 +21,39 @@ func (eng *Engine) Stop() error {
 	return nil
 }
 
-// AddEvent is ...
-func (eng *Engine) AddEvent(ev *Event) error {
+// AddEventAtTime is ...
+func (eng *Engine) AddEventAtTime(ev IEvent) error {
 	//tools.ToDisplay("Add event: %s\n", ev)
+	eng.Events = append(eng.Events, ev)
 	if eng.waiting {
 		eng.pipe <- true
 	}
-	eng.Events = append(eng.Events, ev)
 	return nil
+}
+
+// AddEvent is ...
+func (eng *Engine) AddEvent(ev IEvent) error {
+	ev.SetAtTime(ev.GetAtTime() + eng.Time)
+	return eng.AddEventAtTime(ev)
 }
 
 // AddEventFirst is ...
-func (eng *Engine) AddEventFirst(ev *Event) error {
-	ev.AtTime = ZeroTime
-	eng.Events = append([]*Event{ev}, eng.Events...)
+func (eng *Engine) AddEventFirst(ev IEvent) error {
+	ev.SetAtTime(eng.Time)
+	eng.Events = append([]IEvent{ev}, eng.Events...)
 	if eng.waiting {
 		eng.pipe <- true
 	}
 	return nil
 }
 
+// PeekNext is ...
+func (eng *Engine) PeekNext() IEvent {
+	return eng.Events[0]
+}
+
 // NextEvent is ...
-func (eng *Engine) NextEvent() *Event {
+func (eng *Engine) NextEvent() IEvent {
 	ev := eng.Events[0]
 	evLen := len(eng.Events)
 	eng.Events = eng.Events[1:evLen]
@@ -52,14 +63,14 @@ func (eng *Engine) NextEvent() *Event {
 // Next is ...
 func (eng *Engine) Next() error {
 	if ev := eng.NextEvent(); ev != nil {
-		eng.Time = ev.AtTime
+		eng.Time = ev.GetAtTime()
 		return eng.ExecEvent(ev)
 	}
 	return nil
 }
 
 // ExecEvent is ...
-func (eng *Engine) ExecEvent(ev *Event) error {
+func (eng *Engine) ExecEvent(ev IEvent) error {
 	return ev.Exec()
 }
 
@@ -69,6 +80,10 @@ func (eng *Engine) Run() error {
 		return eng.Next()
 	}
 	return nil
+}
+
+// tick is ...
+func (eng *Engine) tick() {
 }
 
 // loop is ...
@@ -83,9 +98,14 @@ func (eng *Engine) loop(done chan bool) {
 			eng.waiting = false
 			//tools.ToDisplay("wake up here...\n")
 		} else {
-			//tools.ToDisplay("running here... %d\n", len(eng.Events))
-			if err := eng.Run(); err != nil {
-				break
+			next := eng.PeekNext()
+			if next.GetAtTime() == eng.Time {
+				//tools.ToDisplay("running here... %d\n", len(eng.Events))
+				if err := eng.Run(); err != nil {
+					break
+				}
+			} else {
+				eng.tick()
 			}
 		}
 

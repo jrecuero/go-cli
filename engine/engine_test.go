@@ -51,16 +51,16 @@ func TestEngine_Events(t *testing.T) {
 		if len(eng.Events) != 1 {
 			t.Errorf("NextEvent: Events length mismatch: exp: %d got: %d\n", 1, len(eng.Events))
 		}
-		if ev.Name != "1" {
-			t.Errorf("NextEvent: Events name mismatch: exp: %#v got: %#v\n", "1", ev.Name)
+		if ev.GetName() != "1" {
+			t.Errorf("NextEvent: Events name mismatch: exp: %#v got: %#v\n", "1", ev.GetName())
 		}
 	}
 	eng.AddEventFirst(engine.NewEvent("first", 0))
 	if len(eng.Events) != 2 {
 		t.Errorf("AddEventFirst: Events length mismatch: exp: 2 got: %d\n", len(eng.Events))
 	}
-	if eng.Events[0].Name != "first" {
-		t.Errorf("AddEventFirst: First event name mismatch: exp: %#v got: %#v\n", "first", eng.Events[0].Name)
+	if eng.Events[0].GetName() != "first" {
+		t.Errorf("AddEventFirst: First event name mismatch: exp: %#v got: %#v\n", "first", eng.Events[0].GetName())
 	}
 }
 

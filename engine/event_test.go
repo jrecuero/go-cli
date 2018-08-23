@@ -9,11 +9,11 @@ import (
 // TestEvent_NewEvent is ...
 func TestEvent_NewEvent(t *testing.T) {
 	ev := engine.NewEvent("test-event", 1)
-	if ev.Name != "test-event" {
-		t.Errorf("NewEvent: Name mistmatch: exp: \"test-event\" got: %#v\n", ev.Name)
+	if ev.GetName() != "test-event" {
+		t.Errorf("NewEvent: Name mistmatch: exp: \"test-event\" got: %#v\n", ev.GetName())
 	}
-	if ev.AtTime != 1 {
-		t.Errorf("NewEvent: AtTime mistmatch: exp: 1 got: %d\n", ev.AtTime)
+	if ev.GetAtTime() != 1 {
+		t.Errorf("NewEvent: AtTime mistmatch: exp: 1 got: %d\n", ev.GetAtTime())
 	}
 }
 
