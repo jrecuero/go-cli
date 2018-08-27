@@ -7,6 +7,24 @@ type Engine struct {
 	Running bool
 	pipe    chan bool
 	waiting bool
+	caches  map[string]interface{}
+	flags   map[string]interface{}
+	queues  map[string]interface{}
+}
+
+// GetCacheForApp is ...
+func (eng *Engine) GetCacheForApp(app string) interface{} {
+	return eng.caches[app]
+}
+
+// GetFlagForApp is ...
+func (eng *Engine) GetFlagForApp(app string) interface{} {
+	return eng.flags[app]
+}
+
+// GetQueueForApp is ...
+func (eng *Engine) GetQueueForApp(app string) interface{} {
+	return eng.queues[app]
 }
 
 // Start is ...
