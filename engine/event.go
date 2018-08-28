@@ -18,6 +18,7 @@ type IEvent interface {
 	SetCallback(EventCallback, ...interface{}) error
 	GetContent() IEvContent
 	SetContent(IEvContent)
+	GetConditions() []interface{}
 	Exec() error
 }
 
@@ -46,11 +47,12 @@ const (
 
 // Event is ...
 type Event struct {
-	name     string
-	atTime   ETime
-	callback EventCallback
-	cbParams []interface{}
-	content  IEvContent
+	name       string
+	atTime     ETime
+	callback   EventCallback
+	cbParams   []interface{}
+	content    IEvContent
+	conditions []interface{}
 }
 
 // GetName is ...
@@ -76,6 +78,11 @@ func (ev *Event) GetContent() IEvContent {
 // SetContent is ...
 func (ev *Event) SetContent(content IEvContent) {
 	ev.content = content
+}
+
+// GetConditions is ...
+func (ev *Event) GetConditions() []interface{} {
+	return ev.conditions
 }
 
 // String is ...

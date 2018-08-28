@@ -2,29 +2,32 @@ package engine
 
 // Engine is ...
 type Engine struct {
-	Time    ETime
-	Events  []IEvent
-	Running bool
-	pipe    chan bool
-	waiting bool
-	caches  map[string]interface{}
-	flags   map[string]interface{}
-	queues  map[string]interface{}
+	Time         ETime
+	Events       []IEvent
+	cachedEvents map[string][]IEvent
+	flagedEvents map[string][]IEvent
+	listedEvents map[string][]IEvent
+	Running      bool
+	pipe         chan bool
+	waiting      bool
+	caches       map[string]*Cache
+	flags        map[string]*Flag
+	listas       map[string]*Lista
 }
 
 // GetCacheForApp is ...
-func (eng *Engine) GetCacheForApp(app string) interface{} {
+func (eng *Engine) GetCacheForApp(app string) *Cache {
 	return eng.caches[app]
 }
 
 // GetFlagForApp is ...
-func (eng *Engine) GetFlagForApp(app string) interface{} {
+func (eng *Engine) GetFlagForApp(app string) *Flag {
 	return eng.flags[app]
 }
 
-// GetQueueForApp is ...
-func (eng *Engine) GetQueueForApp(app string) interface{} {
-	return eng.queues[app]
+// GetListaForApp is ...
+func (eng *Engine) GetListaForApp(app string) *Lista {
+	return eng.listas[app]
 }
 
 // Start is ...
@@ -153,9 +156,30 @@ func (eng *Engine) EndLoop() {
 	eng.Stop()
 }
 
+// UpdateCachedEvents is ...
+func (eng *Engine) UpdateCachedEvents() bool {
+	return false
+}
+
+// UpdateFlagedEvents is ...
+func (eng *Engine) UpdateFlagedEvents() bool {
+	return false
+}
+
+// UpdateListedEvents is ...
+func (eng *Engine) UpdateListedEvents() bool {
+	return false
+}
+
 // NewEngine is ...
 func NewEngine() *Engine {
 	return &Engine{
-		pipe: make(chan bool),
+		pipe:         make(chan bool),
+		caches:       make(map[string]*Cache),
+		flags:        make(map[string]*Flag),
+		listas:       make(map[string]*Lista),
+		cachedEvents: make(map[string][]IEvent),
+		flagedEvents: make(map[string][]IEvent),
+		listedEvents: make(map[string][]IEvent),
 	}
 }
