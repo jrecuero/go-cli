@@ -15,3 +15,15 @@ func NewRow(cols ...interface{}) *Row {
 	}
 	return row
 }
+
+// TableRow represents ...
+type TableRow struct {
+	*Row
+}
+
+// NewTableRow is ...
+func NewTableRow(cols ...interface{}) *TableRow {
+	return &TableRow{
+		NewRow(cols...),
+	}
+}

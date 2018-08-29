@@ -8,23 +8,24 @@ import (
 
 // DataBase represents the database information, contaiing all table data.
 type DataBase struct {
-	Name     string
-	Tables   []*Table
-	TableMap map[string]*Table
+	Name         string
+	Tables       []*Table
+	TablesMap    *TableMap
+	Transactions []*Transaction
 }
 
 // AddTable adds tables to the database in a variadic way.
 func (db *DataBase) AddTable(tables ...*Table) *DataBase {
 	for _, tb := range tables {
 		db.Tables = append(db.Tables, tb)
-		db.TableMap[tb.Name] = tb
+		db.TablesMap.Map[tb.Name] = tb
 	}
 	return db
 }
 
 // GetTable retrieves a  table instance for the given table name.
 func (db *DataBase) GetTable(tbname string) *Table {
-	return db.TableMap[tbname]
+	return db.TablesMap.Map[tbname]
 }
 
 // Save saves all daabase information in a file.
@@ -45,8 +46,8 @@ func (db *DataBase) Save() error {
 // NewDataBase creates a new DataBase instance.
 func NewDataBase(name string) *DataBase {
 	return &DataBase{
-		Name:     name,
-		TableMap: make(map[string]*Table),
+		Name:      name,
+		TablesMap: NewTableMap(),
 	}
 }
 
