@@ -15,7 +15,7 @@ import (
 type Table struct {
 	Name        string
 	Layout      *TableLayout
-	Rows        []*Row
+	Rows        []*TableRow
 	ColumnIndex map[string]int
 	Stut        interface{}
 }
@@ -32,7 +32,7 @@ func (tb *Table) SetLayout(layout *TableLayout) *Table {
 // AddRow adds rows to the table in a variadic way.
 func (tb *Table) AddRow(rows ...*Row) *Table {
 	for _, row := range rows {
-		tb.Rows = append(tb.Rows, row)
+		tb.Rows = append(tb.Rows, NewTableRowFromRow(row))
 	}
 	return tb
 }
@@ -56,7 +56,7 @@ func (tb *Table) GetColumnFromIndex(icol int) *Column {
 
 // GetRow retrieves the row instance placed in the given position.
 func (tb *Table) GetRow(irow int) *Row {
-	return tb.Rows[irow]
+	return tb.Rows[irow].Row
 }
 
 // GetRowAsByteArray retrieves the row information as a byte array. Byte array
@@ -81,9 +81,9 @@ func (tb *Table) GetRowAsByteArray(irow int) []byte {
 func (tb *Table) GetRowAsStruct(irow int) interface{} {
 	if tb.Stut != nil {
 		rowbyte := tb.GetRowAsByteArray(irow)
-		dummy := reflect.New(reflect.ValueOf(tb.Stut).Elem().Type()).Interface()
-		json.Unmarshal(rowbyte, &dummy)
-		return dummy
+		result := reflect.New(reflect.ValueOf(tb.Stut).Elem().Type()).Interface()
+		json.Unmarshal(rowbyte, &result)
+		return result
 	}
 	return nil
 }
@@ -126,26 +126,22 @@ func (tb *Table) SetLayoutFromStruct(in interface{}) ([]*Column, error) {
 
 // UpdateRow updates table with the given row at the given index.
 func (tb *Table) UpdateRow(irow int, row *Row) *Table {
-	tb.Rows[irow] = row
+	tb.Rows[irow] = NewTableRowFromRow(row)
 	return tb
 }
 
 // UpdateColByIndexInRow updates the given column (by index) at the given row
 // with the given value.
 func (tb *Table) UpdateColByIndexInRow(irow int, icol int, colvalue interface{}) *Table {
-	row := tb.GetRow(irow)
-	row.Data[icol] = colvalue
-	tb.Rows[irow] = row
+	tb.Rows[irow].Row.Data[icol] = colvalue
 	return tb
 }
 
 // UpdateColByNameInRow updates the given column (by name) at the given row
 // with the given value.
 func (tb *Table) UpdateColByNameInRow(irow int, colname string, colvalue interface{}) *Table {
-	row := tb.GetRow(irow)
 	icol := tb.GetColumnIndex(colname)
-	row.Data[icol] = colvalue
-	tb.Rows[irow] = row
+	tb.Rows[irow].Row.Data[icol] = colvalue
 	return tb
 }
 

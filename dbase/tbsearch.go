@@ -9,12 +9,12 @@ type TableSearch struct {
 // Search returns all rows in the table that match the search filter.
 func (tbsearch *TableSearch) Search() []*Row {
 	rows := []*Row{}
-	for _, row := range tbsearch.table.Rows {
+	for _, tbrow := range tbsearch.table.Rows {
 		if tbsearch.filter.IsMatch(func(key string) interface{} {
 			icol := tbsearch.table.GetColumnIndex(key)
-			return row.Data[icol]
+			return tbrow.Row.Data[icol]
 		}) {
-			rows = append(rows, row)
+			rows = append(rows, tbrow.Row)
 		}
 	}
 	return rows
