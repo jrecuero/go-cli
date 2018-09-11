@@ -8,6 +8,7 @@ type Engine struct {
 	flagedEvents map[string][]IEvent
 	listedEvents map[string][]IEvent
 	Running      bool
+	qevents      chan IEvent
 	pipe         chan bool
 	waiting      bool
 	caches       map[string]*Cache
@@ -56,6 +57,13 @@ func (eng *Engine) AddEventAtTime(ev IEvent) error {
 func (eng *Engine) AddEvent(ev IEvent) error {
 	ev.SetAtTime(ev.GetAtTime() + eng.Time)
 	return eng.AddEventAtTime(ev)
+}
+
+// AddQEvent is ...
+func (eng *Engine) AddQEvent(ev IEvent) error {
+	ev.SetAtTime(ev.GetAtTime() + eng.Time)
+	eng.qevents <- ev
+	return nil
 }
 
 // AddEventFirst is ...
@@ -107,6 +115,11 @@ func (eng *Engine) Run() error {
 func (eng *Engine) tick() {
 }
 
+// sync is ...
+func (eng *Engine) sync(t ETime) {
+	eng.Time = t
+}
+
 // loop is ...
 func (eng *Engine) loop(done chan bool) {
 	eng.Start()
@@ -127,7 +140,7 @@ func (eng *Engine) loop(done chan bool) {
 				}
 			} else {
 				eng.tick()
-				eng.Time = next.GetAtTime()
+				eng.sync(next.GetAtTime())
 			}
 		}
 
@@ -135,6 +148,16 @@ func (eng *Engine) loop(done chan bool) {
 	//tools.ToDisplay("exit here...\n")
 	eng.endloop()
 	done <- true
+}
+
+// qloop is ...
+func (eng *Engine) qloop(done chan bool) {
+	eng.Start()
+	for eng.Running {
+		ev := <-eng.qevents
+		eng.sync(ev.GetAtTime())
+		eng.ExecEvent(ev)
+	}
 }
 
 // endloop is ...
@@ -174,6 +197,7 @@ func (eng *Engine) UpdateListedEvents() bool {
 // NewEngine is ...
 func NewEngine() *Engine {
 	return &Engine{
+		qevents:      make(chan IEvent, 100),
 		pipe:         make(chan bool),
 		caches:       make(map[string]*Cache),
 		flags:        make(map[string]*Flag),
