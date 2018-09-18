@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jrecuero/go-cli/apps/freeway"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 func TestEHandler_EHandler(t *testing.T) {
@@ -89,5 +90,7 @@ func TestEHandler_EndRace(t *testing.T) {
 		time.Sleep(100 * 1000 * time.Millisecond)
 		ehdlr.Stop()
 	}()
+	tools.ToDisplay("%s", freeway.ClearEntireScreen())
+	tools.ToDisplay("%s", freeway.MoveUpperLeft(0))
 	ehdlr.Start()
 }
