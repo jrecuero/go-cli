@@ -2,6 +2,7 @@ package freeway
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 // IDevice represents ...
@@ -78,7 +79,7 @@ func (dev *Device) NewLocation(freeway *Freeway) (ISection, int) {
 func (dev *Device) Traversing() int {
 	section, _ := dev.getLocation()
 	//spec := section.GetSpec()
-	speed := section.Traversing() * dev.GetPower()
+	speed := int(float32(section.Traversing()*dev.GetPower()) * rand.Float32())
 	return speed
 }
 

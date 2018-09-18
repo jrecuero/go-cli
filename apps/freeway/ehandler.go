@@ -1,6 +1,7 @@
 package freeway
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/jrecuero/go-cli/tools"
@@ -109,7 +110,7 @@ func (ehdlr *EHandler) Start() {
 		ehdlr.tick()
 	}
 	tools.ToDisplay("EHandler stopped\n")
-	tools.ToDisplay("%s\n", ehdlr.endgame)
+	//tools.ToDisplay("%s\n", ehdlr.endgame)
 }
 
 // Stop is ...
@@ -124,6 +125,7 @@ func (ehdlr *EHandler) SetFreeze(freeze bool) {
 
 // NewEHandler is ...
 func NewEHandler() *EHandler {
+	rand.Seed(time.Now().UTC().UnixNano())
 	return &EHandler{
 		running: false,
 		delay:   10,
