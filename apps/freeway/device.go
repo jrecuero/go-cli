@@ -10,8 +10,7 @@ type IDevice interface {
 	GetClass() string
 	GetSubClass() string
 	GetPower() int
-	GetLocation() (ISection, int)
-	GetLocationIndex() (int, int)
+	Location() *Location
 	NewLocation(*Freeway) (ISection, int)
 	Traversing() int
 	Entering(int) int
@@ -19,6 +18,8 @@ type IDevice interface {
 	FreewayTraverse()
 	GetDriver() IDriver
 	SetDriver(IDriver) IDevice
+	GetRunning() bool
+	SetRunning(bool) IDevice
 }
 
 // Device represents ...
@@ -29,6 +30,7 @@ type Device struct {
 	power     int
 	location  *Location
 	driver    IDriver
+	running   bool
 }
 
 // GetName is ...
@@ -51,25 +53,30 @@ func (dev *Device) GetPower() int {
 	return dev.power
 }
 
-// NewLocation is ...
-func (dev *Device) NewLocation(freeway *Freeway) (ISection, int) {
-	dev.location = NewLocation(freeway)
-	return dev.GetLocation()
+// Location is ...
+func (dev *Device) Location() *Location {
+	return dev.location
 }
 
-// GetLocation is ...
-func (dev *Device) GetLocation() (ISection, int) {
+// getLocation is ...
+func (dev *Device) getLocation() (ISection, int) {
 	return dev.location.GetLocation()
 }
 
-// GetLocationIndex is ...
-func (dev *Device) GetLocationIndex() (int, int) {
+// getLocationIndex is ...
+func (dev *Device) getLocationIndex() (int, int) {
 	return dev.location.GetLocationIndex()
+}
+
+// NewLocation is ...
+func (dev *Device) NewLocation(freeway *Freeway) (ISection, int) {
+	dev.location = NewLocation(freeway)
+	return dev.getLocation()
 }
 
 // Traversing is ...
 func (dev *Device) Traversing() int {
-	section, _ := dev.GetLocation()
+	section, _ := dev.getLocation()
 	//spec := section.GetSpec()
 	speed := section.Traversing() * dev.GetPower()
 	return speed
@@ -77,14 +84,14 @@ func (dev *Device) Traversing() int {
 
 // Entering is ...
 func (dev *Device) Entering(speed int) int {
-	section, _ := dev.GetLocation()
+	section, _ := dev.getLocation()
 	//spec := section.GetSpec()
 	return section.Entering(speed) * speed
 }
 
 // Exiting is ...
 func (dev *Device) Exiting(speed int) int {
-	section, _ := dev.GetLocation()
+	section, _ := dev.getLocation()
 	//spec := section.GetSpec()
 	return section.Exiting(speed) * speed
 }
@@ -100,9 +107,20 @@ func (dev *Device) SetDriver(driver IDriver) IDevice {
 	return dev
 }
 
+// GetRunning is ...
+func (dev *Device) GetRunning() bool {
+	return dev.running
+}
+
+// SetRunning is ...
+func (dev *Device) SetRunning(running bool) IDevice {
+	dev.running = running
+	return dev
+}
+
 // FreewayTraverse is ..
 func (dev *Device) FreewayTraverse() {
-	section, devpos := dev.GetLocation()
+	section, devpos := dev.getLocation()
 	devSpeed := dev.Traversing()
 	//tools.ToDisplay("traversing %s : %d\n", dev.GetName(), devSpeed)
 	position := devpos + devSpeed
@@ -118,7 +136,7 @@ func (dev *Device) FreewayTraverse() {
 
 // String is ...
 func (dev *Device) String() string {
-	isect, pos := dev.GetLocationIndex()
+	isect, pos := dev.getLocationIndex()
 	return fmt.Sprintf("name: %#v class|sub: %#v|%#v power: %d loc: %d-%d driver: %#v\n",
 		dev.GetName(), dev.GetClass(), dev.GetSubClass(), dev.GetPower(), isect, pos, dev.GetDriver())
 }
