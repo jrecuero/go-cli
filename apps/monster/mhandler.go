@@ -2,6 +2,7 @@ package monster
 
 import (
 	"math/rand"
+	"sync"
 	"time"
 
 	"github.com/jrecuero/go-cli/tools"
@@ -10,6 +11,12 @@ import (
 // MTime represents ...
 type MTime int
 
+// Token represents ...
+type Token struct {
+	Actor IActor
+	Timed int
+}
+
 // MHandler represents ...
 type MHandler struct {
 	running   bool
@@ -17,8 +24,9 @@ type MHandler struct {
 	delay     int
 	workerCbs []func(IActor)
 	mtime     MTime
+	timed     int
 	actors    []IActor
-	schedule  []IActor
+	schedule  []*Token
 	origin    int64
 }
 
@@ -28,6 +36,12 @@ func (mhdlr *MHandler) tick() {
 		mhdlr.origin = time.Now().UTC().UnixNano() / int64(time.Millisecond)
 	}
 	mhdlr.mtime++
+}
+
+// resetTick is ...
+func (mhdlr *MHandler) resetTick() {
+	mhdlr.mtime = 0
+	mhdlr.timed = 0
 }
 
 // GetOrigin is ...
@@ -53,7 +67,7 @@ func (mhdlr *MHandler) GetActors() []IActor {
 }
 
 // GetSchedule is ...
-func (mhdlr *MHandler) GetSchedule() []IActor {
+func (mhdlr *MHandler) GetSchedule() []*Token {
 	return mhdlr.schedule
 }
 
@@ -73,14 +87,29 @@ func (mhdlr *MHandler) callWorkerCbs(actor IActor) {
 }
 
 // worker is ...
-func (mhdlr *MHandler) worker(actor IActor) {
+func (mhdlr *MHandler) worker(wg *sync.WaitGroup, actor IActor) {
+	defer wg.Done()
+	tools.ToDisplay("worker %#v starts\n", actor)
 	for mhdlr.running {
-		time.Sleep(time.Duration(actor.GetSpeed()) * time.Millisecond)
+		time.Sleep(time.Duration(actor.GetNext()) * time.Millisecond)
 		timeout := time.Now().UTC().UnixNano()/int64(time.Millisecond) - mhdlr.GetOrigin()
 		tools.ToDisplay("[%#v] worker:  %#v\n", timeout, actor)
-		mhdlr.schedule = append(mhdlr.schedule, actor)
+		mhdlr.schedule = append(mhdlr.schedule, &Token{actor, actor.GetNext()})
+		actor.SetNext(actor.GetSpeed())
 		mhdlr.callWorkerCbs(actor)
 	}
+	tools.ToDisplay("worker %#v ends\n", actor.GetName())
+}
+
+// ticker is ...
+func (mhdlr *MHandler) ticker(wg *sync.WaitGroup) {
+	defer wg.Done()
+	time.Sleep(time.Millisecond)
+	for mhdlr.running {
+		mhdlr.tick()
+		time.Sleep(time.Duration(mhdlr.delay) * time.Millisecond)
+	}
+	//tools.ToDisplay("ticker ends at %d\n", time.Now().UTC().UnixNano()/int64(time.Millisecond)-mhdlr.GetOrigin())
 }
 
 // Setup is ...
@@ -89,16 +118,19 @@ func (mhdlr *MHandler) Setup() {
 
 // Start is ...
 func (mhdlr *MHandler) Start() {
+	var wg sync.WaitGroup
+	mhdlr.schedule = nil
 	mhdlr.running = true
-	for _, actor := range mhdlr.actors {
-		go mhdlr.worker(actor)
-	}
 	tools.ToDisplay("MHandler started ...\n")
+	mhdlr.resetTick()
+	wg.Add(1)
+	go mhdlr.ticker(&wg)
 	mhdlr.AddWorkerCb(func(actor IActor) {})
-	for mhdlr.running {
-		time.Sleep(time.Duration(mhdlr.delay) * time.Millisecond)
-		mhdlr.tick()
+	for _, actor := range mhdlr.actors {
+		wg.Add(1)
+		go mhdlr.worker(&wg, actor)
 	}
+	wg.Wait()
 	tools.ToDisplay("MHandler stopped\n")
 }
 
@@ -110,6 +142,21 @@ func (mhdlr *MHandler) Stop() {
 // SetFreeze is ...
 func (mhdlr *MHandler) SetFreeze(freeze bool) {
 	mhdlr.freeze = freeze
+}
+
+// Next is ...
+func (mhdlr *MHandler) Next() IActor {
+	token := mhdlr.schedule[0]
+	mhdlr.schedule = mhdlr.schedule[1:]
+	timed := token.Timed
+	for _, actor := range mhdlr.actors {
+		//tools.ToDisplay("next:  %#v %d %d\n", actor, timed, mhdlr.timed)
+		newNext := actor.GetProcessing() - (timed - mhdlr.timed)
+		actor.SetProcessing(newNext)
+	}
+	mhdlr.timed = timed
+	token.Actor.SetProcessing(token.Actor.GetSpeed())
+	return token.Actor
 }
 
 // NewMHandler is ...
