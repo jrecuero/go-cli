@@ -89,16 +89,16 @@ func (mhdlr *MHandler) callWorkerCbs(actor IActor) {
 // worker is ...
 func (mhdlr *MHandler) worker(wg *sync.WaitGroup, actor IActor) {
 	defer wg.Done()
-	tools.ToDisplay("worker %#v starts\n", actor)
+	tools.ToDisplay("worker %s starts\n", actor)
 	for mhdlr.running {
-		time.Sleep(time.Duration(actor.GetNext()) * time.Millisecond)
+		time.Sleep(time.Duration(actor.GetSpeed().GetNext()) * time.Millisecond)
 		timeout := time.Now().UTC().UnixNano()/int64(time.Millisecond) - mhdlr.GetOrigin()
-		tools.ToDisplay("[%#v] worker:  %#v\n", timeout, actor)
-		mhdlr.schedule = append(mhdlr.schedule, &Token{actor, actor.GetNext()})
-		actor.SetNext(actor.GetSpeed())
+		tools.ToDisplay("[%#v] worker:  %s\n", timeout, actor)
+		mhdlr.schedule = append(mhdlr.schedule, &Token{actor, actor.GetSpeed().GetNext()})
+		actor.GetSpeed().SetNext(actor.GetSpeed().Get())
 		mhdlr.callWorkerCbs(actor)
 	}
-	tools.ToDisplay("worker %#v ends\n", actor.GetName())
+	tools.ToDisplay("worker %s ends\n", actor.GetName())
 }
 
 // ticker is ...
@@ -150,12 +150,12 @@ func (mhdlr *MHandler) Next() IActor {
 	mhdlr.schedule = mhdlr.schedule[1:]
 	timed := token.Timed
 	for _, actor := range mhdlr.actors {
-		//tools.ToDisplay("next:  %#v %d %d\n", actor, timed, mhdlr.timed)
-		newNext := actor.GetProcessing() - (timed - mhdlr.timed)
-		actor.SetProcessing(newNext)
+		//tools.ToDisplay("next:  %s %d %d\n", actor, timed, mhdlr.timed)
+		newNext := actor.GetSpeed().GetProcessing() - (timed - mhdlr.timed)
+		actor.GetSpeed().SetProcessing(newNext)
 	}
 	mhdlr.timed = timed
-	token.Actor.SetProcessing(token.Actor.GetSpeed())
+	token.Actor.GetSpeed().SetProcessing(token.Actor.GetSpeed().Get())
 	return token.Actor
 }
 
