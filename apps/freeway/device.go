@@ -32,6 +32,7 @@ type Device struct {
 	location  *Location
 	driver    IDriver
 	running   bool
+	Dry       bool
 }
 
 // GetName is ...
@@ -79,7 +80,11 @@ func (dev *Device) NewLocation(freeway *Freeway) (ISection, int) {
 func (dev *Device) Traversing() int {
 	section, _ := dev.getLocation()
 	//spec := section.GetSpec()
-	speed := int(float32(section.Traversing()*dev.GetPower()) * rand.Float32())
+	var dice float32 = 1.0
+	if !dev.Dry {
+		dice = rand.Float32()
+	}
+	speed := int(float32(section.Traversing()*dev.GetPower()) * dice)
 	return speed
 }
 
@@ -127,8 +132,8 @@ func (dev *Device) FreewayTraverse() {
 	position := devpos + devSpeed
 	for position >= section.GetLen() {
 		nextSpeed := position - section.GetLen()
-		section, _ = dev.location.NextSection()
 		exitSpeed := dev.Exiting(nextSpeed)
+		section, _ = dev.location.NextSection()
 		position = dev.Entering(exitSpeed)
 		//tools.ToDisplay("new position %s next: %d exit: %d position: %d\n", dev.GetName(), nextSpeed, exitSpeed, position)
 	}

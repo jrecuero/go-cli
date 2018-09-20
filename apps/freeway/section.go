@@ -3,7 +3,26 @@ package freeway
 import "fmt"
 
 // Spec represents ...
-type Spec string
+type Spec int
+
+const (
+	// None represents ...
+	None Spec = 0
+	// Straight represents ...
+	Straight Spec = 1
+	// Turn represents ...
+	Turn Spec = 2
+)
+
+// String is ...
+func (spec Spec) String() string {
+	names := []string{
+		"None",
+		"Straight",
+		"Turn",
+	}
+	return names[spec]
+}
 
 // Traverse represents ...
 type Traverse func(Spec) int

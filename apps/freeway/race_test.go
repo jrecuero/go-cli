@@ -23,10 +23,10 @@ func TestRace_Race(t *testing.T) {
 func TestRace_Freeway(t *testing.T) {
 	race := freeway.NewRace()
 	fway := freeway.NewFreeway()
-	fway.AddSection(freeway.NewSection(100, 1, "line", nil, nil, nil))
-	fway.AddSection(freeway.NewSection(50, 1, "turn", nil, nil, nil))
-	fway.AddSection(freeway.NewSection(100, 1, "line", nil, nil, nil))
-	fway.AddSection(freeway.NewSection(50, 1, "turn", nil, nil, nil))
+	fway.AddSection(freeway.NewSection(100, 1, freeway.Straight, nil, nil, nil))
+	fway.AddSection(freeway.NewSection(50, 1, freeway.Turn, nil, nil, nil))
+	fway.AddSection(freeway.NewSection(100, 1, freeway.Straight, nil, nil, nil))
+	fway.AddSection(freeway.NewSection(50, 1, freeway.Turn, nil, nil, nil))
 	if race.SetFreeway(fway) == nil {
 		t.Errorf("SetFreeway: code return: nil\n")
 	}

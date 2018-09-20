@@ -20,10 +20,10 @@ func TestFreeway_Freeway(t *testing.T) {
 func TestFreeway_AddSection(t *testing.T) {
 	fway := freeway.NewFreeway()
 	sections := []*freeway.Section{
-		freeway.NewSection(100, 1, "line", nil, nil, nil),
-		freeway.NewSection(50, 1, "turn", nil, nil, nil),
-		freeway.NewSection(100, 1, "line", nil, nil, nil),
-		freeway.NewSection(50, 1, "turn", nil, nil, nil),
+		freeway.NewSection(100, 1, freeway.Straight, nil, nil, nil),
+		freeway.NewSection(50, 1, freeway.Turn, nil, nil, nil),
+		freeway.NewSection(100, 1, freeway.Straight, nil, nil, nil),
+		freeway.NewSection(50, 1, freeway.Turn, nil, nil, nil),
 	}
 	for i, sect := range sections {
 		fway.AddSection(sect)
