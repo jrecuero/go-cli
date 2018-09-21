@@ -26,6 +26,15 @@ func (fway *Freeway) GetLen() int {
 	return len(fway.qsections)
 }
 
+// LapLen is ...
+func (fway *Freeway) LapLen() int {
+	total := 0
+	for i := 0; i < fway.GetLen(); i++ {
+		total += fway.qsections[i].section.GetLen()
+	}
+	return total
+}
+
 // NextSectionIndex is ...
 func (fway *Freeway) NextSectionIndex(isect int) (int, bool) {
 	isect++

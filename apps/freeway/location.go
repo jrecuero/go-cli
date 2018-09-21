@@ -55,9 +55,23 @@ func (loc *Location) NextSection() (ISection, int) {
 	return loc.GetLocation()
 }
 
+// LapInt is ...
+func (loc *Location) LapInt() int {
+	total := loc.GetPos()
+	for i := 0; i < loc.isect; i++ {
+		total += loc.freeway.GetSection(i).GetLen()
+	}
+	return total
+}
+
+// Int is ...
+func (loc *Location) Int() int {
+	return (loc.laps * loc.freeway.LapLen()) + loc.LapInt()
+}
+
 // String is ...
 func (loc *Location) String() string {
-	return fmt.Sprintf("sec: %d pos: %d\n", loc.isect, loc.pos)
+	return fmt.Sprintf("laps: %d sec: %d pos: %d", loc.laps, loc.isect, loc.pos)
 }
 
 // NewLocation is ...

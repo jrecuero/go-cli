@@ -88,19 +88,19 @@ func (ehdlr *EHandler) Start() {
 	for _, device := range ehdlr.GetRace().GetDevices() {
 		go ehdlr.worker(device)
 	}
-	tools.ToDisplay("EHandler started ...\n")
+	//tools.ToDisplay("EHandler started ...\n")
 	ehdlr.AddWorkerCb(func(dev IDevice) {
 		//tools.ToDisplay("device %#v: %d/%d\n", dev.GetName(), dev.Location().GetLaps(), ehdlr.GetRace().GetLaps())
 		if dev.Location().GetLaps() == ehdlr.GetRace().GetLaps() {
 			dev.SetRunning(false)
 			ehdlr.endgame = append(ehdlr.endgame, dev)
-			if len(ehdlr.endgame) == 1 {
-				tools.ToDisplay("[%d] winner: %#v time: %#v\n", len(ehdlr.endgame), dev.GetName(), ehdlr.rtime)
-			} else {
-				tools.ToDisplay("[%d] device: %#v time: %#v\n", len(ehdlr.endgame), dev.GetName(), ehdlr.rtime)
-			}
+			//if len(ehdlr.endgame) == 1 {
+			//    tools.ToDisplay("[%d] winner: %#v time: %#v\n", len(ehdlr.endgame), dev.GetName(), ehdlr.rtime)
+			//} else {
+			//    tools.ToDisplay("[%d] device: %#v time: %#v\n", len(ehdlr.endgame), dev.GetName(), ehdlr.rtime)
+			//}
 			if len(ehdlr.endgame) == len(ehdlr.GetRace().GetDevices()) {
-				tools.ToDisplay("Race ended\n")
+				//tools.ToDisplay("Race ended\n")
 				ehdlr.Stop()
 			}
 		}
@@ -109,7 +109,7 @@ func (ehdlr *EHandler) Start() {
 		time.Sleep(time.Duration(ehdlr.delay) * time.Millisecond)
 		ehdlr.tick()
 	}
-	tools.ToDisplay("EHandler stopped\n")
+	//tools.ToDisplay("EHandler stopped\n")
 	//tools.ToDisplay("%s\n", ehdlr.endgame)
 }
 
@@ -121,6 +121,11 @@ func (ehdlr *EHandler) Stop() {
 // SetFreeze is ...
 func (ehdlr *EHandler) SetFreeze(freeze bool) {
 	ehdlr.freeze = freeze
+}
+
+// IsRunning is ...
+func (ehdlr *EHandler) IsRunning() bool {
+	return ehdlr.running
 }
 
 // NewEHandler is ...

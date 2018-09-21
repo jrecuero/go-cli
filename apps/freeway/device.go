@@ -76,30 +76,34 @@ func (dev *Device) NewLocation(freeway *Freeway) (ISection, int) {
 	return dev.getLocation()
 }
 
+// diceit is ...
+func (dev *Device) diceit(todice int) int {
+	if !dev.Dry {
+		dice := rand.Float32()
+		return int(float32(todice) * dice)
+	}
+	return todice
+}
+
 // Traversing is ...
 func (dev *Device) Traversing() int {
 	section, _ := dev.getLocation()
-	//spec := section.GetSpec()
-	var dice float32 = 1.0
-	if !dev.Dry {
-		dice = rand.Float32()
-	}
-	speed := int(float32(section.Traversing()*dev.GetPower()) * dice)
-	return speed
+	spec := section.GetSpec()
+	return dev.diceit(section.Traversing() * dev.GetDriver().Traversing(spec) * dev.GetPower())
 }
 
 // Entering is ...
 func (dev *Device) Entering(speed int) int {
 	section, _ := dev.getLocation()
-	//spec := section.GetSpec()
-	return section.Entering(speed) * speed
+	spec := section.GetSpec()
+	return dev.diceit(section.Entering(speed) * dev.GetDriver().Entering(spec, speed) * speed)
 }
 
 // Exiting is ...
 func (dev *Device) Exiting(speed int) int {
 	section, _ := dev.getLocation()
-	//spec := section.GetSpec()
-	return section.Exiting(speed) * speed
+	spec := section.GetSpec()
+	return dev.diceit(section.Exiting(speed) * dev.GetDriver().Exiting(spec, speed) * speed)
 }
 
 // GetDriver is ...
