@@ -3,7 +3,7 @@ package freeway_test
 import (
 	"testing"
 
-	"github.com/jrecuero/go-cli/app/freeway"
+	"github.com/jrecuero/go-cli/app/code/freeway"
 )
 
 func TestLocation_Location(t *testing.T) {

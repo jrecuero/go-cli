@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jrecuero/go-cli/app/freeway"
+	"github.com/jrecuero/go-cli/app/code/freeway"
 	"github.com/jrecuero/go-cli/tools"
 )
 
