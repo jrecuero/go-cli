@@ -3,7 +3,7 @@ package freeway_test
 import (
 	"testing"
 
-	"github.com/jrecuero/go-cli/apps/freeway"
+	"github.com/jrecuero/go-cli/app/freeway"
 )
 
 func TestDriver_Driver(t *testing.T) {

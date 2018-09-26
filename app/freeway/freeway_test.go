@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jrecuero/go-cli/apps/freeway"
+	"github.com/jrecuero/go-cli/app/freeway"
 )
 
 func TestFreeway_Freeway(t *testing.T) {
