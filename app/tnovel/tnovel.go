@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jrecuero/go-cli/app/tnovel/novel"
+	"github.com/jrecuero/go-cli/app/code/novel"
 	"github.com/jrecuero/go-cli/prompter"
 	"github.com/jrecuero/go-cli/tools"
 )
