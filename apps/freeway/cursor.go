@@ -106,3 +106,143 @@ func SaveAttributes() string {
 func RestoreAttributes() string {
 	return escape("8")
 }
+
+// Reset is ...
+func Reset() string {
+	return escape("[0m")
+}
+
+// BoldOn is ...
+func BoldOn() string {
+	return escape("[1m")
+}
+
+// ItalicsOn is ...
+func ItalicsOn() string {
+	return escape("[3m")
+}
+
+// UnderlineOn is ...
+func UnderlineOn() string {
+	return escape("[4m")
+}
+
+// InverseOn is ...
+func InverseOn() string {
+	return escape("[7m")
+}
+
+// StrikeThroughOn is ...
+func StrikeThroughOn() string {
+	return escape("[9m")
+}
+
+// BoldOff is ...
+func BoldOff() string {
+	return escape("[22m")
+}
+
+// ItalicsOff is ...
+func ItalicsOff() string {
+	return escape("[23m")
+}
+
+// UnderlineOff is ...
+func UnderlineOff() string {
+	return escape("[24m")
+}
+
+// InverseOff is ...
+func InverseOff() string {
+	return escape("[27m")
+}
+
+// StrikeThroughOff is ...
+func StrikeThroughOff() string {
+	return escape("[29m")
+}
+
+// FgRed is ...
+func FgRed() string {
+	return escape("[31m")
+}
+
+// FgGree is ...
+func FgGree() string {
+	return escape("[32m")
+}
+
+// FgYellow is ...
+func FgYellow() string {
+	return escape("[33m")
+}
+
+// FgBlue is ...
+func FgBlue() string {
+	return escape("[34m")
+}
+
+// FgMagenta is ...
+func FgMagenta() string {
+	return escape("[35m")
+}
+
+// FgCyan is ...
+func FgCyan() string {
+	return escape("[36m")
+}
+
+// FgWhite is ...
+func FgWhite() string {
+	return escape("[37m")
+}
+
+// FgDefault is ...
+func FgDefault() string {
+	return escape("[39m")
+}
+
+// FgBlack is ...
+func FgBlack() string {
+	return escape("[40m")
+}
+
+// BgRed is ...
+func BgRed() string {
+	return escape("[41m")
+}
+
+// BgGreen is ...
+func BgGreen() string {
+	return escape("[42m")
+}
+
+// BgYellow is ...
+func BgYellow() string {
+	return escape("[43m")
+}
+
+// BgBlue is ...
+func BgBlue() string {
+	return escape("[44m")
+}
+
+// BgMagenta is ...
+func BgMagenta() string {
+	return escape("[45m")
+}
+
+// BgCyan is ...
+func BgCyan() string {
+	return escape("[46m")
+}
+
+// BgWhite is ...
+func BgWhite() string {
+	return escape("[47m")
+}
+
+// BgDefault is ...
+func BgDefault() string {
+	return escape("[49m")
+}

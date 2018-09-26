@@ -89,21 +89,33 @@ func (dev *Device) diceit(todice int) int {
 func (dev *Device) Traversing() int {
 	section, _ := dev.getLocation()
 	spec := section.GetSpec()
-	return dev.diceit(section.Traversing() * dev.GetDriver().Traversing(spec) * dev.GetPower())
+	travTotal := 1
+	if dev.GetDriver() != nil {
+		travTotal = dev.GetDriver().Traversing(spec)
+	}
+	return travTotal * dev.diceit(section.Traversing()*dev.GetPower())
 }
 
 // Entering is ...
 func (dev *Device) Entering(speed int) int {
 	section, _ := dev.getLocation()
 	spec := section.GetSpec()
-	return dev.diceit(section.Entering(speed) * dev.GetDriver().Entering(spec, speed) * speed)
+	travTotal := 1
+	if dev.GetDriver() != nil {
+		travTotal = dev.GetDriver().Entering(spec, speed)
+	}
+	return travTotal * dev.diceit(section.Entering(speed)*speed)
 }
 
 // Exiting is ...
 func (dev *Device) Exiting(speed int) int {
 	section, _ := dev.getLocation()
 	spec := section.GetSpec()
-	return dev.diceit(section.Exiting(speed) * dev.GetDriver().Exiting(spec, speed) * speed)
+	travTotal := 1
+	if dev.GetDriver() != nil {
+		travTotal = dev.GetDriver().Exiting(spec, speed)
+	}
+	return travTotal * dev.diceit(section.Exiting(speed)*speed)
 }
 
 // GetDriver is ...

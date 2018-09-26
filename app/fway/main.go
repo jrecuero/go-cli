@@ -36,6 +36,7 @@ func displayDevices(devices []*freeway.Device) {
 func main() {
 	tools.ToDisplay("%s", freeway.ClearEntireScreen())
 	tools.ToDisplay("%s", freeway.MoveUpperLeft(0))
+	tools.ToDisplay("%s", freeway.FgYellow())
 	ehdlr := freeway.NewEHandler()
 	race := freeway.NewRace()
 	fway := freeway.NewFreeway()
@@ -57,7 +58,7 @@ func main() {
 	race.SetLaps(5)
 	ehdlr.SetRace(race)
 	ehdlr.Setup()
-	ehdlr.SetDelay(1000)
+	ehdlr.SetDelay(100)
 	displayDevices(devices)
 	go func() {
 		for ehdlr.IsRunning() {
@@ -66,4 +67,5 @@ func main() {
 		}
 	}()
 	ehdlr.Start()
+	tools.ToDisplay("%s", freeway.Reset())
 }
