@@ -3,29 +3,27 @@ package battle
 // IActor represents
 type IActor interface {
 	ITechniqueHandler
+	IStyleHandler
+	IStanceHandler
 	GetName() string
 	GetStats() *Stats
-	GetStyle() IStyle
-	GetStances() IStance
-	Styles() []IStyle
-	Stances() []IStance
 }
 
 // Actor represents ...
 type Actor struct {
 	*TechniqueHandler
-	name    string
-	stats   *Stats
-	styles  []IStyle
-	stances []IStance
-	style   IStyle
-	stance  IStance
+	*StyleHandler
+	*StanceHandler
+	name  string
+	stats *Stats
 }
 
 // NewActor is ...
 func NewActor(name string) *Actor {
 	return &Actor{
 		TechniqueHandler: NewTechniqueHandler(),
+		StyleHandler:     NewStyleHandler(),
+		StanceHandler:    NewStanceHandler(),
 		name:             name,
 		stats:            NewStats(),
 	}
