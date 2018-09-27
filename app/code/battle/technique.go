@@ -4,6 +4,10 @@ package battle
 type ITechnique interface {
 	IBase
 	GetStyles() []IStyle
+	AddStyle(...IStyle) bool
+	RemoveStyle(...IStyle) bool
+	RemoveStyleByName(string) bool
+	GetStyleByName(string) IStyle
 }
 
 // Technique represents ...
@@ -15,6 +19,43 @@ type Technique struct {
 // GetStyles is ...
 func (tech *Technique) GetStyles() []IStyle {
 	return tech.styles
+}
+
+// AddStyle is ...
+func (tech *Technique) AddStyle(styles ...IStyle) bool {
+	tech.styles = append(tech.styles, styles...)
+	return true
+}
+
+// RemoveStyle is ...
+func (tech *Technique) RemoveStyle(styles ...IStyle) bool {
+	for _, style := range styles {
+		if !tech.RemoveStyleByName(style.GetName()) {
+			return false
+		}
+	}
+	return true
+}
+
+// RemoveStyleByName is ...
+func (tech *Technique) RemoveStyleByName(name string) bool {
+	for i, style := range tech.styles {
+		if style.GetName() == name {
+			tech.styles = append(tech.styles[:i], tech.styles[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+// GetStyleByName is ...
+func (tech *Technique) GetStyleByName(name string) IStyle {
+	for _, style := range tech.styles {
+		if style.GetName() == name {
+			return style
+		}
+	}
+	return nil
 }
 
 // NewTechnique is ...
@@ -91,9 +132,9 @@ func (th *TechniqueHandler) RemoveTechnique(techs ...ITechnique) bool {
 
 // RemoveTechniqueByName is ...
 func (th *TechniqueHandler) RemoveTechniqueByName(name string) bool {
-	for index, tech := range th.techniques {
+	for i, tech := range th.techniques {
 		if tech.GetName() == name {
-			th.techniques = append(th.techniques[:index], th.techniques[index+1:]...)
+			th.techniques = append(th.techniques[:i], th.techniques[i+1:]...)
 			return true
 		}
 	}

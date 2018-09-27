@@ -3,15 +3,61 @@ package battle
 // IStyle represents ...
 type IStyle interface {
 	IBase
-	GetStances() []IStance
 	GetTechnique() ITechnique
+	GetStances() []IStance
+	AddStance(...IStance) bool
+	RemoveStance(...IStance) bool
+	RemoveStanceByName(string) bool
+	GetStanceByName(string) IStance
 }
 
 // Style represents ...
 type Style struct {
 	*Base
-	stances []Stance
+	stances []IStance
 	parent  ITechnique
+}
+
+// GetStances is ...
+func (style *Style) GetStances() []IStance {
+	return style.stances
+}
+
+// AddStance is ...
+func (style *Style) AddStance(stances ...IStance) bool {
+	style.stances = append(style.stances, stances...)
+	return true
+}
+
+// RemoveStance is ...
+func (style *Style) RemoveStance(stances ...IStance) bool {
+	for _, stance := range stances {
+		if !style.RemoveStanceByName(stance.GetName()) {
+			return false
+		}
+	}
+	return true
+}
+
+// RemoveStanceByName is ...
+func (style *Style) RemoveStanceByName(name string) bool {
+	for i, stance := range style.stances {
+		if stance.GetName() == name {
+			style.stances = append(style.stances[:i], style.stances[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+// GetStanceByName is ...
+func (style *Style) GetStanceByName(name string) IStance {
+	for _, stance := range style.stances {
+		if stance.GetName() == name {
+			return stance
+		}
+	}
+	return nil
 }
 
 // NewStyle is ...
