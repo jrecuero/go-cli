@@ -1,0 +1,116 @@
+package battle
+
+// ITechnique represents ...
+type ITechnique interface {
+	IBase
+	GetStyles() []IStyle
+}
+
+// Technique represents ...
+type Technique struct {
+	*Base
+	styles []IStyle
+}
+
+// GetStyles is ...
+func (tech *Technique) GetStyles() []IStyle {
+	return tech.styles
+}
+
+// NewTechnique is ...
+func NewTechnique(name string) *Technique {
+	return &Technique{
+		Base: NewBase(name),
+	}
+}
+
+// ITechniqueHandler represents ...
+type ITechniqueHandler interface {
+	GetTechnique() ITechnique
+	SetTechnique(ITechnique) bool
+	SetTechniqueByName(string) bool
+	GetTechniques() []ITechnique
+	SetTechniques([]ITechnique)
+	AddTechnique(...ITechnique) bool
+	RemoveTechnique(...ITechnique) bool
+	RemoveTechniqueByName(string) bool
+	GetTechniqueByName(string) ITechnique
+}
+
+// TechniqueHandler represents ...
+type TechniqueHandler struct {
+	techniques []ITechnique
+	technique  ITechnique
+}
+
+// GetTechnique is ...
+func (th *TechniqueHandler) GetTechnique() ITechnique {
+	return th.technique
+}
+
+// SetTechnique is ...
+func (th *TechniqueHandler) SetTechnique(tech ITechnique) bool {
+	return th.SetTechniqueByName(tech.GetName())
+}
+
+// SetTechniqueByName is ...
+func (th *TechniqueHandler) SetTechniqueByName(name string) bool {
+	tech := th.GetTechniqueByName(name)
+	if tech != nil {
+		th.technique = tech
+		return true
+	}
+	return false
+}
+
+// GetTechniques is ...
+func (th *TechniqueHandler) GetTechniques() []ITechnique {
+	return th.techniques
+}
+
+// SetTechniques iss ...
+func (th *TechniqueHandler) SetTechniques(techs []ITechnique) {
+	th.techniques = techs
+}
+
+// AddTechnique is ...
+func (th *TechniqueHandler) AddTechnique(techs ...ITechnique) bool {
+	th.techniques = append(th.techniques, techs...)
+	return true
+}
+
+// RemoveTechnique is ...
+func (th *TechniqueHandler) RemoveTechnique(techs ...ITechnique) bool {
+	for _, tech := range techs {
+		if !th.RemoveTechniqueByName(tech.GetName()) {
+			return false
+		}
+	}
+	return true
+}
+
+// RemoveTechniqueByName is ...
+func (th *TechniqueHandler) RemoveTechniqueByName(name string) bool {
+	for index, tech := range th.techniques {
+		if tech.GetName() == name {
+			th.techniques = append(th.techniques[:index], th.techniques[index+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+// GetTechniqueByName is ...
+func (th *TechniqueHandler) GetTechniqueByName(name string) ITechnique {
+	for _, tech := range th.techniques {
+		if tech.GetName() == name {
+			return tech
+		}
+	}
+	return nil
+}
+
+// NewTechniqueHandler is ...
+func NewTechniqueHandler() *TechniqueHandler {
+	return &TechniqueHandler{}
+}
