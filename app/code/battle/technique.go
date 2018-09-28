@@ -1,5 +1,10 @@
 package battle
 
+import (
+	"bytes"
+	"fmt"
+)
+
 // ITechnique represents ...
 type ITechnique interface {
 	IBase
@@ -56,6 +61,16 @@ func (tech *Technique) GetStyleByName(name string) IStyle {
 		}
 	}
 	return nil
+}
+
+// String is ...
+func (tech *Technique) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("> Technique Name: %s", tech.GetName()))
+	for _, style := range tech.styles {
+		buf.WriteString(fmt.Sprintf("\n\t: %s", style))
+	}
+	return buf.String()
 }
 
 // NewTechnique is ...

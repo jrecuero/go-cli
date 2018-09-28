@@ -1,5 +1,10 @@
 package battle
 
+import (
+	"bytes"
+	"fmt"
+)
+
 // IStyle represents ...
 type IStyle interface {
 	IBase
@@ -16,6 +21,11 @@ type Style struct {
 	*Base
 	stances []IStance
 	parent  ITechnique
+}
+
+// GetTechnique is ...
+func (style *Style) GetTechnique() ITechnique {
+	return style.parent
 }
 
 // GetStances is ...
@@ -60,12 +70,24 @@ func (style *Style) GetStanceByName(name string) IStance {
 	return nil
 }
 
+// String is ...
+func (style *Style) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("Style Name: %s", style.GetName()))
+	for _, stance := range style.stances {
+		buf.WriteString(fmt.Sprintf("\n\t\t*  %s", stance))
+	}
+	return buf.String()
+}
+
 // NewStyle is ...
 func NewStyle(name string, parent ITechnique) *Style {
-	return &Style{
+	style := &Style{
 		Base:   NewBase(name),
 		parent: parent,
 	}
+	parent.AddStyle(style)
+	return style
 }
 
 // IStyleHandler represents ...

@@ -18,6 +18,16 @@ type Actor struct {
 	stats *Stats
 }
 
+// GetName is ...
+func (actor *Actor) GetName() string {
+	return actor.name
+}
+
+// GetStats is ...
+func (actor *Actor) GetStats() *Stats {
+	return actor.stats
+}
+
 // NewActor is ...
 func NewActor(name string) *Actor {
 	return &Actor{

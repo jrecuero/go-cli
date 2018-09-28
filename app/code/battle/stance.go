@@ -1,5 +1,10 @@
 package battle
 
+import (
+	"bytes"
+	"fmt"
+)
+
 // IStance represents ...
 type IStance interface {
 	IBase
@@ -13,12 +18,26 @@ type Stance struct {
 	updatestats *UStats
 }
 
+// GetStyle is ...
+func (stance *Stance) GetStyle() IStyle {
+	return stance.parent
+}
+
+// String is ...
+func (stance *Stance) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("Stance Name: %s", stance.GetName()))
+	return buf.String()
+}
+
 // NewStance is ...
 func NewStance(name string, parent IStyle) *Stance {
-	return &Stance{
+	stance := &Stance{
 		Base:   NewBase(name),
 		parent: parent,
 	}
+	parent.AddStance(stance)
+	return stance
 }
 
 // IStanceHandler represents ...
