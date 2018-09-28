@@ -66,9 +66,10 @@ func (tech *Technique) GetStyleByName(name string) IStyle {
 // String is ...
 func (tech *Technique) String() string {
 	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprintf("> Technique Name: %s", tech.GetName()))
+	//buf.WriteString(fmt.Sprintf("> Technique Name: %s", tech.GetName()))
+	buf.WriteString(fmt.Sprintf("> Technique %s", tech.Base))
 	for _, style := range tech.styles {
-		buf.WriteString(fmt.Sprintf("\n\t: %s", style))
+		buf.WriteString(fmt.Sprintf("\n  : %s", style))
 	}
 	return buf.String()
 }

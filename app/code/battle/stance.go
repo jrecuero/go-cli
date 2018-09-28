@@ -26,7 +26,7 @@ func (stance *Stance) GetStyle() IStyle {
 // String is ...
 func (stance *Stance) String() string {
 	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprintf("Stance Name: %s", stance.GetName()))
+	buf.WriteString(fmt.Sprintf("Stance %s", stance.Base))
 	return buf.String()
 }
 

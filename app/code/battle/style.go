@@ -73,9 +73,9 @@ func (style *Style) GetStanceByName(name string) IStance {
 // String is ...
 func (style *Style) String() string {
 	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprintf("Style Name: %s", style.GetName()))
+	buf.WriteString(fmt.Sprintf("Style %s", style.Base))
 	for _, stance := range style.stances {
-		buf.WriteString(fmt.Sprintf("\n\t\t*  %s", stance))
+		buf.WriteString(fmt.Sprintf("\n    * %s", stance))
 	}
 	return buf.String()
 }

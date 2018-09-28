@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 
+	"github.com/jrecuero/go-cli/app/apps/battle/commands"
 	"github.com/jrecuero/go-cli/app/code/battle"
+	"github.com/jrecuero/go-cli/prompter"
+	"github.com/jrecuero/go-cli/tools"
 )
 
 func testActor() {
@@ -22,7 +25,6 @@ func testActor() {
 func createKarate() (string, battle.TechniqueBuilderCb) {
 	techName := "Karate"
 	return techName, func(...interface{}) battle.ITechnique {
-		fmt.Println("techName is: KARATE")
 		karate := battle.NewTechnique(techName)
 		karateStyleOne := battle.NewStyle("east", karate)
 		battle.NewStance("high", karateStyleOne)
@@ -43,7 +45,7 @@ func createBoxeo() (string, battle.TechniqueBuilderCb) {
 	}
 }
 
-func main() {
+func createTechsAndBattle() {
 	bt := battle.NewBattle()
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(createKarate()))
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(createBoxeo()))
@@ -55,4 +57,13 @@ func main() {
 	for _, tech := range actor.GetTechniques() {
 		fmt.Printf("%s\n", tech)
 	}
+}
+
+func main() {
+	pr := prompter.NewPrompter()
+	pr.Setup("battle", commands.SetupCommands()...)
+	tools.ToDisplay("\n")
+	tools.ToDisplay("Battle System\n")
+	tools.ToDisplay("-------------\n")
+	pr.Run()
 }

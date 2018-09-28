@@ -1,5 +1,10 @@
 package battle
 
+import (
+	"bytes"
+	"fmt"
+)
+
 // IBase represents all basic and common interface methods to be used for
 // techniques, styles and stances.
 type IBase interface {
@@ -74,6 +79,14 @@ func (base *Base) GetUpdateStats() *UStats {
 // SetUpdateStats is ...
 func (base *Base) SetUpdateStats(ustats *UStats) {
 	base.updatestats = ustats
+}
+
+// String is ...
+func (base *Base) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("%s\t[%t | %t | %t]",
+		base.GetName(), base.Enabled(), base.Learned(), base.Active()))
+	return buf.String()
 }
 
 // NewBase is ...
