@@ -2,15 +2,29 @@ package techs
 
 import "github.com/jrecuero/go-cli/app/code/battle"
 
+func createHighPunch(stance battle.IStance, args ...interface{}) battle.IAmove {
+	amoveName := "Punch"
+	amovePunch := battle.NewAmove(amoveName, stance)
+	return amovePunch
+}
+
 func createStanceKarateEastHigh(style battle.IStyle, args ...interface{}) battle.IStance {
 	stanceName := "High"
 	stanceHigh := battle.NewStance(stanceName, style)
+	createHighPunch(stanceHigh, args...)
 	return stanceHigh
+}
+
+func createLowKick(stance battle.IStance, args ...interface{}) battle.IAmove {
+	amoveName := "Kick"
+	amoveKick := battle.NewAmove(amoveName, stance)
+	return amoveKick
 }
 
 func createStanceKarateEastLow(style battle.IStyle, args ...interface{}) battle.IStance {
 	stanceName := "Low"
 	stanceLow := battle.NewStance(stanceName, style)
+	createLowKick(stanceLow, args...)
 	return stanceLow
 }
 
@@ -22,9 +36,16 @@ func createStyleKarateEast(tech battle.ITechnique, args ...interface{}) battle.I
 	return styleEast
 }
 
+func createSoft(stance battle.IStance, args ...interface{}) battle.IAmove {
+	amoveName := "Soft"
+	amoveSoft := battle.NewAmove(amoveName, stance)
+	return amoveSoft
+}
+
 func createStanceRelax(style battle.IStyle, args ...interface{}) battle.IStance {
 	stanceName := "Relax"
 	stanceRelax := battle.NewStance(stanceName, style)
+	createSoft(stanceRelax, args...)
 	return stanceRelax
 }
 
@@ -46,9 +67,16 @@ func CreateTechKarate(args ...interface{}) (string, battle.TechniqueBuilderCb) {
 	}
 }
 
+func createHammer(stance battle.IStance, args ...interface{}) battle.IAmove {
+	amoveName := "Hammer"
+	amoveHammer := battle.NewAmove(amoveName, stance)
+	return amoveHammer
+}
+
 func createStanceBoxeoWestTense(style battle.IStyle, args ...interface{}) battle.IStance {
 	stanceName := "Tense"
 	stanceTense := battle.NewStance(stanceName, style)
+	createHammer(stanceTense, args...)
 	return stanceTense
 }
 

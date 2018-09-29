@@ -9,13 +9,18 @@ import (
 type IStance interface {
 	IBase
 	GetStyle() IStyle
+	GetAmoves() []IAmove
+	AddAmove(...IAmove) bool
+	RemoveAmove(...IAmove) bool
+	RemoveAmoveByName(string) bool
+	GetAmoveByName(string) IAmove
 }
 
 // Stance represents ...
 type Stance struct {
 	*Base
-	parent      IStyle
-	updatestats *UStats
+	parent IStyle
+	amoves []IAmove
 }
 
 // GetStyle is ...
@@ -23,10 +28,55 @@ func (stance *Stance) GetStyle() IStyle {
 	return stance.parent
 }
 
+// GetAmoves is ...
+func (stance *Stance) GetAmoves() []IAmove {
+	return stance.amoves
+}
+
+// AddAmove is ...
+func (stance *Stance) AddAmove(amoves ...IAmove) bool {
+	stance.amoves = append(stance.amoves, amoves...)
+	return true
+}
+
+// RemoveAmove is ...
+func (stance *Stance) RemoveAmove(amoves ...IAmove) bool {
+	for _, amove := range amoves {
+		if !stance.RemoveAmoveByName(amove.GetName()) {
+			return false
+		}
+	}
+	return true
+}
+
+// RemoveAmoveByName is ...
+func (stance *Stance) RemoveAmoveByName(name string) bool {
+	for i, amove := range stance.amoves {
+		if amove.GetName() == name {
+			stance.amoves = append(stance.amoves[:i], stance.amoves[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+// GetAmoveByName is ...
+func (stance *Stance) GetAmoveByName(name string) IAmove {
+	for _, amove := range stance.amoves {
+		if amove.GetName() == name {
+			return amove
+		}
+	}
+	return nil
+}
+
 // String is ...
 func (stance *Stance) String() string {
 	var buf bytes.Buffer
 	buf.WriteString(fmt.Sprintf("Stance %s", stance.Base))
+	for _, amove := range stance.amoves {
+		buf.WriteString(fmt.Sprintf("\n      # %s", amove))
+	}
 	return buf.String()
 }
 
