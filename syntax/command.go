@@ -17,6 +17,7 @@ type Command struct {
 	HasChildren    bool           // has the command children Ccommands)?
 	IsBuiltIn      bool           // is the command a built-on command?
 	RunAsNoFinal   bool           // is the command exec as a parent command?
+	JustPrefix     bool           // is the command just a prefix command?
 	Prompt         interface{}    // mode prompt (only for modes)
 	ismode         bool           // is the command a mode?
 }

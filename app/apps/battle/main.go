@@ -11,7 +11,7 @@ import (
 )
 
 func testActor() {
-	actor := battle.NewActor("me")
+	actor := battle.NewActor("me", "this is me")
 	actor.AddTechnique(battle.NewTechnique("hit"))
 	actor.AddTechnique(battle.NewTechnique("punch"))
 	actor.SetTechniqueByName("hit")
@@ -50,7 +50,7 @@ func createTechsAndBattle() {
 	bt := battle.NewBattle()
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(createKarate()))
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(createBoxeo()))
-	actor := battle.NewActor("me")
+	actor := battle.NewActor("me", "this is me")
 	actor.AddTechnique(bt.CreateTechniqueByName("Karate"))
 	bt.AddActor(actor)
 	fmt.Printf("%#v\n", actor)

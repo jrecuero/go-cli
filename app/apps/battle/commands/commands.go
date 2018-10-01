@@ -9,14 +9,24 @@ import (
 // ActorCompleter represents the name completer
 type ActorCompleter struct {
 	*syntax.CompleterArgument
+	bt *battle.Battle
 }
 
 // Query returns the query for any node completer.
 func (nc *ActorCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
-	data := []*syntax.CompleteHelp{
-		syntax.NewCompleteHelp("ME", "ME actor"),
-		syntax.NewCompleteHelp("YOU", "Other actor"),
+	defaultComplete, _ := nc.Complete(ctx, content, line, index)
+	defaultHelp, _ := nc.Help(ctx, content, line, index)
+	var data []*syntax.CompleteHelp
+	for _, actor := range nc.bt.Actors {
+		data = append(data, syntax.NewCompleteHelp(actor.GetName(), actor.GetDescription()))
 	}
+	data = append(data, syntax.NewCompleteHelp(defaultComplete, defaultHelp))
+
+	//data := []*syntax.CompleteHelp{
+	//    syntax.NewCompleteHelp("ME", "ME actor"),
+	//    syntax.NewCompleteHelp("YOU", "Other actor"),
+	//    syntax.NewCompleteHelp(defaultComplete, defaultHelp),
+	//}
 	return data, true
 }
 
@@ -55,6 +65,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		"Display ...",
 		nil,
 		nil)
+	displayCommand.RunAsNoFinal = true
 
 	displayTechsCommand := syntax.NewCommand(
 		displayCommand,
@@ -94,10 +105,11 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		"Create ...",
 		nil,
 		nil)
+	createCommand.RunAsNoFinal = true
 
 	createActorCommand := syntax.NewCommand(
 		createCommand,
-		"actor name",
+		"actor name desc",
 		"Create a new actor",
 		[]*syntax.Argument{
 			syntax.NewArgument(
@@ -107,12 +119,20 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 				"string",
 				"none",
 				nil),
+			syntax.NewArgument(
+				"desc",
+				"Actor description",
+				nil,
+				"string",
+				"none",
+				nil),
 		},
 		nil)
 	createActorCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
 		params := arguments.(map[string]interface{})
 		name := params["name"].(string)
-		bt.AddActor(battle.NewActor(name))
+		desc := params["desc"].(string)
+		bt.AddActor(battle.NewActor(name, desc))
 		tools.ToDisplay("Create actor: %#v\n", name)
 		return nil
 	}
@@ -125,7 +145,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 			syntax.NewArgument(
 				"actor-name",
 				"Actor name",
-				&ActorCompleter{syntax.NewCompleterArgument("actor-name")},
+				&ActorCompleter{syntax.NewCompleterArgument("actor-name"), bt},
 				"string",
 				"none",
 				nil),

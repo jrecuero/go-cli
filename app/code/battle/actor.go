@@ -7,6 +7,7 @@ type IActor interface {
 	IStanceHandler
 	IAmoveHandler
 	GetName() string
+	GetDescription() string
 	GetStats() *Stats
 }
 
@@ -17,12 +18,18 @@ type Actor struct {
 	*StanceHandler
 	*AmoveHandler
 	name  string
+	desc  string
 	stats *Stats
 }
 
 // GetName is ...
 func (actor *Actor) GetName() string {
 	return actor.name
+}
+
+// GetDescription is ...
+func (actor *Actor) GetDescription() string {
+	return actor.desc
 }
 
 // GetStats is ...
@@ -80,13 +87,14 @@ func (actor *Actor) AddAmove(amoves ...IAmove) bool {
 }
 
 // NewActor is ...
-func NewActor(name string) *Actor {
+func NewActor(name string, desc string) *Actor {
 	return &Actor{
 		TechniqueHandler: NewTechniqueHandler(),
 		StyleHandler:     NewStyleHandler(),
 		StanceHandler:    NewStanceHandler(),
 		AmoveHandler:     NewAmoveHandler(),
 		name:             name,
+		desc:             desc,
 		stats:            NewStats(),
 	}
 }
