@@ -6,6 +6,20 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
+// ActorCompleter represents the name completer
+type ActorCompleter struct {
+	*syntax.CompleterArgument
+}
+
+// Query returns the query for any node completer.
+func (nc *ActorCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	data := []*syntax.CompleteHelp{
+		syntax.NewCompleteHelp("ME", "ME actor"),
+		syntax.NewCompleteHelp("YOU", "Other actor"),
+	}
+	return data, true
+}
+
 type selector struct{}
 
 func (s *selector) SelectOrig(...interface{}) battle.IActor {
@@ -19,12 +33,18 @@ func (s *selector) SelectTarget(...interface{}) battle.IActor {
 func (s *selector) SelectAmove(args ...interface{}) battle.IAmove {
 	actor := args[0].(battle.IActor)
 	mode := args[1].(battle.Amode)
+	var amove battle.IAmove
+	//tools.ToDisplay("%#v\n", actor.GetTechniques())
+	//tools.ToDisplay("%#v\n", actor.GetStyles())
+	//tools.ToDisplay("%#v\n", actor.GetStances())
+	//tools.ToDisplay("%#v\n", actor.GetAmoves())
 	if mode == battle.AmodeAttack {
-		return actor.GetAmoveByName("Punch")
+		amove = actor.GetAmoveByName("Punch")
 	} else if mode == battle.AmodeDefence {
-		return actor.GetAmoveByName("Hammer")
+		amove = actor.GetAmoveByName("Hammer")
 	}
-	return nil
+	//tools.ToDisplay("select-amove %s:%#v %#v\n", actor.GetName(), mode, amove)
+	return amove
 }
 
 // SetupCommands is ...
@@ -105,7 +125,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 			syntax.NewArgument(
 				"actor-name",
 				"Actor name",
-				nil,
+				&ActorCompleter{syntax.NewCompleterArgument("actor-name")},
 				"string",
 				"none",
 				nil),
@@ -128,6 +148,41 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		tools.ToDisplay("Add technique %#v to actor %#v\n", techName, actorName)
 		return nil
 	}
+
+	engageCommand := syntax.NewCommand(
+		nil,
+		"engage orig-name target-name",
+		"Engage in combat",
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"orig-name",
+				"Actor originator name",
+				nil,
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"target-name",
+				"Actor target name",
+				nil,
+				"string",
+				"none",
+				nil),
+		},
+		nil)
+	engageCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		origName := params["orig-name"].(string)
+		targetName := params["target-name"].(string)
+		tools.ToDisplay("Engage %#v vs %#v\n", origName, targetName)
+		origActor := bt.GetActorByName(origName)
+		targetActor := bt.GetActorByName(targetName)
+		if origActor != nil && targetActor != nil {
+			bt.Engage(origActor, targetActor)
+		}
+		return nil
+	}
+
 	bt.Selector = &selector{}
 
 	cmds := []*syntax.Command{
@@ -137,6 +192,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		createCommand,
 		createActorCommand,
 		addTechToActorCommand,
+		engageCommand,
 	}
 	return cmds
 }

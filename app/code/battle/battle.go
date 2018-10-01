@@ -1,5 +1,7 @@
 package battle
 
+import "github.com/jrecuero/go-cli/tools"
+
 // ISelector represents ...
 type ISelector interface {
 	SelectOrig(...interface{}) IActor
@@ -107,6 +109,10 @@ func (b *Battle) SelectAmove(orig IActor, mode Amode) IAmove {
 
 // ExecuteEngage is ...
 func (b *Battle) ExecuteEngage(orig IActor, origAmove IAmove, target IActor, targetAmove IAmove) {
+	tools.ToDisplay("Engage %s:%s vs %s:%s\n", orig.GetName(),
+		origAmove.GetName(),
+		target.GetName(),
+		targetAmove.GetName())
 }
 
 // NewBattle is ...

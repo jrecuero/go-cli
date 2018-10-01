@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jrecuero/go-cli/app/dbase/commands"
+	"github.com/jrecuero/go-cli/app/apps/dbase/commands"
 	"github.com/jrecuero/go-cli/prompter"
 	"github.com/jrecuero/go-cli/tools"
 )

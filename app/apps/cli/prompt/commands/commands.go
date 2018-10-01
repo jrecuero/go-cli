@@ -9,7 +9,7 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
-// NamesCompleter represents the name completer
+// versionCompleter represents the name completer
 type versionCompleter struct {
 	*syntax.CompleterArgument
 }
@@ -24,11 +24,6 @@ func (vc *versionCompleter) Validate(ctx *syntax.Context, content syntax.IConten
 	}
 	tools.ToDisplay("\ninvalid version: %s. 1 <= version <= 9\n", token)
 	return false
-}
-
-// NamesCompleter represents the name completer
-type NamesCompleter struct {
-	*syntax.CompleterArgument
 }
 
 type boolCmdCompleter struct {
@@ -56,6 +51,11 @@ func (bc *boolCmdCompleter) Help(ctx *syntax.Context, content syntax.IContent, l
 		return bc.CompleterCommand.Help(ctx, content, line, index)
 	}
 	return nil, false
+}
+
+// NamesCompleter represents the name completer
+type NamesCompleter struct {
+	*syntax.CompleterArgument
 }
 
 // Query returns the query for any node completer.
