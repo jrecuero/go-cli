@@ -21,6 +21,8 @@ const (
 type IAmove interface {
 	IBase
 	GetStance() IStance
+	GetStyle() IStyle
+	GetTechnique() ITechnique
 	GetAmode() Amode
 }
 
@@ -34,6 +36,16 @@ type Amove struct {
 //GetStance is ...
 func (amove *Amove) GetStance() IStance {
 	return amove.parent
+}
+
+// GetStyle is ...
+func (amove *Amove) GetStyle() IStyle {
+	return amove.parent.GetStyle()
+}
+
+// GetTechnique is ...
+func (amove *Amove) GetTechnique() ITechnique {
+	return amove.parent.GetTechnique()
 }
 
 // GetAmode is ...

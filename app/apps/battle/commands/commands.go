@@ -6,6 +6,27 @@ import (
 	"github.com/jrecuero/go-cli/tools"
 )
 
+type selector struct{}
+
+func (s *selector) SelectOrig(...interface{}) battle.IActor {
+	return nil
+}
+
+func (s *selector) SelectTarget(...interface{}) battle.IActor {
+	return nil
+}
+
+func (s *selector) SelectAmove(args ...interface{}) battle.IAmove {
+	actor := args[0].(battle.IActor)
+	mode := args[1].(battle.Amode)
+	if mode == battle.AmodeAttack {
+		return actor.GetAmoveByName("Punch")
+	} else if mode == battle.AmodeDefence {
+		return actor.GetAmoveByName("Hammer")
+	}
+	return nil
+}
+
 // SetupCommands is ...
 func SetupCommands(bt *battle.Battle) []*syntax.Command {
 	displayCommand := syntax.NewCommand(
@@ -107,6 +128,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		tools.ToDisplay("Add technique %#v to actor %#v\n", techName, actorName)
 		return nil
 	}
+	bt.Selector = &selector{}
 
 	cmds := []*syntax.Command{
 		displayCommand,

@@ -9,6 +9,7 @@ import (
 type IStance interface {
 	IBase
 	GetStyle() IStyle
+	GetTechnique() ITechnique
 	GetAmoves() []IAmove
 	AddAmove(...IAmove) bool
 	RemoveAmove(...IAmove) bool
@@ -26,6 +27,11 @@ type Stance struct {
 // GetStyle is ...
 func (stance *Stance) GetStyle() IStyle {
 	return stance.parent
+}
+
+// GetTechnique is ...
+func (stance *Stance) GetTechnique() ITechnique {
+	return stance.parent.GetTechnique()
 }
 
 // GetAmoves is ...
