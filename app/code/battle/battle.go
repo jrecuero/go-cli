@@ -1,7 +1,23 @@
 package battle
 
-// IStage represents ...
-type IStage interface{}
+// ISelector represents ...
+type ISelector interface {
+	SelectOrig(...interface{}) IActor
+	SelectTarget(...interface{}) IActor
+	SelectAmove(...interface{}) IAmove
+}
+
+// Stage represents ...
+type Stage struct {
+	Name string
+}
+
+// NewStage is ...
+func NewStage(name string) *Stage {
+	return &Stage{
+		Name: name,
+	}
+}
 
 // TechniqueBuilderCb represents ...
 type TechniqueBuilderCb func(...interface{}) ITechnique
@@ -24,7 +40,8 @@ func NewTechniqueBuilder(name string, cb TechniqueBuilderCb) *TechniqueBuilder {
 type Battle struct {
 	TechBuilders []*TechniqueBuilder
 	Actors       []IActor
-	stage        IStage
+	stage        Stage
+	Selector     ISelector
 }
 
 // GetTechBuilderByName is ...
@@ -71,6 +88,25 @@ func (b *Battle) AddActor(actor IActor) *Battle {
 		return b
 	}
 	return nil
+}
+
+// Engage is ...
+func (b *Battle) Engage(orig IActor, target IActor) {
+	origAmove := b.SelectAmove(orig, AmodeAttack)
+	targetAmove := b.SelectAmove(target, AmodeDefence)
+	b.ExecuteEngage(orig, origAmove, target, targetAmove)
+}
+
+// SelectAmove is ...
+func (b *Battle) SelectAmove(orig IActor, mode Amode) IAmove {
+	if b.Selector != nil {
+		return b.Selector.SelectAmove(orig, mode)
+	}
+	return nil
+}
+
+// ExecuteEngage is ...
+func (b *Battle) ExecuteEngage(orig IActor, origAmove IAmove, target IActor, targetAmove IAmove) {
 }
 
 // NewBattle is ...

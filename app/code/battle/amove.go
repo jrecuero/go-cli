@@ -57,3 +57,94 @@ func NewAmove(name string, parent IStance) *Amove {
 	parent.AddAmove(amove)
 	return amove
 }
+
+// IAmoveHandler represents ...
+type IAmoveHandler interface {
+	GetAmove() IAmove
+	SetAmove(IAmove) bool
+	SetAmoveByName(string) bool
+	GetAmoves() []IAmove
+	SetAmoves([]IAmove)
+	AddAmove(...IAmove) bool
+	RemoveAmove(...IAmove) bool
+	RemoveAmoveByName(string) bool
+	GetAmoveByName(string) IAmove
+}
+
+// AmoveHandler represents ...
+type AmoveHandler struct {
+	amoves []IAmove
+	amove  IAmove
+}
+
+// GetAmove is ...
+func (amoveh *AmoveHandler) GetAmove() IAmove {
+	return amoveh.amove
+}
+
+// SetAmove is ...
+func (amoveh *AmoveHandler) SetAmove(amove IAmove) bool {
+	return amoveh.SetAmoveByName(amove.GetName())
+}
+
+// SetAmoveByName is ...
+func (amoveh *AmoveHandler) SetAmoveByName(name string) bool {
+	amove := amoveh.GetAmoveByName(name)
+	if amove != nil {
+		amoveh.amove = amove
+		return true
+	}
+	return false
+}
+
+// GetAmoves is ...
+func (amoveh *AmoveHandler) GetAmoves() []IAmove {
+	return amoveh.amoves
+}
+
+// SetAmoves iss ...
+func (amoveh *AmoveHandler) SetAmoves(amoves []IAmove) {
+	amoveh.amoves = amoves
+}
+
+// AddAmove is ...
+func (amoveh *AmoveHandler) AddAmove(amoves ...IAmove) bool {
+	amoveh.amoves = append(amoveh.amoves, amoves...)
+	return true
+}
+
+// RemoveAmove is ...
+func (amoveh *AmoveHandler) RemoveAmove(amoves ...IAmove) bool {
+	for _, amove := range amoves {
+		if !amoveh.RemoveAmoveByName(amove.GetName()) {
+			return false
+		}
+	}
+	return true
+}
+
+// RemoveAmoveByName is ...
+func (amoveh *AmoveHandler) RemoveAmoveByName(name string) bool {
+	for i, amove := range amoveh.amoves {
+		if amove.GetName() == name {
+			amoveh.amoves = append(amoveh.amoves[:i], amoveh.amoves[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+// GetAmoveByName is ...
+func (amoveh *AmoveHandler) GetAmoveByName(name string) IAmove {
+	for _, amove := range amoveh.amoves {
+		if amove.GetName() == name {
+			return amove
+		}
+	}
+	return nil
+}
+
+// NewAmoveHandler is ...
+func NewAmoveHandler() *AmoveHandler {
+	return &AmoveHandler{}
+}

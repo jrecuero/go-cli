@@ -5,6 +5,7 @@ type IActor interface {
 	ITechniqueHandler
 	IStyleHandler
 	IStanceHandler
+	IAmoveHandler
 	GetName() string
 	GetStats() *Stats
 }
@@ -14,6 +15,7 @@ type Actor struct {
 	*TechniqueHandler
 	*StyleHandler
 	*StanceHandler
+	*AmoveHandler
 	name  string
 	stats *Stats
 }
@@ -34,6 +36,7 @@ func NewActor(name string) *Actor {
 		TechniqueHandler: NewTechniqueHandler(),
 		StyleHandler:     NewStyleHandler(),
 		StanceHandler:    NewStanceHandler(),
+		AmoveHandler:     NewAmoveHandler(),
 		name:             name,
 		stats:            NewStats(),
 	}

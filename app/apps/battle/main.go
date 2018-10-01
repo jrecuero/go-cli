@@ -60,10 +60,32 @@ func createTechsAndBattle() {
 	}
 }
 
+type selector struct{}
+
+func (s *selector) SelectOrig(...interface{}) battle.IActor {
+	return nil
+}
+
+func (s *selector) SelectTarget(...interface{}) battle.IActor {
+	return nil
+}
+
+func (s *selector) SelectAmove(args ...interface{}) battle.IAmove {
+	actor := args[0].(battle.IActor)
+	mode := args[1].(battle.Amode)
+	if mode == battle.AmodeAttack {
+		return actor.GetAmoveByName("Punch")
+	} else if mode == battle.AmodeDefence {
+		return actor.GetAmoveByName("Hammer")
+	}
+	return nil
+}
+
 func main() {
 	bt := battle.NewBattle()
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(techs.CreateTechKarate()))
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(techs.CreateTechBoxeo()))
+	bt.Selector = &selector{}
 	pr := prompter.NewPrompter()
 	pr.Setup("battle", commands.SetupCommands(bt)...)
 	tools.ToDisplay("\n")
