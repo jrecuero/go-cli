@@ -192,7 +192,10 @@ func (cs *CommandSyntax) CreateGraph(cmd *Command) bool {
 			break
 		}
 	}
-	cs.Graph.Terminate()
+	// If command is JustPrefix=true, it means the command can never be
+	// entered, so the Sink with <<CR>> shoul not be added, it means it has to
+	// pass withSink=false.
+	cs.Graph.Terminate(!cmd.JustPrefix)
 	cs.done = true
 	return true
 }

@@ -65,7 +65,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		"Display ...",
 		nil,
 		nil)
-	displayCommand.RunAsNoFinal = true
+	displayCommand.JustPrefix = true
 
 	displayTechsCommand := syntax.NewCommand(
 		displayCommand,
@@ -105,7 +105,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		"Create ...",
 		nil,
 		nil)
-	createCommand.RunAsNoFinal = true
+	createCommand.JustPrefix = true
 
 	createActorCommand := syntax.NewCommand(
 		createCommand,

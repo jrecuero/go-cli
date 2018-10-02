@@ -294,6 +294,9 @@ func (m *Matcher) Execute(line interface{}) (interface{}, error) {
 		cmd := token.Cmd
 		//tools.Debug("%d command %#v run-as-no-final: %#v\n", i, cmd.GetLabel(), cmd.RunAsNoFinal)
 		lenCommandBox := len(m.Ctx.GetCommandBox()) - 1
+		// Is commans is RunAsNoFinal=true it means the command callback has to
+		// be executed even if it is not the final command, it means the final
+		// command is a child command.
 		if (i < lenCommandBox && cmd.RunAsNoFinal) || (i == lenCommandBox) {
 			if i < lenCommandBox && cmd.RunAsNoFinal {
 				m.Ctx.GetProcess().Append(RUNASNOFINAL)

@@ -174,8 +174,8 @@ func (g *Graph) TerminatePathToBlock() bool {
 // Terminate terminates a graph.
 // Graph is terminated when no more nodes can be added and the sink
 // node has been linked to the last node in the graph.
-func (g *Graph) Terminate() {
-	if g.Sink != nil {
+func (g *Graph) Terminate(withSink bool) {
+	if withSink && g.Sink != nil {
 		g.Hook.AddChild(g.Sink)
 	}
 	if g.Next != nil {

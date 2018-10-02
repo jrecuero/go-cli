@@ -205,7 +205,7 @@ func TestGraph_Terminate(t *testing.T) {
 	g := graph.NewGraph(&graph.SetupGraph{
 		SinkContent: &contenido{"sink content"},
 	})
-	g.Terminate()
+	g.Terminate(true)
 	if g.Hook != nil {
 		t.Errorf("graph was not terminated properly Hook=%p", g.Hook)
 	}
@@ -223,7 +223,7 @@ func TestGraph_ToString(t *testing.T) {
 	g := graph.NewGraph(&graph.SetupGraph{
 		SinkContent: &contenido{"sink content"},
 	})
-	g.Terminate()
+	g.Terminate(true)
 	var tests = []struct {
 		got string
 		exp string
