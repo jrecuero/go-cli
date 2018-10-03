@@ -10,6 +10,7 @@ import (
 type IBase interface {
 	GetName() string
 	GetDescription() string
+	SetDescription(string)
 	Enabled() bool
 	SetEnabled(bool)
 	Learned() bool
@@ -39,6 +40,11 @@ func (base *Base) GetName() string {
 // GetDescription is ...
 func (base *Base) GetDescription() string {
 	return base.desc
+}
+
+// SetDescription is ...
+func (base *Base) SetDescription(desc string) {
+	base.desc = desc
 }
 
 // Enabled is ...

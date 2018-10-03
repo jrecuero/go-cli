@@ -57,10 +57,12 @@ func createStyleKarateWest(tech battle.ITechnique, args ...interface{}) battle.I
 }
 
 // CreateTechKarate is ...
-func CreateTechKarate(args ...interface{}) (string, battle.TechniqueBuilderCb) {
+func CreateTechKarate(args ...interface{}) (string, string, battle.TechniqueBuilderCb) {
 	techName := "Karate"
-	return techName, func(...interface{}) battle.ITechnique {
+	techDesc := "Karate technique"
+	return techName, techDesc, func(...interface{}) battle.ITechnique {
 		karate := battle.NewTechnique(techName)
+		karate.SetDescription(techDesc)
 		createStyleKarateEast(karate, args...)
 		createStyleKarateWest(karate, args...)
 		return karate
@@ -88,10 +90,12 @@ func createStyleBoxeoWest(tech battle.ITechnique, args ...interface{}) battle.IS
 }
 
 // CreateTechBoxeo is ...
-func CreateTechBoxeo(args ...interface{}) (string, battle.TechniqueBuilderCb) {
+func CreateTechBoxeo(args ...interface{}) (string, string, battle.TechniqueBuilderCb) {
 	techName := "Boxeo"
-	return techName, func(...interface{}) battle.ITechnique {
+	techDesc := "Boxeo technique"
+	return techName, techDesc, func(...interface{}) battle.ITechnique {
 		boxeo := battle.NewTechnique(techName)
+		boxeo.SetDescription(techDesc)
 		createStyleBoxeoWest(boxeo, args...)
 		return boxeo
 	}

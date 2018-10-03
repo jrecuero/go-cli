@@ -21,12 +21,24 @@ func (nc *ActorCompleter) Query(ctx *syntax.Context, content syntax.IContent, li
 		data = append(data, syntax.NewCompleteHelp(actor.GetName(), actor.GetDescription()))
 	}
 	data = append(data, syntax.NewCompleteHelp(defaultComplete, defaultHelp))
+	return data, true
+}
 
-	//data := []*syntax.CompleteHelp{
-	//    syntax.NewCompleteHelp("ME", "ME actor"),
-	//    syntax.NewCompleteHelp("YOU", "Other actor"),
-	//    syntax.NewCompleteHelp(defaultComplete, defaultHelp),
-	//}
+// TechniqueCompleter represents the technique completer.
+type TechniqueCompleter struct {
+	*syntax.CompleterArgument
+	bt *battle.Battle
+}
+
+// Query returns the query for any node completer.
+func (nc *TechniqueCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	//defaultComplete, _ := nc.Complete(ctx, content, line, index)
+	//defaultHelp, _ := nc.Help(ctx, content, line, index)
+	var data []*syntax.CompleteHelp
+	for _, tb := range nc.bt.TechBuilders {
+		data = append(data, syntax.NewCompleteHelp(tb.Name, tb.Desc))
+	}
+	//data = append(data, syntax.NewCompleteHelp(defaultComplete, defaultHelp))
 	return data, true
 }
 
@@ -137,6 +149,62 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		return nil
 	}
 
+	updateCommand := syntax.NewCommand(
+		nil,
+		"update",
+		"Update ...",
+		nil,
+		nil)
+	updateCommand.JustPrefix = true
+
+	updateActorCommand := syntax.NewCommand(
+		updateCommand,
+		"actor actor-name [str | agi | sta | pre | foc]+",
+		"Update actor stat",
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"actor-name",
+				"Actor name",
+				&ActorCompleter{syntax.NewCompleterArgument("actor-name"), bt},
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument("str", "Actor strength", nil, "int", 0, nil),
+			syntax.NewArgument("agi", "Actor agility", nil, "int", 0, nil),
+			syntax.NewArgument("sta", "Actor stamina", nil, "int", 0, nil),
+			syntax.NewArgument("pre", "Actor precision", nil, "int", 0, nil),
+			syntax.NewArgument("foc", "Actor focus", nil, "int", 0, nil),
+		},
+		nil)
+	updateActorCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		actorName := params["actor-name"].(string)
+		if actor := bt.GetActorByName(actorName); actor != nil {
+			if params["-str"] != nil {
+				tools.ToDisplay("update actor:%s strength to %d\n", actorName, params["str"].(int))
+				actor.GetStats().Str = battle.InterfaceToTStat(params["str"])
+			}
+			if params["-agi"] != nil {
+				tools.ToDisplay("update actor:%s agility to %d\n", actorName, params["agi"].(int))
+				actor.GetStats().Agi = battle.InterfaceToTStat(params["agi"])
+			}
+			if params["-sta"] != nil {
+				tools.ToDisplay("update actor:%s stamina to %d\n", actorName, params["sta"].(int))
+				actor.GetStats().Sta = battle.InterfaceToTStat(params["sta"])
+			}
+			if params["-pre"] != nil {
+				tools.ToDisplay("update actor:%s precission to %d\n", actorName, params["pre"].(int))
+				actor.GetStats().Pre = battle.InterfaceToTStat(params["pre"])
+			}
+			if params["-foc"] != nil {
+				tools.ToDisplay("update actor:%s focus to %d\n", actorName, params["foc"].(int))
+				actor.GetStats().Foc = battle.InterfaceToTStat(params["foc"])
+			}
+			tools.ToDisplay("actor stats: %#v\n", actor.GetStats())
+		}
+		return nil
+	}
+
 	addTechToActorCommand := syntax.NewCommand(
 		nil,
 		"add-tech-to-actor actor-name tech-name",
@@ -152,7 +220,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 			syntax.NewArgument(
 				"tech-name",
 				"Technique name",
-				nil,
+				&TechniqueCompleter{syntax.NewCompleterArgument("tech-name"), bt},
 				"string",
 				"none",
 				nil),
@@ -177,14 +245,14 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 			syntax.NewArgument(
 				"orig-name",
 				"Actor originator name",
-				nil,
+				&ActorCompleter{syntax.NewCompleterArgument("orig-name"), bt},
 				"string",
 				"none",
 				nil),
 			syntax.NewArgument(
 				"target-name",
 				"Actor target name",
-				nil,
+				&ActorCompleter{syntax.NewCompleterArgument("target-name"), bt},
 				"string",
 				"none",
 				nil),
@@ -211,6 +279,8 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		displayActorCommand,
 		createCommand,
 		createActorCommand,
+		updateCommand,
+		updateActorCommand,
 		addTechToActorCommand,
 		engageCommand,
 	}

@@ -3,6 +3,16 @@ package battle
 // TStat represents ...
 type TStat int
 
+// IntToTStat is ...
+func IntToTStat(val int) TStat {
+	return TStat(val)
+}
+
+// InterfaceToTStat is ...
+func InterfaceToTStat(val interface{}) TStat {
+	return TStat(val.(int))
+}
+
 // Stats represents ...
 type Stats struct {
 	Str TStat

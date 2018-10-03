@@ -27,13 +27,15 @@ type TechniqueBuilderCb func(...interface{}) ITechnique
 // TechniqueBuilder represents ...
 type TechniqueBuilder struct {
 	Name          string
+	Desc          string
 	TechBuilderCb TechniqueBuilderCb
 }
 
 // NewTechniqueBuilder is ...
-func NewTechniqueBuilder(name string, cb TechniqueBuilderCb) *TechniqueBuilder {
+func NewTechniqueBuilder(name string, desc string, cb TechniqueBuilderCb) *TechniqueBuilder {
 	return &TechniqueBuilder{
 		Name:          name,
+		Desc:          desc,
 		TechBuilderCb: cb,
 	}
 }
@@ -107,10 +109,22 @@ func (b *Battle) SelectAmove(orig IActor, mode Amode) IAmove {
 	return nil
 }
 
+// getEngageActorStr is ...
+func (b *Battle) getEngageActorStr(actor IActor, amove IAmove) int {
+	str := actor.GetStats().Str
+	str = amove.GetTechnique().GetUpdateStats().UStr(str)
+	str = amove.GetStyle().GetUpdateStats().UStr(str)
+	str = amove.GetStance().GetUpdateStats().UStr(str)
+	str = amove.GetUpdateStats().UStr(str)
+	return int(str)
+}
+
 // ExecuteEngage is ...
 func (b *Battle) ExecuteEngage(orig IActor, origAmove IAmove, target IActor, targetAmove IAmove) {
-	tools.ToDisplay("Engage %s:%s vs %s:%s\n", orig.GetName(),
+	str := b.getEngageActorStr(orig, origAmove)
+	tools.ToDisplay("Engage %s:%s:%d vs %s:%s\n", orig.GetName(),
 		origAmove.GetName(),
+		str,
 		target.GetName(),
 		targetAmove.GetName())
 }

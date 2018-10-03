@@ -42,7 +42,7 @@ func (pr *Prompter) executor(in string) {
 			prompt.OptionInputTextColor(prompt.DefaultColor)(pr._prompt)
 		}
 	} else {
-		tools.ERROR(nil, true, "execute return %#v for line: %s", err, in)
+		tools.ERROR(nil, true, "execute return %#v for line: %s\n", err, in)
 		return
 	}
 	//tools.ToDisplay(pr.NSM.GetCommandTree().ToMermaid())

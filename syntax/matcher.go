@@ -24,7 +24,7 @@ func (m *Matcher) matchCommandLine(line interface{}) error {
 	tokens = append(tokens, GetCR().GetLabel())
 	index, ok := m.matchWithGraph(tokens)
 	if !ok || index != len(tokens) {
-		return tools.ERROR(nil, true, "Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
+		return tools.ERROR(nil, false, "Command line %s failed at index %d => %s\n", line, index, tokens[index:index+1])
 	}
 	//for _, mt := range m.Ctx.Matched {
 	//    tools.Tracer("Context matched: %s %s %v\n", mt.Node.GetContent().GetLabel(), mt.Value, mt)
