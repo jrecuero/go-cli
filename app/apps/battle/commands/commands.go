@@ -96,16 +96,34 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 
 	displayActorCommand := syntax.NewCommand(
 		displayCommand,
-		"actor",
+		"actor [actor-name]?",
 		"Display all available actors",
-		nil,
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"actor-name",
+				"Actor name",
+				&ActorCompleter{syntax.NewCompleterArgument("actor-name"), bt},
+				"string",
+				"",
+				nil),
+		},
 		nil)
 	displayActorCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-		tools.ToDisplay("Display all actors...\n")
-		for _, actor := range bt.Actors {
-			tools.ToDisplay("-> %s\n", actor.GetName())
-			for _, tech := range actor.GetTechniques() {
-				tools.ToDisplay("-->%s\n", tech.GetName())
+		params := arguments.(map[string]interface{})
+		actorName := params["actor-name"].(string)
+		if actorName == "" {
+			tools.ToDisplay("Display all actors...\n")
+			for _, actor := range bt.Actors {
+				tools.ToDisplay("-> %s\n", actor.GetName())
+				for _, tech := range actor.GetTechniques() {
+					tools.ToDisplay("-->%s\n", tech.GetName())
+				}
+			}
+		} else {
+			if actor := bt.GetActorByName(actorName); actor != nil {
+				tools.ToDisplay("Display actor: %s\n", actor.GetName())
+				tools.ToDisplay("-->%s\n", actor.GetDescription())
+				tools.ToDisplay("-->%#v\n", actor.GetStats())
 			}
 		}
 		return nil
