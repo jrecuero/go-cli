@@ -27,18 +27,129 @@ func (nc *ActorCompleter) Query(ctx *syntax.Context, content syntax.IContent, li
 // TechniqueCompleter represents the technique completer.
 type TechniqueCompleter struct {
 	*syntax.CompleterArgument
-	bt *battle.Battle
+	bt         *battle.Battle
+	actorLabel string
 }
 
 // Query returns the query for any node completer.
 func (nc *TechniqueCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
-	//defaultComplete, _ := nc.Complete(ctx, content, line, index)
-	//defaultHelp, _ := nc.Help(ctx, content, line, index)
 	var data []*syntax.CompleteHelp
-	for _, tb := range nc.bt.TechBuilders {
-		data = append(data, syntax.NewCompleteHelp(tb.Name, tb.Desc))
+	if nc.actorLabel == "" {
+		for _, tb := range nc.bt.TechBuilders {
+			data = append(data, syntax.NewCompleteHelp(tb.Name, tb.Desc))
+		}
+	} else {
+		if actorName, err := ctx.GetArgValueForArgLabelInMatched(nc.actorLabel); err == nil {
+			if actor := nc.bt.GetActorByName(actorName.(string)); actor != nil {
+				for _, tech := range actor.GetTechniques() {
+					data = append(data, syntax.NewCompleteHelp(tech.GetName(), tech.GetDescription()))
+				}
+
+			}
+		}
 	}
-	//data = append(data, syntax.NewCompleteHelp(defaultComplete, defaultHelp))
+	return data, true
+}
+
+// StyleCompleter represents the technique completer.
+type StyleCompleter struct {
+	*syntax.CompleterArgument
+	bt         *battle.Battle
+	actorLabel string
+	techLabel  string
+}
+
+// Query returns the query for any node completer.
+func (nc *StyleCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	var data []*syntax.CompleteHelp
+	if actorName, err := ctx.GetArgValueForArgLabelInMatched(nc.actorLabel); err == nil {
+		if actor := nc.bt.GetActorByName(actorName.(string)); actor != nil {
+			for _, tech := range actor.GetTechniques() {
+				if techName, err := ctx.GetArgValueForArgLabelInMatched(nc.techLabel); err == nil {
+					if tech.GetName() == techName {
+						for _, style := range tech.GetStyles() {
+							data = append(data, syntax.NewCompleteHelp(style.GetName(), style.GetDescription()))
+						}
+					}
+				}
+			}
+		}
+	}
+	return data, true
+}
+
+// StanceCompleter represents the technique completer.
+type StanceCompleter struct {
+	*syntax.CompleterArgument
+	bt         *battle.Battle
+	actorLabel string
+	techLabel  string
+	styleLabel string
+}
+
+// Query returns the query for any node completer.
+func (nc *StanceCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	var data []*syntax.CompleteHelp
+	if actorName, err := ctx.GetArgValueForArgLabelInMatched(nc.actorLabel); err == nil {
+		if actor := nc.bt.GetActorByName(actorName.(string)); actor != nil {
+			for _, tech := range actor.GetTechniques() {
+				if techName, err := ctx.GetArgValueForArgLabelInMatched(nc.techLabel); err == nil {
+					if tech.GetName() == techName {
+						for _, style := range tech.GetStyles() {
+							if styleName, err := ctx.GetArgValueForArgLabelInMatched(nc.styleLabel); err == nil {
+								if style.GetName() == styleName {
+									for _, stance := range style.GetStances() {
+										data = append(data, syntax.NewCompleteHelp(stance.GetName(), stance.GetDescription()))
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return data, true
+}
+
+// AmoveCompleter represents the technique completer.
+type AmoveCompleter struct {
+	*syntax.CompleterArgument
+	bt          *battle.Battle
+	actorLabel  string
+	techLabel   string
+	styleLabel  string
+	stanceLabel string
+}
+
+// Query returns the query for any node completer.
+func (nc *AmoveCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	var data []*syntax.CompleteHelp
+	if actorName, err := ctx.GetArgValueForArgLabelInMatched(nc.actorLabel); err == nil {
+		if actor := nc.bt.GetActorByName(actorName.(string)); actor != nil {
+			for _, tech := range actor.GetTechniques() {
+				if techName, err := ctx.GetArgValueForArgLabelInMatched(nc.techLabel); err == nil {
+					if tech.GetName() == techName {
+						for _, style := range tech.GetStyles() {
+							if styleName, err := ctx.GetArgValueForArgLabelInMatched(nc.styleLabel); err == nil {
+								if style.GetName() == styleName {
+									for _, stance := range style.GetStances() {
+										if stanceName, err := ctx.GetArgValueForArgLabelInMatched(nc.stanceLabel); err == nil {
+											if stance.GetName() == stanceName {
+												for _, amove := range stance.GetAmoves() {
+													data = append(data, syntax.NewCompleteHelp(amove.GetName(), amove.GetDescription()))
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	return data, true
 }
 
@@ -223,6 +334,67 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		return nil
 	}
 
+	selectCommand := syntax.NewCommand(
+		nil,
+		"select",
+		"Select ...",
+		nil,
+		nil)
+	selectCommand.JustPrefix = true
+
+	selectAmoveCommand := syntax.NewCommand(
+		selectCommand,
+		"amove actor-name tech-name style-name stance-name amove-name",
+		"Select amove from an actor",
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"actor-name",
+				"Actor name",
+				&ActorCompleter{syntax.NewCompleterArgument("actor-name"), bt},
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"tech-name",
+				"Technique name",
+				&TechniqueCompleter{syntax.NewCompleterArgument("tech-name"), bt, "actor-name"},
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"style-name",
+				"Style name",
+				&StyleCompleter{syntax.NewCompleterArgument("tech-name"), bt, "actor-name", "tech-name"},
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"stance-name",
+				"stance name",
+				&StanceCompleter{syntax.NewCompleterArgument("tech-name"), bt, "actor-name", "tech-name", "style-name"},
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"amove-name",
+				"amove name",
+				&AmoveCompleter{syntax.NewCompleterArgument("tech-name"), bt, "actor-name", "tech-name", "style-name", "stance-name"},
+				"string",
+				"none",
+				nil),
+		},
+		nil)
+	selectAmoveCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		params := arguments.(map[string]interface{})
+		actorName := params["actor-name"].(string)
+		techName := params["tech-name"].(string)
+		styleName := params["style-name"].(string)
+		stanceName := params["stance-name"].(string)
+		amoveName := params["amove-name"].(string)
+		tools.ToDisplay("actor:%s select %s:%s:%s:%s\n", actorName, techName, styleName, stanceName, amoveName)
+		return nil
+	}
+
 	addTechToActorCommand := syntax.NewCommand(
 		nil,
 		"add-tech-to-actor actor-name tech-name",
@@ -238,7 +410,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 			syntax.NewArgument(
 				"tech-name",
 				"Technique name",
-				&TechniqueCompleter{syntax.NewCompleterArgument("tech-name"), bt},
+				&TechniqueCompleter{syntax.NewCompleterArgument("tech-name"), bt, ""},
 				"string",
 				"none",
 				nil),
@@ -297,6 +469,8 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		displayActorCommand,
 		createCommand,
 		createActorCommand,
+		selectCommand,
+		selectAmoveCommand,
 		updateCommand,
 		updateActorCommand,
 		addTechToActorCommand,

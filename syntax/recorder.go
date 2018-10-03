@@ -86,10 +86,15 @@ func (rec *Recorder) Play(m *Matcher) error {
 	var retcode error
 	savedContext := *m.Ctx
 	for _, line := range rec.commands {
-		tools.ToDisplay("Playing %#v\n", line)
-		if _, err := m.Execute(line); err != nil {
-			retcode = tools.ERROR(err, false, "Playing recorder error: %#v\n", err)
-			break
+		// Any line starting with // is a comment and it has to be skipped.
+		if strings.HasPrefix(line.(string), "//") {
+			tools.ToDisplay("Skipping %#v\n", line)
+		} else {
+			tools.ToDisplay("Playing %#v\n", line)
+			if _, err := m.Execute(line); err != nil {
+				retcode = tools.ERROR(err, false, "Playing recorder error: %#v\n", err)
+				break
+			}
 		}
 	}
 	m.Ctx = &savedContext

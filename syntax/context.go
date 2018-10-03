@@ -275,6 +275,17 @@ func (ctx *Context) GetArgValueForArgLabel(cmdlabel *string, arglabel string) (i
 	return nil, fmt.Errorf("Argument %s not found for Command %s", arglabel, tools.String(cmdlabel))
 }
 
+// GetArgValueForArgLabelInMatched retrieves the argument value for the given
+// argument label in the Matched field.
+func (ctx *Context) GetArgValueForArgLabelInMatched(argLabel string) (interface{}, error) {
+	for _, token := range ctx.Matched {
+		if token.Node.GetContent().GetLabel() == argLabel {
+			return token.Value, nil
+		}
+	}
+	return nil, fmt.Errorf("Argument %s not found in context matched", argLabel)
+}
+
 // GetArgValuesForCommandLabel retrieves all arguments for the given command
 // label.
 func (ctx *Context) GetArgValuesForCommandLabel(cmdlabel *string) (interface{}, error) {

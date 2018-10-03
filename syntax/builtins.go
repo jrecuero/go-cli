@@ -208,9 +208,18 @@ func newRecorderCleanCmd(parent *Command) *Command {
 }
 
 func newRecorderPlayCmd(parent *Command) *Command {
-	recorderPlayCmd := NewCommand(parent, "play", "Play recorder", nil, nil)
+	recorderPlayCmd := NewCommand(parent, "play [filename]?", "Play recorder",
+		[]*Argument{
+			NewArgument("filename", "Filename to load and play", nil, "string", "recorder.log", nil),
+		}, nil)
 	recorderPlayCmd.Callback.Enter = func(ctx *Context, arguments interface{}) error {
-		//params := arguments.(map[string]interface{})
+		if filename := arguments.(map[string]interface{})["filename"]; filename != nil {
+			if nsm, err := ctx.Cache.Get("nsm"); err == nil {
+				if nsm.(*NSManager).Record.Load(filename.(string), false) == nil {
+					tools.ToDisplay("Load recorder\n")
+				}
+			}
+		}
 		if nsm, err := ctx.Cache.Get("nsm"); err == nil {
 			if nsm.(*NSManager).Record.Play(nsm.(*NSManager).GetMatcher()) == nil {
 				tools.ToDisplay("Play recorder\n")
