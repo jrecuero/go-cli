@@ -90,6 +90,13 @@ func NewStyle(name string, parent ITechnique) *Style {
 	return style
 }
 
+// NewFullStyle is  ...
+func NewFullStyle(name string, desc string, ustats *UStats, parent ITechnique) *Style {
+	style := NewStyle(name, parent)
+	style.Base = NewFullBase(name, desc, ustats)
+	return style
+}
+
 // IStyleHandler represents ...
 type IStyleHandler interface {
 	GetStyle() IStyle

@@ -70,6 +70,13 @@ func NewAmove(name string, parent IStance) *Amove {
 	return amove
 }
 
+// NewFullAmove is  ...
+func NewFullAmove(name string, desc string, ustats *UStats, parent IStance) *Amove {
+	amove := NewAmove(name, parent)
+	amove.Base = NewFullBase(name, desc, ustats)
+	return amove
+}
+
 // IAmoveHandler represents ...
 type IAmoveHandler interface {
 	GetAmove() IAmove

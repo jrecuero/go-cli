@@ -96,6 +96,13 @@ func NewStance(name string, parent IStyle) *Stance {
 	return stance
 }
 
+// NewFullStance is  ...
+func NewFullStance(name string, desc string, ustats *UStats, parent IStyle) *Stance {
+	stance := NewStance(name, parent)
+	stance.Base = NewFullBase(name, desc, ustats)
+	return stance
+}
+
 // IStanceHandler represents ...
 type IStanceHandler interface {
 	GetStance() IStance

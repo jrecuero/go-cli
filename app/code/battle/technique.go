@@ -81,6 +81,13 @@ func NewTechnique(name string) *Technique {
 	}
 }
 
+// NewFullTechnique is  ...
+func NewFullTechnique(name string, desc string, ustats *UStats) *Technique {
+	return &Technique{
+		Base: NewFullBase(name, desc, ustats),
+	}
+}
+
 // ITechniqueHandler represents ...
 type ITechniqueHandler interface {
 	GetTechnique() ITechnique

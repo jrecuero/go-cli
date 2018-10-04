@@ -40,6 +40,22 @@ func NewTechniqueBuilder(name string, desc string, cb TechniqueBuilderCb) *Techn
 	}
 }
 
+// Engagement represents ...
+type Engagement struct {
+	Origin      IActor
+	Target      IActor
+	OriginAmove IAmove
+	TargetAmove IAmove
+	Active      bool
+}
+
+// NewEngagement is ...
+func NewEngagement() *Engagement {
+	return &Engagement{
+		Active: true,
+	}
+}
+
 // Battle represents ...
 type Battle struct {
 	TechBuilders []*TechniqueBuilder
@@ -96,8 +112,14 @@ func (b *Battle) AddActor(actor IActor) *Battle {
 
 // Engage is ...
 func (b *Battle) Engage(orig IActor, target IActor) {
-	origAmove := b.SelectAmove(orig, AmodeAttack)
-	targetAmove := b.SelectAmove(target, AmodeDefence)
+	origAmove := orig.GetAmove()
+	if origAmove == nil {
+		origAmove = b.SelectAmove(orig, AmodeAttack)
+	}
+	targetAmove := target.GetAmove()
+	if targetAmove == nil {
+		targetAmove = b.SelectAmove(target, AmodeDefence)
+	}
 	b.ExecuteEngage(orig, origAmove, target, targetAmove)
 }
 

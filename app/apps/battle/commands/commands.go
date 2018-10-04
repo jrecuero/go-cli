@@ -220,8 +220,9 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		},
 		nil)
 	displayActorCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-		params := arguments.(map[string]interface{})
-		actorName := params["actor-name"].(string)
+		//params := arguments.(map[string]interface{})
+		//actorName := params["actor-name"].(string)
+		actorName := tools.GetStringFromArgs(arguments, "actor-name")
 		if actorName == "" {
 			tools.ToDisplay("Display all actors...\n")
 			for _, actor := range bt.Actors {
@@ -235,6 +236,14 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 				tools.ToDisplay("Display actor: %s\n", actor.GetName())
 				tools.ToDisplay("-->%s\n", actor.GetDescription())
 				tools.ToDisplay("-->%#v\n", actor.GetStats())
+				//tools.ToDisplay("-->%#v\n", actor.GetTechniques())
+				//tools.ToDisplay("-->%#v\n", actor.GetStyles())
+				//tools.ToDisplay("-->%#v\n", actor.GetStances())
+				//tools.ToDisplay("-->%#v\n", actor.GetAmoves())
+				tools.ToDisplay("-->%#v\n", actor.GetTechnique())
+				tools.ToDisplay("-->%#v\n", actor.GetStyle())
+				tools.ToDisplay("-->%#v\n", actor.GetStance())
+				tools.ToDisplay("-->%#s\n", actor.GetAmove())
 			}
 		}
 		return nil
@@ -385,13 +394,26 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		},
 		nil)
 	selectAmoveCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
-		params := arguments.(map[string]interface{})
-		actorName := params["actor-name"].(string)
-		techName := params["tech-name"].(string)
-		styleName := params["style-name"].(string)
-		stanceName := params["stance-name"].(string)
-		amoveName := params["amove-name"].(string)
+		actorName := tools.GetStringFromArgs(arguments, "actor-name")
+		techName := tools.GetStringFromArgs(arguments, "tech-name")
+		styleName := tools.GetStringFromArgs(arguments, "style-name")
+		stanceName := tools.GetStringFromArgs(arguments, "stance-name")
+		amoveName := tools.GetStringFromArgs(arguments, "amove-name")
 		tools.ToDisplay("actor:%s select %s:%s:%s:%s\n", actorName, techName, styleName, stanceName, amoveName)
+		if actor := bt.GetActorByName(actorName); actor != nil {
+			if ok := actor.SetTechniqueByName(techName); !ok {
+				return nil
+			}
+			if ok := actor.SetStyleByName(styleName); !ok {
+				return nil
+			}
+			if ok := actor.SetStanceByName(stanceName); !ok {
+				return nil
+			}
+			if ok := actor.SetAmoveByName(amoveName); !ok {
+				return nil
+			}
+		}
 		return nil
 	}
 

@@ -102,3 +102,12 @@ func NewBase(name string) *Base {
 		updatestats: NewPlainUStats(),
 	}
 }
+
+// NewFullBase is ...
+func NewFullBase(name string, desc string, ustats *UStats) *Base {
+	return &Base{
+		name:        name,
+		desc:        desc,
+		updatestats: ustats,
+	}
+}
