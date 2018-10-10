@@ -182,7 +182,7 @@ func (novel *Novel) RunAction(line string) error {
 
 // Execute is ...
 func (novel *Novel) Execute(line string) error {
-	if err := novel.Execute(line); err != nil {
+	if err := novel.RunAction(line); err != nil {
 		return err
 	}
 	novel.Update()

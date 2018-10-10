@@ -2,57 +2,57 @@ package techs
 
 import "github.com/jrecuero/go-cli/app/code/battle"
 
-func createHighPunch(stance battle.IStance, args ...interface{}) battle.IAmove {
+func createAmoveKarateOneAggressivePunch(stance battle.IStance, args ...interface{}) battle.IAmove {
 	amoveName := "Punch"
 	amovePunch := battle.NewAmove(amoveName, stance)
 	return amovePunch
 }
 
-func createStanceKarateEastHigh(style battle.IStyle, args ...interface{}) battle.IStance {
-	stanceName := "High"
+func createStanceKarateOneAggressive(style battle.IStyle, args ...interface{}) battle.IStance {
+	stanceName := "Aggressive"
 	stanceHigh := battle.NewStance(stanceName, style)
-	createHighPunch(stanceHigh, args...)
+	createAmoveKarateOneAggressivePunch(stanceHigh, args...)
 	return stanceHigh
 }
 
-func createLowKick(stance battle.IStance, args ...interface{}) battle.IAmove {
-	amoveName := "Kick"
+func createAmoveKarateOneProtectiveBlock(stance battle.IStance, args ...interface{}) battle.IAmove {
+	amoveName := "Block"
 	amoveKick := battle.NewAmove(amoveName, stance)
 	return amoveKick
 }
 
-func createStanceKarateEastLow(style battle.IStyle, args ...interface{}) battle.IStance {
-	stanceName := "Low"
+func createStanceKarateOneProtective(style battle.IStyle, args ...interface{}) battle.IStance {
+	stanceName := "Protective"
 	stanceLow := battle.NewStance(stanceName, style)
-	createLowKick(stanceLow, args...)
+	createAmoveKarateOneProtectiveBlock(stanceLow, args...)
 	return stanceLow
 }
 
-func createStyleKarateEast(tech battle.ITechnique, args ...interface{}) battle.IStyle {
-	styleName := "East"
+func createStyleKarateOne(tech battle.ITechnique, args ...interface{}) battle.IStyle {
+	styleName := "One"
 	styleEast := battle.NewStyle(styleName, tech)
-	createStanceKarateEastHigh(styleEast, args...)
-	createStanceKarateEastLow(styleEast, args...)
+	createStanceKarateOneAggressive(styleEast, args...)
+	createStanceKarateOneProtective(styleEast, args...)
 	return styleEast
 }
 
-func createSoft(stance battle.IStance, args ...interface{}) battle.IAmove {
-	amoveName := "Soft"
+func createAmoveKarateTwoRelaxTaunt(stance battle.IStance, args ...interface{}) battle.IAmove {
+	amoveName := "Taunt"
 	amoveSoft := battle.NewAmove(amoveName, stance)
 	return amoveSoft
 }
 
-func createStanceRelax(style battle.IStyle, args ...interface{}) battle.IStance {
+func createStanceKarateTwoRelax(style battle.IStyle, args ...interface{}) battle.IStance {
 	stanceName := "Relax"
 	stanceRelax := battle.NewStance(stanceName, style)
-	createSoft(stanceRelax, args...)
+	createAmoveKarateTwoRelaxTaunt(stanceRelax, args...)
 	return stanceRelax
 }
 
-func createStyleKarateWest(tech battle.ITechnique, args ...interface{}) battle.IStyle {
-	styleName := "West"
+func createStyleKarateTwo(tech battle.ITechnique, args ...interface{}) battle.IStyle {
+	styleName := "Two"
 	styleWest := battle.NewStyle(styleName, tech)
-	createStanceRelax(styleWest, args...)
+	createStanceKarateTwoRelax(styleWest, args...)
 	return styleWest
 }
 
@@ -63,29 +63,29 @@ func CreateTechKarate(args ...interface{}) (string, string, battle.TechniqueBuil
 	return techName, techDesc, func(...interface{}) battle.ITechnique {
 		karate := battle.NewTechnique(techName)
 		karate.SetDescription(techDesc)
-		createStyleKarateEast(karate, args...)
-		createStyleKarateWest(karate, args...)
+		createStyleKarateOne(karate, args...)
+		createStyleKarateTwo(karate, args...)
 		return karate
 	}
 }
 
-func createHammer(stance battle.IStance, args ...interface{}) battle.IAmove {
-	amoveName := "Hammer"
+func createAmoveBoxeoClassicBasicUpperCut(stance battle.IStance, args ...interface{}) battle.IAmove {
+	amoveName := "UpperCut"
 	amoveHammer := battle.NewAmove(amoveName, stance)
 	return amoveHammer
 }
 
-func createStanceBoxeoWestTense(style battle.IStyle, args ...interface{}) battle.IStance {
-	stanceName := "Tense"
+func createStanceBoxeoClassicBasic(style battle.IStyle, args ...interface{}) battle.IStance {
+	stanceName := "Basic"
 	stanceTense := battle.NewStance(stanceName, style)
-	createHammer(stanceTense, args...)
+	createAmoveBoxeoClassicBasicUpperCut(stanceTense, args...)
 	return stanceTense
 }
 
-func createStyleBoxeoWest(tech battle.ITechnique, args ...interface{}) battle.IStyle {
-	styleName := "West"
+func createStyleBoxeoClassic(tech battle.ITechnique, args ...interface{}) battle.IStyle {
+	styleName := "Classic"
 	styleWest := battle.NewStyle(styleName, tech)
-	createStanceBoxeoWestTense(styleWest, args...)
+	createStanceBoxeoClassicBasic(styleWest, args...)
 	return styleWest
 }
 
@@ -96,7 +96,10 @@ func CreateTechBoxeo(args ...interface{}) (string, string, battle.TechniqueBuild
 	return techName, techDesc, func(...interface{}) battle.ITechnique {
 		boxeo := battle.NewTechnique(techName)
 		boxeo.SetDescription(techDesc)
-		createStyleBoxeoWest(boxeo, args...)
+		createStyleBoxeoClassic(boxeo, args...)
 		return boxeo
 	}
 }
+
+// CreateTechKickboxing is ...
+//func CreateTechKickboxking(args ...interface{})

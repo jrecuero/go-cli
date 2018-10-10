@@ -22,8 +22,26 @@ type Stats struct {
 	Foc TStat
 }
 
+// NewStats is ...
+func NewStats() *Stats {
+	return &Stats{}
+}
+
 // UStatCb represents ...
-type UStatCb func(TStat) TStat
+type UStatCb func(TStat, IActor, ...interface{}) TStat
+
+const (
+	// StatStr is the Strength stat string representation.
+	StatStr = "str"
+	// StatAgi is the Agiity stat string representation.
+	StatAgi = "agi"
+	// StatSta is the Stamina stat string representation.
+	StatSta = "sta"
+	// StatPre is the Precision stat string representation.
+	StatPre = "pre"
+	// StatFoc is the Focus stat string representation.
+	StatFoc = "foc"
+)
 
 // UStats represents ...
 type UStats struct {
@@ -34,13 +52,46 @@ type UStats struct {
 	UFoc UStatCb
 }
 
-// NewStats is ...
-func NewStats() *Stats {
-	return &Stats{}
+// Set is ...
+func (ustats *UStats) Set(name string, ustatCb UStatCb) *UStats {
+	switch name {
+	case StatStr:
+		ustats.UStr = ustatCb
+	case StatAgi:
+		ustats.UAgi = ustatCb
+	case StatSta:
+		ustats.USta = ustatCb
+	case StatPre:
+		ustats.UPre = ustatCb
+	case StatFoc:
+		ustats.UFoc = ustatCb
+	default:
+		return nil
+	}
+	return ustats
+}
+
+// Update is ...
+func (ustats *UStats) Update(name string, stat TStat, actor IActor, args ...interface{}) TStat {
+	switch name {
+	case StatStr:
+		return ustats.UStr(stat, actor, args...)
+	case StatAgi:
+		return ustats.UAgi(stat, actor, args...)
+	case StatSta:
+		return ustats.USta(stat, actor, args...)
+	case StatPre:
+		return ustats.UPre(stat, actor, args...)
+	case StatFoc:
+		return ustats.UFoc(stat, actor, args...)
+	default:
+		panic("Unknown stat")
+	}
+	return 0
 }
 
 // plainStat is ...
-func plainStat(stat TStat) TStat {
+func plainStat(stat TStat, actor IActor, args ...interface{}) TStat {
 	return stat
 }
 
@@ -53,4 +104,13 @@ func NewPlainUStats() *UStats {
 		UPre: plainStat,
 		UFoc: plainStat,
 	}
+}
+
+// NewUStats is ...
+func NewUStats(updates map[string]UStatCb) *UStats {
+	ustats := NewPlainUStats()
+	for k, ustatCb := range updates {
+		ustats.Set(k, ustatCb)
+	}
+	return ustats
 }

@@ -174,7 +174,7 @@ func (s *selector) SelectAmove(args ...interface{}) battle.IAmove {
 	if mode == battle.AmodeAttack {
 		amove = actor.GetAmoveByName("Punch")
 	} else if mode == battle.AmodeDefence {
-		amove = actor.GetAmoveByName("Hammer")
+		amove = actor.GetAmoveByName("UpperCut")
 	}
 	//tools.ToDisplay("select-amove %s:%#v %#v\n", actor.GetName(), mode, amove)
 	return amove

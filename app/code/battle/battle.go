@@ -134,10 +134,10 @@ func (b *Battle) SelectAmove(orig IActor, mode Amode) IAmove {
 // getEngageActorStr is ...
 func (b *Battle) getEngageActorStr(actor IActor, amove IAmove) int {
 	str := actor.GetStats().Str
-	str = amove.GetTechnique().GetUpdateStats().UStr(str)
-	str = amove.GetStyle().GetUpdateStats().UStr(str)
-	str = amove.GetStance().GetUpdateStats().UStr(str)
-	str = amove.GetUpdateStats().UStr(str)
+	str = amove.GetTechnique().GetUpdateStats().UStr(str, actor)
+	str = amove.GetStyle().GetUpdateStats().UStr(str, actor)
+	str = amove.GetStance().GetUpdateStats().UStr(str, actor)
+	str = amove.GetUpdateStats().UStr(str, actor)
 	return int(str)
 }
 
