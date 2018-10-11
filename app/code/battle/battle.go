@@ -141,14 +141,22 @@ func (b *Battle) getEngageActorStr(actor IActor, amove IAmove) int {
 	return int(str)
 }
 
+// getEngageActorSta is ...
+func (b *Battle) getEngageActorSta(actor IActor, amove IAmove) int {
+	sta := actor.GetStats().Sta
+	sta = amove.GetTechnique().GetUpdateStats().USta(sta, actor)
+	sta = amove.GetStyle().GetUpdateStats().USta(sta, actor)
+	sta = amove.GetStance().GetUpdateStats().USta(sta, actor)
+	sta = amove.GetUpdateStats().USta(sta, actor)
+	return int(sta)
+}
+
 // ExecuteEngage is ...
 func (b *Battle) ExecuteEngage(orig IActor, origAmove IAmove, target IActor, targetAmove IAmove) {
 	str := b.getEngageActorStr(orig, origAmove)
-	tools.ToDisplay("Engage %s:%s:%d vs %s:%s\n", orig.GetName(),
-		origAmove.GetName(),
-		str,
-		target.GetName(),
-		targetAmove.GetName())
+	sta := b.getEngageActorSta(target, targetAmove)
+	tools.ToDisplay("Engage ATK: %s:%s:%d\n", orig.GetName(), origAmove.GetName(), str)
+	tools.ToDisplay("Engage DEF: %s:%s:%d\n", target.GetName(), targetAmove.GetName(), sta)
 }
 
 // NewBattle is ...
