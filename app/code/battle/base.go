@@ -8,7 +8,10 @@ import (
 
 // toShortName converts a string to a valid short name.
 func toShortName(name string) string {
-	return strings.ToUpper(name)[0:6]
+	if len(name) > 6 {
+		return strings.ToUpper(name)[0:6]
+	}
+	return strings.ToUpper(name)
 }
 
 // IBase represents all basic and common interface methods to be used for
@@ -16,6 +19,7 @@ func toShortName(name string) string {
 type IBase interface {
 	GetName() string
 	GetShortName() string
+	GetDN() string
 	GetDescription() string
 	Enabled() bool
 	Learned() bool
@@ -52,6 +56,11 @@ func (base *Base) GetName() string {
 // GetShortName is ...
 func (base *Base) GetShortName() string {
 	return base.shortn
+}
+
+// GetDN is ...
+func (base *Base) GetDN() string {
+	return base.GetShortName()
 }
 
 // SetShortName is ...

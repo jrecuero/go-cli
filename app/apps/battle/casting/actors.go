@@ -19,10 +19,11 @@ func newHero(name string, desc string) battle.IActor {
 	actor := battle.NewActor(name, desc, stats)
 	_, _, techBuilder := techs.CreateTechKickboxing()
 	actor.AddTechnique(techBuilder())
-	actor.SetTechnique(actor.GetTechniqueByName("Kickboxing"))
+	//actor.SetTechnique(actor.GetTechniqueByName("Kickboxing"))
 	actor.SetStyle(actor.GetStyleByName("UFC"))
 	actor.SetStance(actor.GetStanceByName("Aggressive"))
 	actor.SetAmove(actor.GetAmoveByName("Super-Kick"))
+	actor.SetDefaultAsTechnique()
 	return actor
 }
 
@@ -37,12 +38,12 @@ func newBoss(name string) battle.IActor {
 }
 
 // GetActors is ...
-func GetActors() []battle.IActor {
-	return []battle.IActor{
-		newHero("Hero", ""),
-		newGansta("Gansta"),
-		newBoss("Boss:Joker"),
-		newBoss("Boss:Octopus"),
+func GetActors() []*battle.ActorInfo {
+	return []*battle.ActorInfo{
+		battle.NewActorInfo("Hero", "This is the hero"),
+		battle.NewActorInfo("Gansta", "This is a gansta!"),
+		battle.NewActorInfo("Boss:Joker", "This is Joker Boss"),
+		battle.NewActorInfo("Boss:Octopus", "This is Octopus Boss"),
 	}
 }
 

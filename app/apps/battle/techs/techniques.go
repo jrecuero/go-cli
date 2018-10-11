@@ -111,8 +111,8 @@ func CreateTechKickboxing(args ...interface{}) (string, string, battle.Technique
 		styleKbUFC := battle.NewStyle("UFC", kb)
 		stanceKbUFCAggressive := battle.NewStance("Aggressive", styleKbUFC)
 		stanceKbUFCPassive := battle.NewStance("Passive", styleKbUFC)
-		battle.NewAmove("Super-Kick", stanceKbUFCAggressive)
-		battle.NewAmove("Super-Punch", stanceKbUFCAggressive)
+		battle.NewAmove("Super-Kick", stanceKbUFCAggressive).SetShortName("SKICK")
+		battle.NewAmove("Super-Punch", stanceKbUFCAggressive).SetShortName("SPUNCH")
 		battle.NewAmove("Guard", stanceKbUFCPassive)
 		return kb
 	}

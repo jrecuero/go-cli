@@ -244,7 +244,16 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 			for _, actor := range bt.Actors {
 				tools.ToDisplay("-> %s\n", actor.GetName())
 				for _, tech := range actor.GetTechniques() {
-					tools.ToDisplay("-->%s\n", tech.GetName())
+					tools.ToDisplay("--> [TECH] %s\n", tech.GetDN())
+				}
+				for _, x := range actor.GetStyles() {
+					tools.ToDisplay("--> [STYL] %s\n", x.GetDN())
+				}
+				for _, x := range actor.GetStances() {
+					tools.ToDisplay("--> [STAN] %s\n", x.GetDN())
+				}
+				for _, x := range actor.GetAmoves() {
+					tools.ToDisplay("--> [MOVE] %s\n", x.GetDN())
 				}
 			}
 		} else {
@@ -252,14 +261,18 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 				tools.ToDisplay("Display actor: %s\n", actor.GetName())
 				tools.ToDisplay("-->%s\n", actor.GetDescription())
 				tools.ToDisplay("-->%#v\n", actor.GetStats())
-				//tools.ToDisplay("-->%#v\n", actor.GetTechniques())
-				//tools.ToDisplay("-->%#v\n", actor.GetStyles())
-				//tools.ToDisplay("-->%#v\n", actor.GetStances())
-				//tools.ToDisplay("-->%#v\n", actor.GetAmoves())
-				tools.ToDisplay("-->%#v\n", actor.GetTechnique())
-				tools.ToDisplay("-->%#v\n", actor.GetStyle())
-				tools.ToDisplay("-->%#v\n", actor.GetStance())
-				tools.ToDisplay("-->%#v\n", actor.GetAmove())
+				if actor.GetTechnique() != nil {
+					tools.ToDisplay("-->%#s\n", actor.GetTechnique().GetDN())
+				}
+				if actor.GetStyle() != nil {
+					tools.ToDisplay("-->%#s\n", actor.GetStyle().GetDN())
+				}
+				if actor.GetStance() != nil {
+					tools.ToDisplay("-->%#s\n", actor.GetStance().GetDN())
+				}
+				if actor.GetAmove() != nil {
+					tools.ToDisplay("-->%#s\n", actor.GetAmove().GetDN())
+				}
 			}
 		}
 		return nil

@@ -28,6 +28,11 @@ func (style *Style) GetTechnique() ITechnique {
 	return style.parent
 }
 
+// GetDN is ...
+func (style *Style) GetDN() string {
+	return fmt.Sprintf("%s:%s", style.GetTechnique().GetDN(), style.Base.GetShortName())
+}
+
 // GetStances is ...
 func (style *Style) GetStances() []IStance {
 	return style.stances

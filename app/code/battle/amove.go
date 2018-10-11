@@ -48,6 +48,13 @@ func (amove *Amove) GetTechnique() ITechnique {
 	return amove.parent.GetTechnique()
 }
 
+// GetDN is ...
+func (amove *Amove) GetDN() string {
+	return fmt.Sprintf("%s:%s",
+		amove.GetStance().GetDN(),
+		amove.Base.GetDN())
+}
+
 // GetAmode is ...
 func (amove *Amove) GetAmode() Amode {
 	return amove.amode

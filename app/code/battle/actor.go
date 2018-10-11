@@ -5,6 +5,27 @@ import (
 	"fmt"
 )
 
+// ActorInfo represents ...
+type ActorInfo struct {
+	name string
+	desc string
+}
+
+// GetName is ...
+func (info *ActorInfo) GetName() string {
+	return info.name
+}
+
+// GetDescription is ...
+func (info *ActorInfo) GetDescription() string {
+	return info.desc
+}
+
+// NewActorInfo is ...
+func NewActorInfo(name string, desc string) *ActorInfo {
+	return &ActorInfo{name, desc}
+}
+
 // IActor represents
 type IActor interface {
 	ITechniqueHandler
@@ -14,6 +35,7 @@ type IActor interface {
 	GetName() string
 	GetDescription() string
 	GetStats() *Stats
+	SetDefaultAsTechnique()
 }
 
 // Actor represents ...
@@ -42,9 +64,22 @@ func (actor *Actor) GetStats() *Stats {
 	return actor.stats
 }
 
+// SetDefaultAsTechnique is ...
+func (actor *Actor) SetDefaultAsTechnique() {
+	for _, tech := range actor.GetTechniques() {
+		if tech.IsDefault() {
+			actor.SetTechnique(tech)
+			return
+		}
+	}
+}
+
 // AddTechnique is ...
 func (actor *Actor) AddTechnique(techs ...ITechnique) bool {
 	for _, tech := range techs {
+		if len(actor.GetTechniques()) == 0 {
+			tech.SetAsDefault(true)
+		}
 		if !actor.TechniqueHandler.AddTechnique(tech) {
 			return false
 		}
@@ -109,5 +144,13 @@ func NewActor(name string, desc string, stats *Stats) *Actor {
 		name:             name,
 		desc:             desc,
 		stats:            stats,
+	}
+}
+
+// NewBasicActor is ...
+func NewBasicActor(name string, desc string) *Actor {
+	return &Actor{
+		name: name,
+		desc: desc,
 	}
 }

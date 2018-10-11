@@ -34,6 +34,13 @@ func (stance *Stance) GetTechnique() ITechnique {
 	return stance.parent.GetTechnique()
 }
 
+// GetDN is ...
+func (stance *Stance) GetDN() string {
+	return fmt.Sprintf("%s:%s",
+		stance.GetStyle().GetDN(),
+		stance.Base.GetDN())
+}
+
 // GetAmoves is ...
 func (stance *Stance) GetAmoves() []IAmove {
 	return stance.amoves
