@@ -1,5 +1,10 @@
 package battle
 
+import (
+	"bytes"
+	"fmt"
+)
+
 // IActor represents
 type IActor interface {
 	ITechniqueHandler
@@ -86,8 +91,16 @@ func (actor *Actor) AddAmove(amoves ...IAmove) bool {
 	return true
 }
 
+// String is ...
+func (actor *Actor) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("-->%s\n", actor.GetName()))
+	buf.WriteString(fmt.Sprintf("%s", actor.GetStats()))
+	return buf.String()
+}
+
 // NewActor is ...
-func NewActor(name string, desc string) *Actor {
+func NewActor(name string, desc string, stats *Stats) *Actor {
 	return &Actor{
 		TechniqueHandler: NewTechniqueHandler(),
 		StyleHandler:     NewStyleHandler(),
@@ -95,6 +108,6 @@ func NewActor(name string, desc string) *Actor {
 		AmoveHandler:     NewAmoveHandler(),
 		name:             name,
 		desc:             desc,
-		stats:            NewStats(),
+		stats:            stats,
 	}
 }

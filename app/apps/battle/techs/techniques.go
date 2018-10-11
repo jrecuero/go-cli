@@ -102,4 +102,18 @@ func CreateTechBoxeo(args ...interface{}) (string, string, battle.TechniqueBuild
 }
 
 // CreateTechKickboxing is ...
-//func CreateTechKickboxking(args ...interface{})
+func CreateTechKickboxing(args ...interface{}) (string, string, battle.TechniqueBuilderCb) {
+	techName := "Kickboxing"
+	techDesc := "Kickboxing technique"
+	return techName, techDesc, func(...interface{}) battle.ITechnique {
+		kb := battle.NewTechnique(techName)
+		kb.SetDescription(techDesc)
+		styleKbUFC := battle.NewStyle("UFC", kb)
+		stanceKbUFCAggressive := battle.NewStance("Aggressive", styleKbUFC)
+		stanceKbUFCPassive := battle.NewStance("Passive", styleKbUFC)
+		battle.NewAmove("Super-Kick", stanceKbUFCAggressive)
+		battle.NewAmove("Super-Punch", stanceKbUFCAggressive)
+		battle.NewAmove("Guard", stanceKbUFCPassive)
+		return kb
+	}
+}

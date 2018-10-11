@@ -1,5 +1,10 @@
 package battle
 
+import (
+	"bytes"
+	"fmt"
+)
+
 // TStat represents ...
 type TStat int
 
@@ -13,6 +18,12 @@ func InterfaceToTStat(val interface{}) TStat {
 	return TStat(val.(int))
 }
 
+// statPair represents ...
+type statPair struct {
+	name string
+	stat TStat
+}
+
 // Stats represents ...
 type Stats struct {
 	Str TStat
@@ -20,6 +31,44 @@ type Stats struct {
 	Sta TStat
 	Pre TStat
 	Foc TStat
+}
+
+// Update is ...
+func (stats *Stats) Update(name string, stat TStat) *Stats {
+	switch name {
+	case StatStr:
+		stats.Str = stat
+	case StatAgi:
+		stats.Agi = stat
+	case StatSta:
+		stats.Sta = stat
+	case StatPre:
+		stats.Pre = stat
+	case StatFoc:
+		stats.Foc = stat
+	default:
+		panic("Unknown stat")
+	}
+	return stats
+}
+
+// Updates is ...
+func (stats *Stats) Updates(entries []*statPair) *Stats {
+	for _, statpair := range entries {
+		stats.Update(statpair.name, statpair.stat)
+	}
+	return stats
+}
+
+// String is ...
+func (stats *Stats) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("-->Str: %d\n", stats.Str))
+	buf.WriteString(fmt.Sprintf("-->Agi: %d\n", stats.Agi))
+	buf.WriteString(fmt.Sprintf("-->Sta: %d\n", stats.Sta))
+	buf.WriteString(fmt.Sprintf("-->Pre: %d\n", stats.Pre))
+	buf.WriteString(fmt.Sprintf("-->Foc: %d\n", stats.Foc))
+	return buf.String()
 }
 
 // NewStats is ...

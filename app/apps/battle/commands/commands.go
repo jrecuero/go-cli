@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/jrecuero/go-cli/app/apps/battle/casting"
 	"github.com/jrecuero/go-cli/app/code/battle"
 	"github.com/jrecuero/go-cli/syntax"
 	"github.com/jrecuero/go-cli/tools"
@@ -153,6 +154,21 @@ func (nc *AmoveCompleter) Query(ctx *syntax.Context, content syntax.IContent, li
 	return data, true
 }
 
+// CastingCompleter represents ...
+type CastingCompleter struct {
+	*syntax.CompleterArgument
+	bt *battle.Battle
+}
+
+// Query returns the query for any node completer.
+func (cc *CastingCompleter) Query(ctx *syntax.Context, content syntax.IContent, line interface{}, index int) (interface{}, bool) {
+	var data []*syntax.CompleteHelp
+	for _, actor := range casting.GetActors() {
+		data = append(data, syntax.NewCompleteHelp(actor.GetName(), actor.GetDescription()))
+	}
+	return data, true
+}
+
 type selector struct{}
 
 func (s *selector) SelectOrig(...interface{}) battle.IActor {
@@ -243,8 +259,22 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 				tools.ToDisplay("-->%#v\n", actor.GetTechnique())
 				tools.ToDisplay("-->%#v\n", actor.GetStyle())
 				tools.ToDisplay("-->%#v\n", actor.GetStance())
-				tools.ToDisplay("-->%#s\n", actor.GetAmove())
+				tools.ToDisplay("-->%#v\n", actor.GetAmove())
 			}
+		}
+		return nil
+	}
+
+	displayCastingCommand := syntax.NewCommand(
+		displayCommand,
+		"casting",
+		"Display actors in casting",
+		nil,
+		nil)
+	displayCastingCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		tools.ToDisplay("Actors Casting:\n")
+		for _, actor := range casting.GetActors() {
+			tools.ToDisplay("-->%s\n", actor.GetName())
 		}
 		return nil
 	}
@@ -282,9 +312,48 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		params := arguments.(map[string]interface{})
 		name := params["name"].(string)
 		desc := params["desc"].(string)
-		bt.AddActor(battle.NewActor(name, desc))
+		bt.AddActor(battle.NewActor(name, desc, battle.NewStats()))
 		tools.ToDisplay("Create actor: %#v\n", name)
 		return nil
+	}
+
+	createCastingActorCommand := syntax.NewCommand(
+		createCommand,
+		"casting-actor casting-name name desc",
+		"Create actor from the casting pool",
+		[]*syntax.Argument{
+			syntax.NewArgument(
+				"casting-name",
+				"Actor casting name",
+				&CastingCompleter{syntax.NewCompleterArgument("casting-name"), bt},
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"name",
+				"Actor name",
+				nil,
+				"string",
+				"none",
+				nil),
+			syntax.NewArgument(
+				"desc",
+				"Actor description",
+				nil,
+				"string",
+				"none",
+				nil),
+		},
+		nil)
+	createCastingActorCommand.Callback.Enter = func(ctx *syntax.Context, arguments interface{}) error {
+		castingName := tools.GetStringFromArgs(arguments, "casting-name")
+		actorName := tools.GetStringFromArgs(arguments, "name")
+		actorDesc := tools.GetStringFromArgs(arguments, "desc")
+		actor := casting.CreateCastingActor(castingName, actorName, actorDesc)
+		bt.AddActor(actor)
+		tools.ToDisplay("Create actor: %#v\n", actorName)
+		return nil
+
 	}
 
 	updateCommand := syntax.NewCommand(
@@ -489,8 +558,10 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		displayCommand,
 		displayTechsCommand,
 		displayActorCommand,
+		displayCastingCommand,
 		createCommand,
 		createActorCommand,
+		createCastingActorCommand,
 		selectCommand,
 		selectAmoveCommand,
 		updateCommand,

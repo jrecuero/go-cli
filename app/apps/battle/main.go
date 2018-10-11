@@ -12,6 +12,7 @@ func main() {
 	bt := battle.NewBattle()
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(techs.CreateTechKarate()))
 	bt.AddTechBuilder(battle.NewTechniqueBuilder(techs.CreateTechBoxeo()))
+	bt.AddTechBuilder(battle.NewTechniqueBuilder(techs.CreateTechKickboxing()))
 	pr := prompter.NewPrompter()
 	pr.Setup("battle", commands.SetupCommands(bt)...)
 	tools.ToDisplay("\n")
