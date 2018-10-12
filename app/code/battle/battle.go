@@ -132,29 +132,19 @@ func (b *Battle) SelectAmove(orig IActor, mode Amode) IAmove {
 }
 
 // getEngageActorStr is ...
-func (b *Battle) getEngageActorStr(actor IActor, amove IAmove) int {
-	str := actor.GetStats().Str
-	str = amove.GetTechnique().GetUpdateStats().UStr(str, actor)
-	str = amove.GetStyle().GetUpdateStats().UStr(str, actor)
-	str = amove.GetStance().GetUpdateStats().UStr(str, actor)
-	str = amove.GetUpdateStats().UStr(str, actor)
-	return int(str)
-}
-
-// getEngageActorSta is ...
-func (b *Battle) getEngageActorSta(actor IActor, amove IAmove) int {
-	sta := actor.GetStats().Sta
-	sta = amove.GetTechnique().GetUpdateStats().USta(sta, actor)
-	sta = amove.GetStyle().GetUpdateStats().USta(sta, actor)
-	sta = amove.GetStance().GetUpdateStats().USta(sta, actor)
-	sta = amove.GetUpdateStats().USta(sta, actor)
-	return int(sta)
+func (b *Battle) getEngageActorStat(name string, actor IActor, amove IAmove, args ...interface{}) int {
+	stat := actor.GetStats().Get(name)
+	stat = amove.GetTechnique().GetUpdateStats().Call(name, stat, actor, args...)
+	stat = amove.GetStyle().GetUpdateStats().Call(name, stat, actor, args...)
+	stat = amove.GetStance().GetUpdateStats().Call(name, stat, actor, args...)
+	stat = amove.GetUpdateStats().Call(name, stat, actor, args...)
+	return int(stat)
 }
 
 // ExecuteEngage is ...
 func (b *Battle) ExecuteEngage(orig IActor, origAmove IAmove, target IActor, targetAmove IAmove) {
-	str := b.getEngageActorStr(orig, origAmove)
-	sta := b.getEngageActorSta(target, targetAmove)
+	str := b.getEngageActorStat(StatStr, orig, origAmove)
+	sta := b.getEngageActorStat(StatSta, target, targetAmove)
 	tools.ToDisplay("Engage ATK: %s:%s:%d\n", orig.GetName(), origAmove.GetName(), str)
 	tools.ToDisplay("Engage DEF: %s:%s:%d\n", target.GetName(), targetAmove.GetName(), sta)
 }

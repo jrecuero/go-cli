@@ -8,6 +8,21 @@ import (
 // TStat represents ...
 type TStat int
 
+const (
+	// StatLix is the Life stat string representation.
+	StatLix = "lix"
+	// StatStr is the Strength stat string representation.
+	StatStr = "str"
+	// StatAgi is the Agiity stat string representation.
+	StatAgi = "agi"
+	// StatSta is the Stamina stat string representation.
+	StatSta = "sta"
+	// StatPre is the Precision stat string representation.
+	StatPre = "pre"
+	// StatFoc is the Focus stat string representation.
+	StatFoc = "foc"
+)
+
 // IntToTStat is ...
 func IntToTStat(val int) TStat {
 	return TStat(val)
@@ -26,6 +41,7 @@ type statPair struct {
 
 // Stats represents ...
 type Stats struct {
+	Lix TStat
 	Str TStat
 	Agi TStat
 	Sta TStat
@@ -33,9 +49,51 @@ type Stats struct {
 	Foc TStat
 }
 
-// Update is ...
-func (stats *Stats) Update(name string, stat TStat) *Stats {
+// Get is ...
+func (stats *Stats) Get(name string) TStat {
 	switch name {
+	case StatLix:
+		return stats.Lix
+	case StatStr:
+		return stats.Str
+	case StatAgi:
+		return stats.Agi
+	case StatSta:
+		return stats.Sta
+	case StatPre:
+		return stats.Pre
+	case StatFoc:
+		return stats.Foc
+	default:
+		panic(fmt.Sprintf("Unknown stat: %s", name))
+	}
+}
+
+// GetString is ...
+func (stats *Stats) GetString(name string) string {
+	switch name {
+	case StatLix:
+		return "Life"
+	case StatStr:
+		return "Strength"
+	case StatAgi:
+		return "Agility"
+	case StatSta:
+		return "Stamina"
+	case StatPre:
+		return "Precision"
+	case StatFoc:
+		return "Focus"
+	default:
+		panic(fmt.Sprintf("Unknown stat: %s", name))
+	}
+}
+
+// Set is ...
+func (stats *Stats) Set(name string, stat TStat) *Stats {
+	switch name {
+	case StatLix:
+		stats.Lix = stat
 	case StatStr:
 		stats.Str = stat
 	case StatAgi:
@@ -47,15 +105,15 @@ func (stats *Stats) Update(name string, stat TStat) *Stats {
 	case StatFoc:
 		stats.Foc = stat
 	default:
-		panic("Unknown stat")
+		panic(fmt.Sprintf("Unknown stat: %s", name))
 	}
 	return stats
 }
 
-// Updates is ...
-func (stats *Stats) Updates(entries []*statPair) *Stats {
+// Sets is ...
+func (stats *Stats) Sets(entries []*statPair) *Stats {
 	for _, statpair := range entries {
-		stats.Update(statpair.name, statpair.stat)
+		stats.Set(statpair.name, statpair.stat)
 	}
 	return stats
 }
@@ -63,6 +121,7 @@ func (stats *Stats) Updates(entries []*statPair) *Stats {
 // String is ...
 func (stats *Stats) String() string {
 	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("-->Lix: %d\n", stats.Lix))
 	buf.WriteString(fmt.Sprintf("-->Str: %d\n", stats.Str))
 	buf.WriteString(fmt.Sprintf("-->Agi: %d\n", stats.Agi))
 	buf.WriteString(fmt.Sprintf("-->Sta: %d\n", stats.Sta))
@@ -79,64 +138,61 @@ func NewStats() *Stats {
 // UStatCb represents ...
 type UStatCb func(TStat, IActor, ...interface{}) TStat
 
-const (
-	// StatStr is the Strength stat string representation.
-	StatStr = "str"
-	// StatAgi is the Agiity stat string representation.
-	StatAgi = "agi"
-	// StatSta is the Stamina stat string representation.
-	StatSta = "sta"
-	// StatPre is the Precision stat string representation.
-	StatPre = "pre"
-	// StatFoc is the Focus stat string representation.
-	StatFoc = "foc"
-)
-
 // UStats represents ...
 type UStats struct {
-	UStr UStatCb
-	UAgi UStatCb
-	USta UStatCb
-	UPre UStatCb
-	UFoc UStatCb
+	uLix UStatCb
+	uStr UStatCb
+	uAgi UStatCb
+	uSta UStatCb
+	uPre UStatCb
+	uFoc UStatCb
+}
+
+// Get is ...
+func (ustats *UStats) Get(name string) UStatCb {
+	switch name {
+	case StatLix:
+		return ustats.uLix
+	case StatStr:
+		return ustats.uStr
+	case StatAgi:
+		return ustats.uAgi
+	case StatSta:
+		return ustats.uSta
+	case StatPre:
+		return ustats.uPre
+	case StatFoc:
+		return ustats.uFoc
+	default:
+		panic(fmt.Sprintf("Unknown stat: %s", name))
+	}
 }
 
 // Set is ...
 func (ustats *UStats) Set(name string, ustatCb UStatCb) *UStats {
 	switch name {
+	case StatLix:
+		ustats.uLix = ustatCb
 	case StatStr:
-		ustats.UStr = ustatCb
+		ustats.uStr = ustatCb
 	case StatAgi:
-		ustats.UAgi = ustatCb
+		ustats.uAgi = ustatCb
 	case StatSta:
-		ustats.USta = ustatCb
+		ustats.uSta = ustatCb
 	case StatPre:
-		ustats.UPre = ustatCb
+		ustats.uPre = ustatCb
 	case StatFoc:
-		ustats.UFoc = ustatCb
+		ustats.uFoc = ustatCb
 	default:
-		return nil
+		panic(fmt.Sprintf("Unknown stat: %s", name))
 	}
 	return ustats
 }
 
-// Update is ...
-func (ustats *UStats) Update(name string, stat TStat, actor IActor, args ...interface{}) TStat {
-	switch name {
-	case StatStr:
-		return ustats.UStr(stat, actor, args...)
-	case StatAgi:
-		return ustats.UAgi(stat, actor, args...)
-	case StatSta:
-		return ustats.USta(stat, actor, args...)
-	case StatPre:
-		return ustats.UPre(stat, actor, args...)
-	case StatFoc:
-		return ustats.UFoc(stat, actor, args...)
-	default:
-		panic("Unknown stat")
-	}
-	return 0
+// Call is ...
+func (ustats *UStats) Call(name string, stat TStat, actor IActor, args ...interface{}) TStat {
+	cb := ustats.Get(name)
+	return cb(stat, actor, args...)
 }
 
 // plainStat is ...
@@ -147,11 +203,12 @@ func plainStat(stat TStat, actor IActor, args ...interface{}) TStat {
 // NewPlainUStats is ...
 func NewPlainUStats() *UStats {
 	return &UStats{
-		UStr: plainStat,
-		UAgi: plainStat,
-		USta: plainStat,
-		UPre: plainStat,
-		UFoc: plainStat,
+		uLix: plainStat,
+		uStr: plainStat,
+		uAgi: plainStat,
+		uSta: plainStat,
+		uPre: plainStat,
+		uFoc: plainStat,
 	}
 }
 
