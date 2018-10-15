@@ -3,6 +3,8 @@ create actor YOU "Main enemy"
 add-tech-to-actor ME Karate
 add-tech-to-actor YOU Boxeo
 update actor ME -str 50
+update actor ME -lix 100
 update actor YOU -sta 20
+update actor YOU -lix 50
 // Engage in battle.
 engage ME YOU

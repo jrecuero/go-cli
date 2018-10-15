@@ -17,7 +17,9 @@ func CreateTechKarate(args ...interface{}) (string, string, battle.TechniqueBuil
 		stanceKarateOneProtective := battle.NewStance("Protective", styleKarateOne)
 		stanceKarateTwoRelax := battle.NewStance("Relax", styleKarateTwo)
 		// Amoves
-		battle.NewAmove("Punch", stanceKarateOneAggressive)
+		battle.NewAmove("Punch", stanceKarateOneAggressive).GetUpdateStats().Set(battle.StatStr, func(stat battle.TStat, actor battle.IActor, args ...interface{}) battle.TStat {
+			return stat * 1.2
+		})
 		battle.NewAmove("Block", stanceKarateOneProtective)
 		battle.NewAmove("Taunt", stanceKarateTwoRelax)
 		return karate
@@ -35,7 +37,13 @@ func CreateTechBoxeo(args ...interface{}) (string, string, battle.TechniqueBuild
 		styleBoxeoClassic := battle.NewStyle("Classic", boxeo)
 		// Stances
 		stanceBoxeoClassicBasic := battle.NewStance("Basic", styleBoxeoClassic)
+		stanceBoxeoClassicBasic.GetUpdateStats().Set(battle.StatSta, func(stat battle.TStat, actor battle.IActor, args ...interface{}) battle.TStat {
+			return stat * 1.25
+		})
 		// Amoves
+		battle.NewAmove("Block", stanceBoxeoClassicBasic).GetUpdateStats().Set(battle.StatSta, func(stat battle.TStat, actor battle.IActor, args ...interface{}) battle.TStat {
+			return stat * 1.5
+		})
 		battle.NewAmove("UpperCut", stanceBoxeoClassicBasic)
 		return boxeo
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 // TStat represents ...
-type TStat int
+type TStat float32
 
 const (
 	// StatLix is the Life stat string representation.

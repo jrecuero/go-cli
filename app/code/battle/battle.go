@@ -132,13 +132,13 @@ func (b *Battle) SelectAmove(orig IActor, mode Amode) IAmove {
 }
 
 // getEngageActorStr is ...
-func (b *Battle) getEngageActorStat(name string, actor IActor, amove IAmove, args ...interface{}) int {
+func (b *Battle) getEngageActorStat(name string, actor IActor, amove IAmove, args ...interface{}) TStat {
 	stat := actor.GetStats().Get(name)
 	stat = amove.GetTechnique().GetUpdateStats().Call(name, stat, actor, args...)
 	stat = amove.GetStyle().GetUpdateStats().Call(name, stat, actor, args...)
 	stat = amove.GetStance().GetUpdateStats().Call(name, stat, actor, args...)
 	stat = amove.GetUpdateStats().Call(name, stat, actor, args...)
-	return int(stat)
+	return stat
 }
 
 // ExecuteEngage is ...
@@ -152,9 +152,9 @@ func (b *Battle) ExecuteEngage(orig IActor, origAmove IAmove, target IActor, tar
 		}
 		target.GetStats().Set(StatLix, targetLix)
 	}
-	tools.ToDisplay("Engage ATK: %s:%s:%d\n", orig.GetName(), origAmove.GetName(), str)
-	tools.ToDisplay("Engage DEF: %s:%s:%d\n", target.GetName(), targetAmove.GetName(), sta)
-	tools.ToDisplay("Target LIX: %s:%d\n", target.GetName(), target.GetStats().Get(StatLix))
+	tools.ToDisplay("Engage ATK: %s:%s:%.2f\n", orig.GetName(), origAmove.GetName(), str)
+	tools.ToDisplay("Engage DEF: %s:%s:%.2f\n", target.GetName(), targetAmove.GetName(), sta)
+	tools.ToDisplay("Target LIX: %s:%.2f\n", target.GetName(), target.GetStats().Get(StatLix))
 }
 
 // NewBattle is ...

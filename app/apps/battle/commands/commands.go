@@ -190,7 +190,7 @@ func (s *selector) SelectAmove(args ...interface{}) battle.IAmove {
 	if mode == battle.AmodeAttack {
 		amove = actor.GetAmoveByName("Punch")
 	} else if mode == battle.AmodeDefence {
-		amove = actor.GetAmoveByName("UpperCut")
+		amove = actor.GetAmoveByName("Block")
 	}
 	//tools.ToDisplay("select-amove %s:%#v %#v\n", actor.GetName(), mode, amove)
 	return amove
@@ -379,7 +379,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 
 	updateActorCommand := syntax.NewCommand(
 		updateCommand,
-		"actor actor-name [str | agi | sta | pre | foc]+",
+		"actor actor-name [lix | str | agi | sta | pre | foc]+",
 		"Update actor stat",
 		[]*syntax.Argument{
 			syntax.NewArgument(
@@ -389,6 +389,7 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 				"string",
 				"none",
 				nil),
+			syntax.NewArgument("lix", "Actor life", nil, "int", 0, nil),
 			syntax.NewArgument("str", "Actor strength", nil, "int", 0, nil),
 			syntax.NewArgument("agi", "Actor agility", nil, "int", 0, nil),
 			syntax.NewArgument("sta", "Actor stamina", nil, "int", 0, nil),
@@ -400,25 +401,29 @@ func SetupCommands(bt *battle.Battle) []*syntax.Command {
 		params := arguments.(map[string]interface{})
 		actorName := params["actor-name"].(string)
 		if actor := bt.GetActorByName(actorName); actor != nil {
+			if params["-lix"] != nil {
+				tools.ToDisplay("update actor:%s life to %d\n", actorName, params["lix"].(int))
+				actor.GetStats().Set(battle.StatLix, battle.InterfaceToTStat(params["lix"]))
+			}
 			if params["-str"] != nil {
 				tools.ToDisplay("update actor:%s strength to %d\n", actorName, params["str"].(int))
-				actor.GetStats().Str = battle.InterfaceToTStat(params["str"])
+				actor.GetStats().Set(battle.StatStr, battle.InterfaceToTStat(params["str"]))
 			}
 			if params["-agi"] != nil {
 				tools.ToDisplay("update actor:%s agility to %d\n", actorName, params["agi"].(int))
-				actor.GetStats().Agi = battle.InterfaceToTStat(params["agi"])
+				actor.GetStats().Set(battle.StatAgi, battle.InterfaceToTStat(params["agi"]))
 			}
 			if params["-sta"] != nil {
 				tools.ToDisplay("update actor:%s stamina to %d\n", actorName, params["sta"].(int))
-				actor.GetStats().Sta = battle.InterfaceToTStat(params["sta"])
+				actor.GetStats().Set(battle.StatSta, battle.InterfaceToTStat(params["sta"]))
 			}
 			if params["-pre"] != nil {
 				tools.ToDisplay("update actor:%s precission to %d\n", actorName, params["pre"].(int))
-				actor.GetStats().Pre = battle.InterfaceToTStat(params["pre"])
+				actor.GetStats().Set(battle.StatPre, battle.InterfaceToTStat(params["pre"]))
 			}
 			if params["-foc"] != nil {
 				tools.ToDisplay("update actor:%s focus to %d\n", actorName, params["foc"].(int))
-				actor.GetStats().Foc = battle.InterfaceToTStat(params["foc"])
+				actor.GetStats().Set(battle.StatFoc, battle.InterfaceToTStat(params["foc"]))
 			}
 			tools.ToDisplay("actor stats: %#v\n", actor.GetStats())
 		}
