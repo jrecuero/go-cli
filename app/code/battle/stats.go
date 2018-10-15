@@ -33,8 +33,8 @@ func InterfaceToTStat(val interface{}) TStat {
 	return TStat(val.(int))
 }
 
-// statPair represents ...
-type statPair struct {
+// StatPair represents ...
+type StatPair struct {
 	name string
 	stat TStat
 }
@@ -111,7 +111,7 @@ func (stats *Stats) Set(name string, stat TStat) *Stats {
 }
 
 // Sets is ...
-func (stats *Stats) Sets(entries []*statPair) *Stats {
+func (stats *Stats) Sets(entries []*StatPair) *Stats {
 	for _, statpair := range entries {
 		stats.Set(statpair.name, statpair.stat)
 	}

@@ -28,8 +28,25 @@ func newHero(name string, desc string) battle.IActor {
 }
 
 // newGansta is ...
-func newGansta(name string) battle.IActor {
-	return battle.NewActor(name, "This is a gansta!", battle.NewStats())
+func newGansta(name string, desc string) battle.IActor {
+	if desc == "" {
+		desc = "This is a gansta"
+	}
+	stats := battle.NewStats()
+	stats.Set(battle.StatLix, 50)
+	stats.Set(battle.StatStr, 5)
+	stats.Set(battle.StatAgi, 5)
+	stats.Set(battle.StatSta, 5)
+	stats.Set(battle.StatPre, 5)
+	stats.Set(battle.StatFoc, 5)
+	actor := battle.NewActor(name, desc, stats)
+	_, _, techBuilder := techs.CreateTechBoxeo()
+	actor.AddTechnique(techBuilder())
+	actor.SetStyle(actor.GetStyleByName("Classic"))
+	actor.SetStance(actor.GetStanceByName("Basic"))
+	actor.SetAmove(actor.GetAmoveByName("UpperCut"))
+	actor.SetDefaultAsTechnique()
+	return actor
 }
 
 // newBoss is ...
@@ -53,7 +70,7 @@ func CreateCastingActor(castingName string, name string, desc string) battle.IAc
 	case "Hero":
 		return newHero(name, desc)
 	case "Gansta":
-		return newGansta(name)
+		return newGansta(name, desc)
 	case "Boss:Joker":
 		return newBoss("Joker")
 	case "Boss:Ocotopus":

@@ -145,8 +145,16 @@ func (b *Battle) getEngageActorStat(name string, actor IActor, amove IAmove, arg
 func (b *Battle) ExecuteEngage(orig IActor, origAmove IAmove, target IActor, targetAmove IAmove) {
 	str := b.getEngageActorStat(StatStr, orig, origAmove)
 	sta := b.getEngageActorStat(StatSta, target, targetAmove)
+	if damage := str - sta; damage > 0 {
+		targetLix := target.GetStats().Get(StatLix) - TStat(damage)
+		if targetLix < 0 {
+			targetLix = 0
+		}
+		target.GetStats().Set(StatLix, targetLix)
+	}
 	tools.ToDisplay("Engage ATK: %s:%s:%d\n", orig.GetName(), origAmove.GetName(), str)
 	tools.ToDisplay("Engage DEF: %s:%s:%d\n", target.GetName(), targetAmove.GetName(), sta)
+	tools.ToDisplay("Target LIX: %s:%d\n", target.GetName(), target.GetStats().Get(StatLix))
 }
 
 // NewBattle is ...
