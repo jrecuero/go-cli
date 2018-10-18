@@ -51,8 +51,11 @@ func (n *Node) AddChild(child *Node) bool {
 
 // PrependChild adds a new child node first in the array.
 func (n *Node) PrependChild(child *Node) bool {
-	n.Children = append([]*Node{child}, n.Children...)
-	return true
+	if n.AllowChildren {
+		n.Children = append([]*Node{child}, n.Children...)
+		return true
+	}
+	return false
 }
 
 // IsIn checks if the node is in the given array.
